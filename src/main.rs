@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap, path::Path};
+use std::path::Path;
 
 use ca_ast::Program;
 use ca_backend_llvm::{
@@ -54,7 +54,14 @@ fn main() {
 }
 #[cfg(test)]
 mod tests {
-    use ca_backend_llvm::{Compiler, inkwell::{context::Context, execution_engine::{JitFunction, UnsafeFunctionPointer}, targets::{InitializationConfig, Target}}};
+    use ca_backend_llvm::{
+        inkwell::{
+            context::Context,
+            execution_engine::{JitFunction, UnsafeFunctionPointer},
+            targets::{InitializationConfig, Target},
+        },
+        Compiler,
+    };
     fn framework<'a, F: UnsafeFunctionPointer>(
         source: &'a str,
         function_name: &'a str,
@@ -67,7 +74,7 @@ mod tests {
         compiler.module.print_to_stderr();
         match compiler.module.verify() {
             Ok(_) => println!("Validated fine"),
-            Err(e) => eprintln!("Could not validate {}", e)
+            Err(e) => eprintln!("Could not validate {}", e),
         }
         Target::initialize_all(&InitializationConfig::default());
         // compiler.execution_engine.add_module(&compiler.module).unwrap();
@@ -81,14 +88,12 @@ mod tests {
         println!("before frame");
         let add = framework::<unsafe extern "C" fn(u32, u32) -> u32>(w, "add");
         println!("after frame");
-        
+
         unsafe {
             assert_eq!(add.call(2, 4), 2 + 4);
             assert_eq!(add.call(2, 4), 2 + 4);
             assert_ne!(add.call(2, 4), 8);
-
         }
         std::mem::forget(add);
-
     }
 }
