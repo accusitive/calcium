@@ -1,0 +1,19 @@
+
+struct TwoInts  {
+    left: i32
+    right: i32
+}
+i32 add 'left: i32, 'right: i32 {
+    let  i: i32 = 2 + right
+    let i2: i32 = i
+    let i3: i32 = i2 + i + left
+    {
+        let x: i32 = 5
+    }
+    return left + sub(right, 2)
+}
+bool comp 'val: i32, 'val2: i32 {
+    let i: bool = val < val2
+    return i
+}
+i32 sub 'left: i32, 'right: i32 { return left - right }

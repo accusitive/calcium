@@ -1,0 +1,6 @@
+i32 entry {
+   let v = {
+       val
+   }
+    return {v}
+}
