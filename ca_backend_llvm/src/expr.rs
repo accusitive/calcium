@@ -1,4 +1,7 @@
-use crate::Compiler;
+use ca_ast::Expr;
+use inkwell::values::BasicValueEnum;
+
+use crate::{Compiler, LocalVariable};
 
 impl<'a> Compiler<'a> {
     pub fn compile_expr(&self, e: &Expr) -> BasicValueEnum<'a> {

@@ -3,7 +3,7 @@ mod stmt;
 
 use std::{cell::RefCell, collections::HashMap};
 
-use ca_ast::{Expr, Function, FunctionArg, Item, Program, Stmt, Struct, Ty};
+use ca_ast::{Expr, Function, FunctionArg, Item, Program, Struct, Ty};
 pub use inkwell;
 use inkwell::{
     builder::Builder,

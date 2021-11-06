@@ -1,4 +1,7 @@
-use crate::Compiler;
+use ca_ast::Stmt;
+use inkwell::values::BasicValueEnum;
+
+use crate::{Compiler, LocalVariable};
 
 impl<'a> Compiler<'a> {
     pub fn compile_stmt(&self, stmt: &Stmt) -> BasicValueEnum<'a> {
