@@ -1,11 +1,11 @@
 [package]
-name = "calcium"
+name = "ca_backend_llvm"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ca_ast = {path = "./ca_ast"}
-ca_parser = {path = "./ca_parser"}
-ca_backend_llvm = {path="./ca_backend_llvm"}
+ca_ast = {path="../ca_ast"}
+
+inkwell = "0.1.0-llvm8sample"

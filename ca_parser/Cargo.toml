@@ -1,11 +1,14 @@
 [package]
-name = "calcium"
+name = "ca_parser"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ca_ast = {path = "./ca_ast"}
-ca_parser = {path = "./ca_parser"}
-ca_backend_llvm = {path="./ca_backend_llvm"}
+lalrpop-util = {version = "0.19.6", features=["lexer"]}
+regex = "1"
+ca_ast = {path="../ca_ast"}
+
+[build-dependencies]
+lalrpop = "0.19.6"
