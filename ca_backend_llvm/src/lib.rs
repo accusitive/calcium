@@ -75,16 +75,19 @@ impl<'a> Compiler<'a> {
                     self.compile_stmt(stmt);
                 }
                 *self.depth.borrow_mut() -= 1;
-                // self.local_variables
-                //     .borrow_mut()
-                //     .drain_filter(|lv| lv.depth >= *self.depth.borrow())
-                //     .for_each(drop);
+                // Remove all local variables that was inside block.
                 let mut borrow = self.local_variables.borrow_mut();
-                let (drained, remaining): (Vec<&LocalVariable>, Vec<&LocalVariable>) = borrow.iter().partition(|lv|lv.depth >= *self.depth.borrow());
+                let (_drained, remaining): (Vec<&LocalVariable>, Vec<&LocalVariable>) = borrow
+                    .iter()
+                    .partition(|lv| lv.depth >= *self.depth.borrow());
 
-                let remaining_owned: Vec<LocalVariable> = remaining.clone().into_iter().map(|l| l.to_owned()).collect();
+                let remaining_owned: Vec<LocalVariable> = remaining
+                    .clone()
+                    .into_iter()
+                    .map(|l| l.to_owned())
+                    .collect();
                 *borrow = remaining_owned;
-            //    let new =  self.local_variables.borrow().iter().filter(|lv| lv.depth >= *self.depth.borrow()).collect::<Vec<LocalVariable>>();
+
                 *compiled
                     .last()
                     .unwrap_or(&inkwell::values::BasicValueEnum::StructValue(
