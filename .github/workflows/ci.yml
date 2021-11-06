@@ -9,15 +9,16 @@ on:
       - main
 
 jobs:
-  - name: Stable with rustfmt and clippy
-  uses: actions-rs/toolchain@v1
-  with:
-    profile: minimal
-    toolchain: stable
-    components: rustfmt, clippy
-  - name: Annotate commit with clippy warnings
-  uses: actions-rs/clippy-check@v1
-  with:
-    token: ${{ secrets.GITHUB_TOKEN }}
-    args: --all-features
+  CI:
+    - name: Stable with rustfmt and clippy
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        components: rustfmt, clippy
+    - name: Annotate commit with clippy warnings
+      uses: actions-rs/clippy-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        args: --all-features
                                    
