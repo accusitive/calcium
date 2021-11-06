@@ -41,7 +41,11 @@ pub enum Ty {
 }
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Stmt {
-    LetStmt { name: String, ty: Option<Ty>, value: Expr },
+    LetStmt {
+        name: String,
+        ty: Option<Ty>,
+        value: Expr,
+    },
     ExprStmt(Expr),
     Return(Box<Expr>),
 }
@@ -53,7 +57,7 @@ pub enum Expr {
     Ident(String),
     UnaryOp(UnaryOp, Box<Expr>),
     Call(String, Vec<Expr>),
-    If(Box<Expr>, Box<Expr>, Box<Expr>)
+    If(Box<Expr>, Box<Expr>, Box<Expr>),
 }
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Op {
@@ -66,7 +70,8 @@ pub enum Op {
     Xor,
     And,
     Or,
-    Lt, Gt
+    Lt,
+    Gt,
 }
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum UnaryOp {

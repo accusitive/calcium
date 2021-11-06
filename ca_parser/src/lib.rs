@@ -1,6 +1,6 @@
 use lalrpop_util::lalrpop_mod;
 
-lalrpop_mod!(pub gram); 
+lalrpop_mod!(pub gram);
 
 #[test]
 pub fn struct_field() {
@@ -10,7 +10,5 @@ pub fn struct_field() {
 }
 #[test]
 pub fn function_param() {
-   gram::FunctionArgParser::new()
-        .parse("'a: Int")
-        .unwrap();
+    gram::FunctionArgParser::new().parse("'a: Int").unwrap();
 }

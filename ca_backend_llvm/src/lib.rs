@@ -3,7 +3,15 @@ use std::{cell::RefCell, collections::HashMap, sync::Arc};
 
 use ca_ast::{Expr, Function, FunctionArg, Item, Program, Stmt, Struct, Ty};
 pub use inkwell;
-use inkwell::{OptimizationLevel, builder::Builder, context::{Context, ContextRef}, execution_engine::ExecutionEngine, module::Module, types::{BasicType, BasicTypeEnum, StructType}, values::{BasicValueEnum, FunctionValue}};
+use inkwell::{
+    builder::Builder,
+    context::{Context, ContextRef},
+    execution_engine::ExecutionEngine,
+    module::Module,
+    types::{BasicType, BasicTypeEnum, StructType},
+    values::{BasicValueEnum, FunctionValue},
+    OptimizationLevel,
+};
 pub struct Compiler<'a> {
     pub module: Module<'a>,
     pub context: &'a Context,
@@ -25,7 +33,7 @@ pub struct LocalVariable<'a> {
     name: String,
 }
 impl<'a> Compiler<'a> {
-    pub fn new_compiler<'b> (p: Program, context: &'b Context) -> Compiler<'b>{
+    pub fn new_compiler<'b>(p: Program, context: &'b Context) -> Compiler<'b> {
         // let context = Context::create();
         let module = context.create_module("module");
         let execution_engine = module
@@ -73,8 +81,11 @@ impl<'a> Compiler<'a> {
                     .borrow_mut()
                     .drain_filter(|lv| lv.depth >= *self.depth.borrow())
                     .for_each(drop);
-                *compiled.last().unwrap_or(&inkwell::values::BasicValueEnum::StructValue(self.unit_ty().const_named_struct(&[])))
-                
+                *compiled
+                    .last()
+                    .unwrap_or(&inkwell::values::BasicValueEnum::StructValue(
+                        self.unit_ty().const_named_struct(&[]),
+                    ))
             }
             Expr::BinOp(l, op, r) => {
                 let left = self.compile_expr(l);
@@ -121,11 +132,16 @@ impl<'a> Compiler<'a> {
                     None => {
                         let borrow_mut = self.function_arg_names.borrow_mut();
                         let current_function_value = self.current_function.borrow().unwrap();
-                        let current_function_name = current_function_value.get_name().to_str().unwrap();
-                        let index = borrow_mut.get(current_function_name).unwrap().get(i).expect(&format!(
-                            "No local variable or function parameter `{}` found.",
-                            i
-                        ));
+                        let current_function_name =
+                            current_function_value.get_name().to_str().unwrap();
+                        let index = borrow_mut
+                            .get(current_function_name)
+                            .unwrap()
+                            .get(i)
+                            .expect(&format!(
+                                "No local variable or function parameter `{}` found.",
+                                i
+                            ));
                         let fa = self
                             .current_function
                             .borrow()
@@ -161,7 +177,6 @@ impl<'a> Compiler<'a> {
                 let elze_block = self.context.append_basic_block(function, "elze");
                 let cont = self.context.append_basic_block(function, "cont");
 
-
                 self.builder.position_at_end(then_block);
                 let thenv = self.compile_expr(then);
                 println!("ThenV {:#?}", then);
@@ -175,8 +190,9 @@ impl<'a> Compiler<'a> {
 
                 self.builder.position_at_end(entry);
 
-                self.builder.build_conditional_branch(cmp.into_int_value(), then_block, elze_block);
-                
+                self.builder
+                    .build_conditional_branch(cmp.into_int_value(), then_block, elze_block);
+
                 self.builder.position_at_end(cont);
 
                 let pn = self.builder.build_phi(self.context.i32_type(), "pn");
@@ -270,7 +286,7 @@ impl<'a> Compiler<'a> {
             }
             Ty::Int32 => inkwell::types::BasicTypeEnum::IntType(self.context.i32_type()),
             Ty::Unit => inkwell::types::BasicTypeEnum::StructType(self.unit_ty()),
-            Ty::Bool => inkwell::types::BasicTypeEnum::IntType(self.context.bool_type())
+            Ty::Bool => inkwell::types::BasicTypeEnum::IntType(self.context.bool_type()),
         }
     }
 
