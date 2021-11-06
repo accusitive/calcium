@@ -14,24 +14,7 @@ fn main() {
     let p: Program = ca_parser::gram::ProgramParser::new().parse(&w).unwrap();
     println!("Program {:#?}", p);
     let context = ca_backend_llvm::inkwell::context::Context::create();
-    let module = context.create_module("module");
-    let execution_engine = module
-        .create_jit_execution_engine(ca_backend_llvm::inkwell::OptimizationLevel::None)
-        .unwrap();
-    let builder = context.create_builder();
-    let compiler = Compiler {
-        context: &context,
-        module: module,
-        builder: builder,
-        execution_engine: execution_engine,
-        program: p,
-        types: RefCell::new(HashMap::new()),
-        function_arg_names: RefCell::new(HashMap::new()),
-        current_function: Default::default(),
-        depth: RefCell::new(0),
-        local_variables: RefCell::new(Vec::new()),
-        functions: RefCell::new(HashMap::new()),
-    };
+    let compiler = Compiler::new_compiler(p, &context);
     compiler.pre_compile();
     compiler.compile_program();
     compiler.module.print_to_stderr();
@@ -71,13 +54,7 @@ fn main() {
 }
 #[cfg(test)]
 mod tests {
-    use ca_backend_llvm::{
-        inkwell::{
-            context::Context,
-            execution_engine::{JitFunction, UnsafeFunctionPointer},
-        },
-        Compiler,
-    };
+    use ca_backend_llvm::{Compiler, inkwell::{context::Context, execution_engine::{JitFunction, UnsafeFunctionPointer}, targets::{InitializationConfig, Target}}};
     fn framework<'a, F: UnsafeFunctionPointer>(
         source: &'a str,
         function_name: &'a str,
@@ -87,6 +64,13 @@ mod tests {
         let compiler = Compiler::new_compiler(program, context);
         compiler.pre_compile();
         compiler.compile_program();
+        compiler.module.print_to_stderr();
+        match compiler.module.verify() {
+            Ok(_) => println!("Validated fine"),
+            Err(e) => eprintln!("Could not validate {}", e)
+        }
+        Target::initialize_all(&InitializationConfig::default());
+        // compiler.execution_engine.add_module(&compiler.module).unwrap();
         let f: JitFunction<F> =
             unsafe { compiler.execution_engine.get_function(function_name) }.unwrap();
         f
@@ -95,12 +79,16 @@ mod tests {
     fn test_add() {
         let w = include_str!("../tests/add.ca");
         println!("before frame");
-        let add = framework::<unsafe extern "C" fn(i32, i32) -> i32>(w, "add");
+        let add = framework::<unsafe extern "C" fn(u32, u32) -> u32>(w, "add");
         println!("after frame");
-
+        
         unsafe {
             assert_eq!(add.call(2, 4), 2 + 4);
             assert_eq!(add.call(2, 4), 2 + 4);
+            assert_ne!(add.call(2, 4), 8);
+
         }
+        std::mem::forget(add);
+
     }
 }

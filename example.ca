@@ -1,6 +1,10 @@
-i32 entry {
+i32 entry 'val: i32 {
    let v = {
        val
    }
-    return {v}
+    return add(2,4)
+}
+
+i32 add 'left: i32, 'right: i32 {
+    return left + right
 }
