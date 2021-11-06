@@ -1,11 +1,11 @@
 #![feature(drain_filter)]
-use std::{cell::RefCell, collections::HashMap, sync::Arc};
+use std::{cell::RefCell, collections::HashMap};
 
 use ca_ast::{Expr, Function, FunctionArg, Item, Program, Stmt, Struct, Ty};
 pub use inkwell;
 use inkwell::{
     builder::Builder,
-    context::{Context, ContextRef},
+    context::{Context},
     execution_engine::ExecutionEngine,
     module::Module,
     types::{BasicType, BasicTypeEnum, StructType},
@@ -34,7 +34,6 @@ pub struct LocalVariable<'a> {
 }
 impl<'a> Compiler<'a> {
     pub fn new_compiler<'b>(p: Program, context: &'b Context) -> Compiler<'b> {
-        // let context = Context::create();
         let module = context.create_module("module");
         let execution_engine = module
             .create_jit_execution_engine(OptimizationLevel::None)
@@ -200,9 +199,7 @@ impl<'a> Compiler<'a> {
                 pn.add_incoming(&[(&elzev, elze_block)]);
 
                 pn.as_basic_value()
-                // BasicValueEnum::StructValue(self.unit_ty().const_named_struct(&[]))
             }
-            _ => todo!(),
         }
     }
     pub fn compile_stmt(&self, stmt: &Stmt) -> BasicValueEnum<'a> {
