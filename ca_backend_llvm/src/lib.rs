@@ -1,4 +1,3 @@
-#![feature(drain_filter)]
 use std::{cell::RefCell, collections::HashMap};
 
 use ca_ast::{Expr, Function, FunctionArg, Item, Program, Stmt, Struct, Ty};
@@ -26,7 +25,7 @@ pub struct Compiler<'a> {
     pub depth: RefCell<u32>,
     pub functions: RefCell<HashMap<String, FunctionValue<'a>>>,
 }
-
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct LocalVariable<'a> {
     value: BasicValueEnum<'a>,
     depth: u32,
@@ -76,10 +75,16 @@ impl<'a> Compiler<'a> {
                     self.compile_stmt(stmt);
                 }
                 *self.depth.borrow_mut() -= 1;
-                self.local_variables
-                    .borrow_mut()
-                    .drain_filter(|lv| lv.depth >= *self.depth.borrow())
-                    .for_each(drop);
+                // self.local_variables
+                //     .borrow_mut()
+                //     .drain_filter(|lv| lv.depth >= *self.depth.borrow())
+                //     .for_each(drop);
+                let mut borrow = self.local_variables.borrow_mut();
+                let (drained, remaining): (Vec<&LocalVariable>, Vec<&LocalVariable>) = borrow.iter().partition(|lv|lv.depth >= *self.depth.borrow());
+
+                let remaining_owned: Vec<LocalVariable> = remaining.clone().into_iter().map(|l| l.to_owned()).collect();
+                *borrow = remaining_owned;
+            //    let new =  self.local_variables.borrow().iter().filter(|lv| lv.depth >= *self.depth.borrow()).collect::<Vec<LocalVariable>>();
                 *compiled
                     .last()
                     .unwrap_or(&inkwell::values::BasicValueEnum::StructValue(

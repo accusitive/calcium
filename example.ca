@@ -2,7 +2,11 @@ i32 entry 'val: i32 {
    let v = {
        val
    }
-    return add(2,4)
+   {
+       let oooo = 5
+   }
+   let oooo = 2
+    return add(2,oooo)
 }
 
 i32 add 'left: i32, 'right: i32 {
