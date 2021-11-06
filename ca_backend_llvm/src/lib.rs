@@ -5,7 +5,7 @@ use ca_ast::{Expr, Function, FunctionArg, Item, Program, Stmt, Struct, Ty};
 pub use inkwell;
 use inkwell::{
     builder::Builder,
-    context::{Context},
+    context::Context,
     execution_engine::ExecutionEngine,
     module::Module,
     types::{BasicType, BasicTypeEnum, StructType},
