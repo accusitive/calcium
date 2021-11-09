@@ -107,7 +107,7 @@ use ca_parser_bison::{lexer::Lexer, parser::Parser};
 //     fn test_fib() {
 //         let w = include_str!("../tests/fib.ca");
 //         let jit_fib = framework::<unsafe extern "C" fn(i32) -> i32>(w, "fib");
-//         unsafe {           
+//         unsafe {
 //             assert_eq!(jit_fib.call(2), fib(2));
 //             assert_eq!(jit_fib.call(4), fib(4));
 //             assert_eq!(jit_fib.call(12), fib(12));
@@ -119,11 +119,10 @@ use ca_parser_bison::{lexer::Lexer, parser::Parser};
 //     }
 // }
 
-
 fn main() {
     // let driver = ca_driver::Driver{};
     let source = "i32 add(i32 left i32 right)";
     let lexer = Lexer::new(source);
     let parser = Parser::new(lexer, "Cheese");
-    let result = parser.do_parse();  
+    let _result = parser.do_parse();
 }

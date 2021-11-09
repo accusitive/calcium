@@ -1,6 +1,5 @@
 use crate::{loc::Loc, token::Token};
 
-
 /// Lexer struct.
 /// Converts `&'static str` into a list of tokens
 #[derive(Debug)]

@@ -1,4 +1,3 @@
-
 fn main() {
     match process_bison_file(Path::new("src/parser.y")) {
         Ok(_) => {}
@@ -9,7 +8,6 @@ fn main() {
     }
     println!("cargo:rerun-if-changed=src/parser.y");
 }
-
 
 use std::error::Error;
 use std::fmt;
@@ -39,8 +37,7 @@ pub fn process_bison_file(filepath: &Path) -> Result<(), BisonErr> {
     // let mut output = PathBuf::from(&out_dir);
     // output.push("out.rs");
 
-    let bison_root_dir = PathBuf::new()
-        .join("bison");
+    let bison_root_dir = PathBuf::new().join("bison");
     println!("Bsion root dir {:?}", bison_root_dir);
     let bison_root_file = bison_root_dir.join("main.m4");
 
