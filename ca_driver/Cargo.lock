@@ -3,17 +3,12 @@
 version = 3
 
 [[package]]
-name = "ca_ast"
+name = "ca_driver"
 version = "0.1.0"
+dependencies = [
+ "ca_parser_bison",
+]
 
 [[package]]
 name = "ca_parser_bison"
 version = "0.37.0"
-
-[[package]]
-name = "calcium"
-version = "0.1.0"
-dependencies = [
- "ca_ast",
- "ca_parser_bison",
-]

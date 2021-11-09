@@ -1,2 +1,2 @@
 [workspace]
-members = ["ca_parser", "ca_ast"]
+members = [ "ca_ast", "ca_parser_bison", "ca_driver", "ca_backend_llvm"]

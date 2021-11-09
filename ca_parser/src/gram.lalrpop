@@ -88,7 +88,7 @@ pub IfExpr: Expr = {
     "if" <predicate:ExprWithMath> <then:Expr> "else" <elze:Expr> => Expr::If(Box::new(predicate), Box::new(then), Box::new(elze))
 }
 pub CallExpr: Expr = {
-    <name: IdentExpr> "(" <body:Comma<Expr>> ")" => Expr::Call(name.assume_ident(), body)
+    <name: IdentExpr> "(" <body:Comma<Expr>?> ")" => Expr::Call(name.assume_ident(), body)
 }
 pub IdentExpr: Expr = {
     Identifier => Expr::Ident(<>),

@@ -116,7 +116,7 @@ impl<'a> Compiler<'a> {
                 let f = borrow
                     .get(name)
                     .expect(&format!("Function `{}` not found.", name));
-                let args = args
+                let args = args.as_ref().unwrap()
                     .iter()
                     .map(|e| self.compile_expr(e))
                     .collect::<Vec<_>>();
@@ -129,11 +129,16 @@ impl<'a> Compiler<'a> {
             Expr::If(predicate, then, elze) => {
                 let cmp = self.compile_expr(predicate);
                 let function = self.current_function.borrow().unwrap();
-                let entry = function.get_last_basic_block().unwrap();
+                // let entry = function.ins().unwrap();
+                
 
                 let then_block = self.context.append_basic_block(function, "then");
                 let elze_block = self.context.append_basic_block(function, "elze");
                 let cont = self.context.append_basic_block(function, "cont");
+    
+                self.builder
+                    .build_conditional_branch(cmp.into_int_value(), then_block, elze_block);
+
 
                 self.builder.position_at_end(then_block);
                 let thenv = self.compile_expr(then);
@@ -146,11 +151,7 @@ impl<'a> Compiler<'a> {
 
                 self.builder.build_unconditional_branch(cont);
 
-                self.builder.position_at_end(entry);
-
-                self.builder
-                    .build_conditional_branch(cmp.into_int_value(), then_block, elze_block);
-
+                
                 self.builder.position_at_end(cont);
 
                 let pn = self.builder.build_phi(self.context.i32_type(), "pn");

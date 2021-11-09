@@ -1,0 +1,11 @@
+i32 fib 'num: i32 {
+    let r = if num < 2 {
+        num
+    } else {
+        let n1 = num - 1
+        let n2 = num -2
+        let x = fib(n1) + fib(n2)
+        x
+    }
+    return r
+}

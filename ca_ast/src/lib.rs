@@ -56,7 +56,7 @@ pub enum Expr {
     BinOp(Box<Expr>, Op, Box<Expr>),
     Ident(String),
     UnaryOp(UnaryOp, Box<Expr>),
-    Call(String, Vec<Expr>),
+    Call(String, Option<Vec<Expr>>),
     If(Box<Expr>, Box<Expr>, Box<Expr>),
 }
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]

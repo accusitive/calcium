@@ -1,14 +1,5 @@
-i32 entry 'val: i32 {
-   let v = {
-       val
-   }
-   {
-       let oooo = 5
-   }
-   let oooo = 2
-    return add(2,oooo)
-}
+i32 entry 'val: i32 {return somefunc(,) }
 
-i32 add 'left: i32, 'right: i32 {
-    return left + right
+i32 somefunc {
+    return 0
 }

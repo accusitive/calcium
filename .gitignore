@@ -2,3 +2,5 @@
 ca_ast/target
 ca_parser/target
 ca_backend_llvm/target
+ca_driver/target
+out.o
