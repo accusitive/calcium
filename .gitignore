@@ -1,6 +1,9 @@
 /target
 ca_ast/target
 ca_parser/target
+ca_parser_bison/target
+ca_lexer_flex/target
+ca_lexer/target
 ca_backend_llvm/target
 ca_driver/target
 out.o

@@ -51,7 +51,8 @@ impl Lexer {
             b')' => (Self::tRPAREN, -1),
             b'E' => (Self::tERROR, -1),
             b'A' => (Self::tABORT, -1),
-            b'C' => (Self::tACCEPT, -1),
+            b'C' => (Self::ACCEPT, -1),
+
             b' ' => return self.yylex(),
             other => panic!("unknown char {}", other as char),
         };

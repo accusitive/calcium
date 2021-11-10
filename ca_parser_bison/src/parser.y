@@ -32,9 +32,11 @@
     tLPAREN "("
     tRPAREN ")"
     tNUM    "number"
+    tFN     "fn"
     tERROR  "controlled YYERROR"
     tABORT  "controlled YYABORT"
     tACCEPT "controlled YYACCEPT"
+
 
 %left "-" "+"
 %left "*" "/"
@@ -76,6 +78,9 @@
         | expr tDIV expr
             {
                 $$ = Value::Number($<Number>1 / $<Number>3);
+            }
+        | tFN {
+                $$ = Value::Number(5)
             }
 
   number: tNUM

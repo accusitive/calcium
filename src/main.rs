@@ -121,7 +121,7 @@ use ca_parser_bison::{lexer::Lexer, parser::Parser};
 
 fn main() {
     // let driver = ca_driver::Driver{};
-    let source = "i32 add(i32 left i32 right)";
+    let source = "2 + fn";
     let lexer = Lexer::new(source);
     let parser = Parser::new(lexer, "Cheese");
     let _result = parser.do_parse();
