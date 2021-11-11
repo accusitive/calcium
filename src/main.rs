@@ -124,7 +124,7 @@ use ca_parser_bison::{
 
 fn main() {
     // let driver = ca_driver::Driver{};
-    let source = "fn f fn";
+    let source = "abcdefghijklmnopqrstuvwxyz'fn";
     let lexer = Lexer::new(source);
     for token in lexer {
         if token.token_type == ca_parser_bison::lexer::Lexer::YYEOF {
@@ -132,11 +132,13 @@ fn main() {
         }
 
         println!(
-            "{:?}: {}",
+            "{:?}: {} <{}>",
             &source[token.loc.to_range()],
-            token_name(token.token_type)
+            token_name(token.token_type),
+            token.token_value
         );
     }
     // let parser = Parser::new(lexer, "Cheese");
-    // let _result = parser.do_parse();
+    // let (value, name) = parser.do_parse();
+    // println!("Value of {} is {:?}", name, value);
 }

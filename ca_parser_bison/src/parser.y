@@ -46,54 +46,19 @@
 
 %left "-" "+"
 %left "*" "/"
-%type <Number> expr number program
 
 %%
 
- program: expr
-            {
-                self.result = Some($<Number>1);
-                $$ = Value::None;
-            }
-        | error
-            {
-                self.result = None;
-                $$ = Value::None;
-            }
-
-    expr: number
-            {
-                $$ = $1;
-            }
-        | tLPAREN expr tRPAREN
-            {
-                $$ = $2;
-            }
-        | expr tPLUS expr
-            {
-                $$ = Value::Number($<Number>1 + $<Number>3);
-            }
-        | expr tMINUS expr
-            {
-                $$ = Value::Number($<Number>1 - $<Number>3);
-            }
-        | expr tMUL expr
-            {
-                $$ = Value::Number($<Number>1 * $<Number>3);
-            }
-        | expr tDIV expr
-            {
-                $$ = Value::Number($<Number>1 / $<Number>3);
-            }
-        | tFN {
-                $$ = Value::Number(5)
-            }
-
-  number: tNUM
-            {
-                // $$ = Value::Number($<Token>1.token_value);
-               $$ = Value::Number(55);
-            }
+ program: function {
+     self.result = Some(1);
+     $$ = Value::None;
+ } | program function {
+     self.result = Some(2);
+     $$ = Value::None;
+ }
+ function: tFN {
+     $$ = Value::None;
+ }
 
 %%
 

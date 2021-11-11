@@ -10,6 +10,7 @@ version = "0.1.0"
 name = "ca_parser_bison"
 version = "0.37.0"
 dependencies = [
+ "peekmore",
  "prev-iter",
 ]
 
@@ -20,6 +21,12 @@ dependencies = [
  "ca_ast",
  "ca_parser_bison",
 ]
+
+[[package]]
+name = "peekmore"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca84ba11ed2de09f9a946e35be5efe5382bdd0621780b46ea8e24a7797b5be88"
 
 [[package]]
 name = "prev-iter"
