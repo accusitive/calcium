@@ -11,3 +11,4 @@ ca_ast = {path = "./ca_ast"}
 ca_parser_bison = {path="./ca_parser_bison"}
 # ca_driver = {path="./ca_driver"}
 # ca_backend_llvm = {path="./ca_backend_llvm"}
+colored = "2.0.0"

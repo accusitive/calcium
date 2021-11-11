@@ -1,7 +1,7 @@
-use ca_parser_bison::{
-    lexer::Lexer,
-    parser::{token_name, Parser},
-};
+use std::{collections::HashMap, iter::Map, ops::Range};
+
+use ca_parser_bison::{lexer::{Lexer, Token}, loc::Loc, parser::{token_name, Parser}};
+use colored::{Color, ColoredString, Colorize};
 
 // use std::path::Path;
 
@@ -124,21 +124,53 @@ use ca_parser_bison::{
 
 fn main() {
     // let driver = ca_driver::Driver{};
-    let source = "fn test()";
+    // let source = "fn add(left: i32, right: i32): i32 {}";
+    let source = "fn add()";
+
+    let mut src = source.to_string();
+
     let lexer = Lexer::new(source);
+    let mut by_range: HashMap<usize, Token> = HashMap::new();
     for token in lexer {
         if token.token_type == ca_parser_bison::lexer::Lexer::YYEOF {
             break;
         }
+        let s = token.token_value.to_string();
+        let s2 = match token.token_type {
+            Lexer::tIDENTIFIER => {
+                s.underline()
+            }
+            Lexer::tLPAREN | Lexer::tRPAREN | Lexer::tRBRACK | Lexer::tLBRACK => {
+                s.yellow()
+            }
+            Lexer::tCOLON => {
+                s.bright_purple()
+            }
+            _ => s.white()
+        };
 
-        println!(
-            "{:?}: {} <{}>",
-            &source[token.loc.to_range()],
-            token_name(token.token_type),
-            token.token_value
-        );
+        src = src.replace(&source[token.loc.to_range()], &s2.to_string());
+        // println!("SRC {:#?}", src);
+        // by_range.insert(token.loc.begin, token);
+
+        // println!(
+        //     "{:?}: {} <{}>",
+        //     &source[token.loc.to_range()],
+        //     token_name(token.token_type),
+        //     token.token_value
+        // );
+        // let s = format!("{}", &source[token.loc.to_range()]).green();
+        // print!("{}", s);
     }
-    // let parser = Parser::new(lexer, "Cheese");
-    // let (value, name) = parser.do_parse();
-    // println!("Value of {} is {:?}", name, value);
+    println!("{}", src);
+    // let s = source.to_string();
+    // for (start, c) in s.char_indices() {
+
+    // }
+
+    let lexer = Lexer::new(source);
+
+    let parser = Parser::new(lexer, "Cheese");
+    let (value, name) = parser.do_parse();
+    println!("Value of {} is {:?}", name, value);
 }

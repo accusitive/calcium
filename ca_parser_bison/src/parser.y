@@ -35,6 +35,9 @@
     tDIV    "/"
     tLPAREN "("
     tRPAREN ")"
+    tLBRACK "{"
+    tRBRACK "}"
+    tCOLON  ":"
     tINT    "int"
     tIDENTIFIER "local variable or method"
     tNUM    "number"
@@ -56,7 +59,8 @@
      self.result = Some(2);
      $$ = Value::None;
  }
- function: tFN {
+ function: tFN tIDENTIFIER tLPAREN tRPAREN {
+     println!("Function named {:?}", $2);
      $$ = Value::None;
  }
 

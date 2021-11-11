@@ -30,6 +30,15 @@ impl Lexer {
     pub fn yylex(&mut self) -> Token {
         self.next().unwrap()
     }
+    fn bracket_to_token(c: char) -> Option<i32> {
+        match c {
+            '(' => Some(Lexer::tLPAREN),
+            ')' => Some(Lexer::tRPAREN),
+            '{' => Some(Lexer::tLBRACK),
+            '}' => Some(Lexer::tRBRACK),
+            _ => None,
+        }
+    }
 }
 
 impl Iterator for Lexer {
@@ -37,7 +46,7 @@ impl Iterator for Lexer {
     // type Item = Token<'i>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        macro_rules! matches {
+        macro_rules! _matches {
             ($e: literal) => {
                 self.chars.peek().map(|c| c.1) == Some($e)
             };
@@ -79,14 +88,23 @@ impl Iterator for Lexer {
                         },
                     });
                 }
+                Some((i, c)) if Self::bracket_to_token(c).is_some() => {
+                    return Some(Token {
+                        token_type: Self::bracket_to_token(c).unwrap(),
+                        token_value: c.to_string(),
+                        loc: Loc {
+                            begin: i,
+                            end: i + 1,
+                        },
+                    })
+                }
                 // Some((i, '(')) => return Some(spanned!(Token::LParen, 1)),
                 // Some((i, ')')) => return Some(spanned!(Token::RParen, 1)),
 
                 // Some((i, c @ '0'..='9')) => {
                 //     return Some(spanned!(Token::Number(c.to_digit(10).unwrap()), 1))
                 // }
-                Some((i, c @ 'A'..='z')) => {
-                    // println!("{:?}", self.chars.peek_nth(1).map(|c| c.1));
+                Some((i, c)) if c.is_alphabetic() => {
                     let mut tokens = vec![c];
                     let mut current = 0;
                     while let Some((_, value)) = self.chars.peek_nth(current) {
@@ -108,6 +126,16 @@ impl Iterator for Lexer {
                         },
                         token_type: Self::tIDENTIFIER,
                         token_value,
+                    });
+                }
+                Some((i, ':')) => {
+                    return Some(Token {
+                        loc: Loc {
+                            begin: i,
+                            end: i + 1,
+                        },
+                        token_type: Self::tCOLON,
+                        token_value: ":".to_string(),
                     });
                 }
                 // Some((i, c)) => return Some(spanned!(Token::Char(c), 1)),
