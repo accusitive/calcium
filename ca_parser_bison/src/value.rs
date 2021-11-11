@@ -1,4 +1,5 @@
-use ca_lexer::{Spanned, Token};
+use crate::lexer::Token;
+
 
 /// Enum that represents all kinds of values that can be returned
 /// from parser derivations.
@@ -16,7 +17,7 @@ pub enum Value {
 
     /// Required variant, parser expects it to be defined.
     /// Represents a token that is returned from a Lexer
-    Token(Spanned),
+    Token(Token),
 
     /// Represents a number
     Number(i32),
@@ -32,7 +33,7 @@ impl Value {
     /// Required method, parser expects it to be defined.
     ///
     /// Constructor for `Value::Token(token)` variant.
-    pub(crate) fn from_token(value: Spanned) -> Self {
+    pub(crate) fn from_token(value: Token) -> Self {
         Self::Token(value)
     }
 }

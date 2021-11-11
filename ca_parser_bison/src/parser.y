@@ -9,9 +9,11 @@
 
 %code use {
     // all use goes here
-    use crate::lexer::Lexer;
-    use ca_lexer::Token;
+    // use crate::lexer::Lexer;
+    // use ca_lexer::Token;
     // use ca_lexer::YYLexer;
+    use crate::lexer::Lexer;
+    use crate::lexer::Token;
     use crate::loc::Loc;
     use crate::value::Value;
     use crate::value::Number;
@@ -120,7 +122,7 @@ impl Parser {
         (self.result, self.name)
     }
 
-    fn next_token(&mut self) -> ca_lexer::Spanned {
+    fn next_token(&mut self) -> Token {
         self.yylexer.yylex()
     }
 

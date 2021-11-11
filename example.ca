@@ -1,5 +1,3 @@
-i32 entry 'val: i32 {return somefunc(,) }
-
-i32 somefunc {
+i32 main { 
     return 0
 }

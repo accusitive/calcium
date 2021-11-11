@@ -7,14 +7,10 @@ name = "ca_ast"
 version = "0.1.0"
 
 [[package]]
-name = "ca_lexer"
-version = "0.1.0"
-
-[[package]]
 name = "ca_parser_bison"
 version = "0.37.0"
 dependencies = [
- "ca_lexer",
+ "prev-iter",
 ]
 
 [[package]]
@@ -24,3 +20,7 @@ dependencies = [
  "ca_ast",
  "ca_parser_bison",
 ]
+
+[[package]]
+name = "prev-iter"
+version = "0.1.2"
