@@ -1,4 +1,7 @@
-use ca_parser_bison::{lexer::Lexer, parser::{Parser, token_name}};
+use ca_parser_bison::{
+    lexer::Lexer,
+    parser::{token_name, Parser},
+};
 use colored::Colorize;
 
 // use std::path::Path;
@@ -125,12 +128,17 @@ fn main() {
 
     let source = "fn add(a: std::i32)";
     let lexer = Lexer::new(source);
-    
+
     for token in lexer {
         if token.token_type == Lexer::YYEOF {
             break;
         }
-        println!("{} = {}@{:?}", token_name(token.token_type), token.token_value, token.loc);
+        println!(
+            "{} = {}@{:?}",
+            token_name(token.token_type),
+            token.token_value,
+            token.loc
+        );
     }
 
     let lexer = Lexer::new(source);
@@ -146,6 +154,6 @@ fn main() {
         }
         None => {
             println!("{}", "Compilation failed.".bold())
-        },
+        }
     }
 }

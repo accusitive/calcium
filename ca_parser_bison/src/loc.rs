@@ -12,7 +12,7 @@ pub struct Loc {
 impl Loc {
     /// Converts location to a range
     pub fn to_range(&self) -> std::ops::Range<usize> {
-        self.begin..self.end-1
+        self.begin..self.end - 1
     }
 }
 

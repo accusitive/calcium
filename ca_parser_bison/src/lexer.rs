@@ -152,7 +152,7 @@ impl Iterator for Lexer {
                 Some(n @ '\n') => {
                     self.spaces.push(n);
                     self.col = 0;
-                    self.line+=1;
+                    self.line += 1;
                     continue;
                     // self.line +=1;
                 }
