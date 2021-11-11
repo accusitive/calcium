@@ -76,14 +76,17 @@ impl Iterator for Lexer {
                 //     return Some(spanned!(Token::Number(c.to_digit(10).unwrap()), 1))
                 // }
                 Some((i, c @ 'A'..='z')) => {
-                     println!("Matched generic character");
                     let mut tokens = vec![c];
                     let mut current = 0;
-                    while let Some((index, value)) = self.chars.peek_nth(i + current) {
+                    loop {
+                        let p = self.chars.peek_nth(current);
+                        if p.is_none() {
+                            break;
+                        }
+                        let (index, value) = p.unwrap();
                         if !char::is_alphanumeric(*value) {
                             break;
                         }
-                        println!("{} peeking at {} {}", c, index, value);
                         tokens.push(*value);
                         current += 1;
                     }
