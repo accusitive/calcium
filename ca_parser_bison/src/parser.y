@@ -1,6 +1,7 @@
 %expect 0
 
 %define api.parser.struct {Parser}
+
 %define api.value.type {Value}
 
 %define parse.error custom
@@ -8,8 +9,9 @@
 
 %code use {
     // all use goes here
-    use crate::token::Token;
     use crate::lexer::Lexer;
+    use ca_lexer::Token;
+    // use ca_lexer::YYLexer;
     use crate::loc::Loc;
     use crate::value::Value;
     use crate::value::Number;
@@ -85,7 +87,8 @@
 
   number: tNUM
             {
-                $$ = Value::Number($<Token>1.token_value);
+                // $$ = Value::Number($<Token>1.token_value);
+               $$ = Value::Number(55);
             }
 
 %%
@@ -98,7 +101,7 @@ impl Parser {
     pub const ABORTED: i32 = -2;
 
     /// Constructor
-    pub fn new(lexer: Lexer, name: &str) -> Self {
+    pub fn new<'b> /* ' */ (lexer: Lexer, name: &str) -> Self {
         Self {
             yy_error_verbose: true,
             yynerrs: 0,
@@ -117,7 +120,7 @@ impl Parser {
         (self.result, self.name)
     }
 
-    fn next_token(&mut self) -> Token {
+    fn next_token(&mut self) -> ca_lexer::Spanned {
         self.yylexer.yylex()
     }
 

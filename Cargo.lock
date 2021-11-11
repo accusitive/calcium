@@ -7,8 +7,15 @@ name = "ca_ast"
 version = "0.1.0"
 
 [[package]]
+name = "ca_lexer"
+version = "0.1.0"
+
+[[package]]
 name = "ca_parser_bison"
 version = "0.37.0"
+dependencies = [
+ "ca_lexer",
+]
 
 [[package]]
 name = "calcium"
