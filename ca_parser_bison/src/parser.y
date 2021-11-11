@@ -12,8 +12,6 @@
     use crate::lexer::Token;
     use crate::loc::Loc;
     use crate::value::*;
-    use colored::Colorize;
-
 }
 
 %code parser_fields {
@@ -36,7 +34,8 @@
     tLBRACK "{"
     tRBRACK "}"
     tCOLON  ":"
-    tCOMMA ","
+    tPATHSEP "::"
+    tCOMMA  ","
     tINT    "int"
     tIDENTIFIER "local variable or method"
     tNUM    "number"
@@ -53,6 +52,8 @@
 %type <FunctionArgs> function_args
 %type <Program> program
 %type <Ident> identifier
+%type <PathSegment> path_segment
+%type <Path> path
 %%
  program: functions {
      self.result = Some(0);
@@ -82,14 +83,25 @@
      let v = Value::ValueList(args);
      $$ = v;
  }
- function_arg: identifier tCOLON identifier {
+ function_arg: identifier tCOLON path {
      $$ = Value::FunctionArg(Box::new($1), Box::new($3));
  }
  identifier: tIDENTIFIER {
      let tok = $<Token>1;
      $$ = Value::Ident(tok.token_value);
  }
-
+ path: path_segment {
+    $$ = Value::ValueList(vec![$1]);
+ }
+ | path tPATHSEP path_segment {
+     let mut args = $<ValueList>1;
+     args.push($3);
+     let v = Value::ValueList(args);
+     $$ = v;
+ }
+ path_segment: identifier {
+     $$ = Value::Ident($<Ident>1);
+ }
 %%
 
 impl Parser {
@@ -125,27 +137,9 @@ impl Parser {
         self.yylexer.yylex()
     }
 
-    fn report_syntax_error(&self, stack: &YYStack, yytoken: &SymbolKind, loc: YYLoc) {
-        let mut source = self.source.to_string();
-        crate::pretty::
-        // let mut thing = std::iter::repeat(" ")
-        //     .take(source.len())
-        //     .collect::<String>();
-        // println!("yytoken {}", yytoken.value);
-        // println!("Char at yytok {}", &source[loc.to_range()]);
-        // thing.replace_range(loc.to_range(), &"┗ Bison tells me the error is here, I don't know anything else ".cyan().to_string());
-        // source.replace_range(
-        //     loc.to_range(),
-        //     &source[loc.to_range()]
-        //         .to_string()
-        //         .red()
-        //         .bold()
-        //         .underline()
-        //         .to_string(),
-        // );
-        // eprintln!("{}", source);
-        // println!("{}", thing);
-
-        // eprintln!("report_syntax_error: {:#?} {:?} {:?}", stack, yytoken, loc)
+    fn report_syntax_error(&self, _stack: &YYStack, _yytoken: &SymbolKind, loc: YYLoc) {
+        //TODO: Look into using stack for error messages
+        let source = self.source.to_string();
+        crate::pretty::print_error(&source, loc.to_range());
     }
 }

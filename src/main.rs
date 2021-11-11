@@ -121,29 +121,17 @@ use colored::Colorize;
 // }
 
 fn main() {
-    let source = "fn add(a: i32 b: i32), fn add(a: i32, b: i32)";
+    // let source = "fn add(a: i32, b: i32), \nfn add(a: i32, b: i32::aa)";
 
-    let mut src = source.to_string();
-
+    let source = "fn add(a: std::i32)";
     let lexer = Lexer::new(source);
+    
     for token in lexer {
-        if token.token_type == ca_parser_bison::lexer::Lexer::YYEOF {
+        if token.token_type == Lexer::YYEOF {
             break;
         }
-        let s = token.token_value.to_string();
-        let s2 = match token.token_type {
-            Lexer::tIDENTIFIER => s.underline(),
-            Lexer::tFN => s.cyan(),
-            Lexer::tLPAREN | Lexer::tRPAREN | Lexer::tRBRACK | Lexer::tLBRACK => s.yellow(),
-            Lexer::tCOLON => s.bright_purple(),
-            _ => s.white(),
-        };
-        // print!("{}{}", token.spaces_before, s2);
-        println!("{} {}", token_name(token.token_type), s);
+        println!("{} = {}@{:?}", token_name(token.token_type), token.token_value, token.loc);
     }
-    println!("");
-
-    // println!("{}", src);
 
     let lexer = Lexer::new(source);
 

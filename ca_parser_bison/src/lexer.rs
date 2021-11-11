@@ -4,16 +4,17 @@ use prev_iter::PrevPeekable;
 
 #[derive(Debug)]
 pub struct Lexer {
-    chars: PeekMoreIterator<PrevPeekable<std::vec::IntoIter<(usize, char)>>>,
+    chars: PeekMoreIterator<PrevPeekable<std::vec::IntoIter<char>>>,
     spaces: String,
     col: usize,
+    line: usize,
 }
 impl Lexer {
     pub fn new(input: &str) -> Self {
         Lexer {
-            chars: PrevPeekable::new(input.char_indices().collect::<Vec<_>>().into_iter())
-                .peekmore(),
+            chars: PrevPeekable::new(input.chars().collect::<Vec<_>>().into_iter()).peekmore(),
             col: 0,
+            line: 0,
             spaces: String::new(),
         }
     }
@@ -62,9 +63,17 @@ impl Iterator for Lexer {
                 self.col
             }};
         }
+        macro_rules! loc {
+            ($i: expr) => {
+                Loc {
+                    begin: self.col,
+                    end: inc_col!($i),
+                }
+            };
+        }
         loop {
             let m = match self.chars.next() {
-                // Some((i, 'f'))
+                // Some(( 'f'))
                 //     if peek_matches!('n')
                 //         && self.chars.peek_nth(i + 1).map(|c| c.1) == Some(' ') =>
                 // {
@@ -80,20 +89,26 @@ impl Iterator for Lexer {
                 //         },
                 //     })
                 // }
-                Some((i, c)) if Self::bracket_to_token(c).is_some() => Some(Token {
+                Some(c) if Self::bracket_to_token(c).is_some() => Some(Token {
                     token_type: Self::bracket_to_token(c).unwrap(),
                     token_value: c.to_string(),
                     spaces_before: std::mem::take(&mut self.spaces),
 
-                    loc: Loc {
-                        begin: self.col,
-                        end: inc_col!(1),
-                    },
+                    loc: loc!(1),
                 }),
-                Some((i, c)) if c.is_alphabetic() => {
+                Some(':') if self.chars.peek_nth(0) == Some(&':') => {
+                    self.chars.advance_by(1).unwrap();
+                    Some(Token {
+                        loc: loc!(2),
+                        token_type: Self::tPATHSEP,
+                        token_value: "::".to_string(),
+                        spaces_before: std::mem::take(&mut self.spaces),
+                    })
+                }
+                Some(c) if c.is_alphabetic() => {
                     let mut tokens = vec![c];
                     let mut current = 0;
-                    while let Some((_, value)) = self.chars.peek_nth(current) {
+                    while let Some(value) = self.chars.peek_nth(current) {
                         if !char::is_alphanumeric(*value) {
                             break;
                         }
@@ -107,51 +122,46 @@ impl Iterator for Lexer {
                     });
                     let token_type = match token_value.as_str() {
                         "fn" => Self::tFN,
-                        _ => Self::tIDENTIFIER
+                        _ => Self::tIDENTIFIER,
                     };
                     Some(Token {
-                        loc: Loc {
-                            begin: self.col,
-                            end: inc_col!(tokens.len()),
-                        },
+                        loc: loc!(tokens.len()),
                         token_type,
                         token_value,
                         spaces_before: std::mem::take(&mut self.spaces),
                     })
                 }
-                Some((i, ':')) => Some(Token {
-                    loc: Loc {
-                        begin: self.col,
-                        end: inc_col!(1),
-                    },
+                Some(':') => Some(Token {
+                    loc: loc!(1),
                     token_type: Self::tCOLON,
                     token_value: ":".to_string(),
                     spaces_before: std::mem::take(&mut self.spaces),
                 }),
-                Some((i, ',')) => Some(Token {
-                    loc: Loc {
-                        begin: self.col,
-                        end: inc_col!(1),
-                    },
+                Some(',') => Some(Token {
+                    loc: loc!(1),
                     token_type: Self::tCOMMA,
                     token_value: ",".to_string(),
                     spaces_before: std::mem::take(&mut self.spaces),
                 }),
 
-                Some((_, s @ ' ')) => {
+                Some(s @ ' ') => {
                     self.spaces.push(s);
                     self.col += 1;
                     continue;
+                }
+                Some(n @ '\n') => {
+                    self.spaces.push(n);
+                    self.col = 0;
+                    self.line+=1;
+                    continue;
+                    // self.line +=1;
                 }
                 None => Some(Token {
                     token_type: Self::YYEOF,
                     token_value: "".to_string(),
                     spaces_before: std::mem::take(&mut self.spaces),
 
-                    loc: Loc {
-                        begin: self.col,
-                        end: inc_col!(1),
-                    },
+                    loc: loc!(1),
                 }),
                 _ => continue,
             };
