@@ -78,12 +78,7 @@ impl Iterator for Lexer {
                 Some((i, c @ 'A'..='z')) => {
                     let mut tokens = vec![c];
                     let mut current = 0;
-                    loop {
-                        let p = self.chars.peek_nth(current);
-                        if p.is_none() {
-                            break;
-                        }
-                        let (index, value) = p.unwrap();
+                    while let Some((_, value)) = self.chars.peek_nth(current) {
                         if !char::is_alphanumeric(*value) {
                             break;
                         }
