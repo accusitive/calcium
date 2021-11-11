@@ -124,7 +124,7 @@ use ca_parser_bison::{
 
 fn main() {
     // let driver = ca_driver::Driver{};
-    let source = "abc fn def";
+    let source = "fn test()";
     let lexer = Lexer::new(source);
     for token in lexer {
         if token.token_type == ca_parser_bison::lexer::Lexer::YYEOF {

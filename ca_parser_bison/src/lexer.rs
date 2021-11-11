@@ -42,6 +42,16 @@ impl Iterator for Lexer {
                 self.chars.peek().map(|c| c.1) == Some($e)
             };
         }
+        macro_rules! peek1_matches {
+            ($e: literal) => {
+                self.chars.peek_forward(1).map(|c| c.1) == Some($e)
+            };
+        }
+        macro_rules! peek_matches {
+            ($e: literal) => {
+                self.chars.peek().map(|c| c.1) == Some($e)
+            };
+        }
         macro_rules! next_matches {
             ($e: literal) => {
                 self.chars.next().map(|c| c.1) == Some($e)
@@ -55,19 +65,19 @@ impl Iterator for Lexer {
 
         loop {
             match self.chars.next() {
-                Some((i, 'f')) => {
-                    // self.advance_by(1).unwrap();
-
-                    if next_matches!('n') {
-                        return Some(Token {
-                            token_type: Self::tFN,
-                            token_value: "fn".to_string(),
-                            loc: Loc {
-                                begin: i,
-                                end: i + 2,
-                            },
-                        });
-                    }
+                Some((i, 'f'))
+                    if peek_matches!('n')
+                        && self.chars.peek_nth(i + 1).map(|c| c.1) == Some(' ') =>
+                {
+                    self.advance_by(1).unwrap();
+                    return Some(Token {
+                        token_type: Self::tFN,
+                        token_value: "fn".to_string(),
+                        loc: Loc {
+                            begin: i,
+                            end: i + 2,
+                        },
+                    });
                 }
                 // Some((i, '(')) => return Some(spanned!(Token::LParen, 1)),
                 // Some((i, ')')) => return Some(spanned!(Token::RParen, 1)),
@@ -76,6 +86,7 @@ impl Iterator for Lexer {
                 //     return Some(spanned!(Token::Number(c.to_digit(10).unwrap()), 1))
                 // }
                 Some((i, c @ 'A'..='z')) => {
+                    // println!("{:?}", self.chars.peek_nth(1).map(|c| c.1));
                     let mut tokens = vec![c];
                     let mut current = 0;
                     while let Some((_, value)) = self.chars.peek_nth(current) {
