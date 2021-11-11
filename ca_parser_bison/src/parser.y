@@ -35,6 +35,8 @@
     tDIV    "/"
     tLPAREN "("
     tRPAREN ")"
+    tINT    "int"
+    tIDENTIFIER "local variable or method"
     tNUM    "number"
     tFN     "fn"
     tERROR  "controlled YYERROR"

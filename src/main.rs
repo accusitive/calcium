@@ -1,4 +1,7 @@
-use ca_parser_bison::{lexer::Lexer, parser::Parser};
+use ca_parser_bison::{
+    lexer::Lexer,
+    parser::{token_name, Parser},
+};
 
 // use std::path::Path;
 
@@ -121,8 +124,19 @@ use ca_parser_bison::{lexer::Lexer, parser::Parser};
 
 fn main() {
     // let driver = ca_driver::Driver{};
-    let source = "fn fn f n fn";
+    let source = "fn f fn";
     let lexer = Lexer::new(source);
-    let parser = Parser::new(lexer, "Cheese");
-    let _result = parser.do_parse();
+    for token in lexer {
+        if token.token_type == ca_parser_bison::lexer::Lexer::YYEOF {
+            break;
+        }
+
+        println!(
+            "{:?}: {}",
+            &source[token.loc.to_range()],
+            token_name(token.token_type)
+        );
+    }
+    // let parser = Parser::new(lexer, "Cheese");
+    // let _result = parser.do_parse();
 }

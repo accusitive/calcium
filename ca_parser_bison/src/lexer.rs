@@ -51,7 +51,7 @@ impl Iterator for Lexer {
                 Some((i, 'f')) => {
                     if matches!('n') {
                         return Some(Token {
-                            token_type: Self::tLPAREN,
+                            token_type: Self::tFN,
                             loc: Loc {
                                 begin: i,
                                 end: i + 2,
