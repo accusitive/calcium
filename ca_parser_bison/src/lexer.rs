@@ -42,6 +42,11 @@ impl Iterator for Lexer {
                 self.chars.peek().map(|c| c.1) == Some($e)
             };
         }
+        macro_rules! next_matches {
+            ($e: literal) => {
+                self.chars.next().map(|c| c.1) == Some($e)
+            };
+        }
         // macro_rules! spanned {
         //     ($token: expr, $len: expr) => {
         //         Spanned::new($token, Span::new(self.col, $len, self.line))
@@ -51,20 +56,12 @@ impl Iterator for Lexer {
         loop {
             match self.chars.next() {
                 Some((i, 'f')) => {
-                    if matches!('n') {
-                        self.advance_by(1).unwrap();
+                    // self.advance_by(1).unwrap();
+
+                    if next_matches!('n') {
                         return Some(Token {
                             token_type: Self::tFN,
                             token_value: "fn".to_string(),
-                            loc: Loc {
-                                begin: i,
-                                end: i + 2,
-                            },
-                        });
-                    } else {
-                        return Some(Token {
-                            token_type: Self::tRPAREN,
-                            token_value: ")".to_string(),
                             loc: Loc {
                                 begin: i,
                                 end: i + 2,
@@ -79,12 +76,14 @@ impl Iterator for Lexer {
                 //     return Some(spanned!(Token::Number(c.to_digit(10).unwrap()), 1))
                 // }
                 Some((i, c @ 'A'..='z')) => {
+                     println!("Matched generic character");
                     let mut tokens = vec![c];
                     let mut current = 0;
-                    while let Some((index, value)) = self.chars.peek_nth(i+current) {
-                        if *value == '\'' {
+                    while let Some((index, value)) = self.chars.peek_nth(i + current) {
+                        if !char::is_alphanumeric(*value) {
                             break;
                         }
+                        println!("{} peeking at {} {}", c, index, value);
                         tokens.push(*value);
                         current += 1;
                     }
@@ -107,6 +106,7 @@ impl Iterator for Lexer {
                 //     self.col = 0;
                 //     self.line = 0;
                 // }
+                Some((i, ' ')) => continue,
                 None => {
                     // println!("Got nothing {:#?}", self);
                     return Some(Token {
