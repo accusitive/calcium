@@ -21,6 +21,7 @@ version = "0.1.0"
 name = "ca_parser_bison"
 version = "0.37.0"
 dependencies = [
+ "colored",
  "peekmore",
  "prev-iter",
 ]

@@ -8,18 +8,12 @@
 %define parse.trace
 
 %code use {
-    // all use goes here
-    // use crate::lexer::Lexer;
-    // use ca_lexer::Token;
-    // use ca_lexer::YYLexer;
     use crate::lexer::Lexer;
     use crate::lexer::Token;
     use crate::loc::Loc;
-    use crate::value::Value;
-    use crate::value::Number;
-    use crate::value::Value::Function;
     use crate::value::*;
-    // use crate::value::*:
+    use colored::Colorize;
+
 }
 
 %code parser_fields {
@@ -28,7 +22,8 @@
     pub name: String,
     /// Enables debug printing
     pub debug: bool,
-    pub output: Option<Value>
+    pub output: Option<Value>,
+    source: String
 }
 
 %token
@@ -67,8 +62,11 @@
 
  functions: function {
      $$ = Value::ValueList(vec![$1]);
- } | functions function {
+ }
+ | functions tCOMMA function {
+     println!("multiple functions");
      let mut fns = $<ValueList>1;
+     fns.push($3);
      let v = Value::ValueList(fns);
      $$ = v;
  }
@@ -89,7 +87,6 @@
  }
  identifier: tIDENTIFIER {
      let tok = $<Token>1;
-     println!("Tok {:#?}", tok);
      $$ = Value::Ident(tok.token_value);
  }
 
@@ -103,7 +100,7 @@ impl Parser {
     pub const ABORTED: i32 = -2;
 
     /// Constructor
-    pub fn new<'b> /* ' */ (lexer: Lexer, name: &str) -> Self {
+    pub fn new<'b> /* ' */ (lexer: Lexer, name: &str, source: &str) -> Self {
         Self {
             yy_error_verbose: true,
             yynerrs: 0,
@@ -112,7 +109,8 @@ impl Parser {
             yylexer: lexer,
             result: None,
             name: name.to_owned(),
-            output: None
+            output: None,
+            source: source.to_string()
         }
     }
 
@@ -128,6 +126,26 @@ impl Parser {
     }
 
     fn report_syntax_error(&self, stack: &YYStack, yytoken: &SymbolKind, loc: YYLoc) {
-        eprintln!("report_syntax_error: {:#?} {:?} {:?}", stack, yytoken, loc)
+        let mut source = self.source.to_string();
+        crate::pretty::
+        // let mut thing = std::iter::repeat(" ")
+        //     .take(source.len())
+        //     .collect::<String>();
+        // println!("yytoken {}", yytoken.value);
+        // println!("Char at yytok {}", &source[loc.to_range()]);
+        // thing.replace_range(loc.to_range(), &"┗ Bison tells me the error is here, I don't know anything else ".cyan().to_string());
+        // source.replace_range(
+        //     loc.to_range(),
+        //     &source[loc.to_range()]
+        //         .to_string()
+        //         .red()
+        //         .bold()
+        //         .underline()
+        //         .to_string(),
+        // );
+        // eprintln!("{}", source);
+        // println!("{}", thing);
+
+        // eprintln!("report_syntax_error: {:#?} {:?} {:?}", stack, yytoken, loc)
     }
 }

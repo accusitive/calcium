@@ -1,30 +1,20 @@
-use std::{fmt::Debug, result::IntoIter, str::CharIndices};
-
-use crate::{loc::Loc, parser, value::Value};
+use crate::{loc::Loc, value::Value};
 use peekmore::{PeekMore, PeekMoreIterator};
 use prev_iter::PrevPeekable;
 
-#[test]
-fn main() {
-    let lex = Lexer::new("fn f() 2");
-    for tok in lex {
-        println!("Tok {:#?}", tok);
-    }
-}
 #[derive(Debug)]
 pub struct Lexer {
     chars: PeekMoreIterator<PrevPeekable<std::vec::IntoIter<(usize, char)>>>,
-    line: usize,
+    spaces: String,
     col: usize,
 }
 impl Lexer {
     pub fn new(input: &str) -> Self {
-        // self.chars.into_iter()
         Lexer {
             chars: PrevPeekable::new(input.char_indices().collect::<Vec<_>>().into_iter())
                 .peekmore(),
             col: 0,
-            line: 0,
+            spaces: String::new(),
         }
     }
     pub fn yylex(&mut self) -> Token {
@@ -39,13 +29,12 @@ impl Lexer {
             _ => None,
         }
     }
-    
 }
 
 impl Iterator for Lexer {
     type Item = Token;
-    // type Item = Token<'i>;
 
+    #[allow(unused_macros)]
     fn next(&mut self) -> Option<Self::Item> {
         macro_rules! _matches {
             ($e: literal) => {
@@ -67,44 +56,40 @@ impl Iterator for Lexer {
                 self.chars.next().map(|c| c.1) == Some($e)
             };
         }
-        // macro_rules! spanned {
-        //     ($token: expr, $len: expr) => {
-        //         Spanned::new($token, Span::new(self.col, $len, self.line))
-        //     };
-        // }
-
+        macro_rules! inc_col {
+            ($i: expr) => {{
+                self.col += $i;
+                self.col
+            }};
+        }
         loop {
-            match self.chars.next() {
-                Some((i, 'f'))
-                    if peek_matches!('n')
-                        && self.chars.peek_nth(i + 1).map(|c| c.1) == Some(' ') =>
-                {
-                    self.advance_by(1).unwrap();
-                    return Some(Token {
-                        token_type: Self::tFN,
-                        token_value: "fn".to_string(),
-                        loc: Loc {
-                            begin: i,
-                            end: i + 2,
-                        },
-                    });
-                }
-                Some((i, c)) if Self::bracket_to_token(c).is_some() => {
-                    return Some(Token {
-                        token_type: Self::bracket_to_token(c).unwrap(),
-                        token_value: c.to_string(),
-                        loc: Loc {
-                            begin: i,
-                            end: i + 1,
-                        },
-                    })
-                }
-                // Some((i, '(')) => return Some(spanned!(Token::LParen, 1)),
-                // Some((i, ')')) => return Some(spanned!(Token::RParen, 1)),
+            let m = match self.chars.next() {
+                // Some((i, 'f'))
+                //     if peek_matches!('n')
+                //         && self.chars.peek_nth(i + 1).map(|c| c.1) == Some(' ') =>
+                // {
+                //     self.advance_by(1).unwrap();
+                //     Some(Token {
+                //         token_type: Self::tFN,
+                //         token_value: "fn".to_string(),
+                //         spaces_before: std::mem::take(&mut self.spaces),
 
-                // Some((i, c @ '0'..='9')) => {
-                //     return Some(spanned!(Token::Number(c.to_digit(10).unwrap()), 1))
+                //         loc: Loc {
+                //             begin: self.col,
+                //             end: inc_col!(2),
+                //         },
+                //     })
                 // }
+                Some((i, c)) if Self::bracket_to_token(c).is_some() => Some(Token {
+                    token_type: Self::bracket_to_token(c).unwrap(),
+                    token_value: c.to_string(),
+                    spaces_before: std::mem::take(&mut self.spaces),
+
+                    loc: Loc {
+                        begin: self.col,
+                        end: inc_col!(1),
+                    },
+                }),
                 Some((i, c)) if c.is_alphabetic() => {
                     let mut tokens = vec![c];
                     let mut current = 0;
@@ -120,69 +105,75 @@ impl Iterator for Lexer {
                         s.push(*c);
                         s
                     });
-                    return Some(Token {
-                        loc: Loc {
-                            begin: i,
-                            end: i + tokens.len(),
-                        },
-                        token_type: Self::tIDENTIFIER,
-                        token_value,
-                    });
-                }
-                Some((i, ':')) => {
-                    return Some(Token {
-                        loc: Loc {
-                            begin: i,
-                            end: i + 1,
-                        },
-                        token_type: Self::tCOLON,
-                        token_value: ":".to_string(),
-                    });
-                }
-                Some((i, ',')) => {
-                    return Some(Token {
-                        loc: Loc {
-                            begin: i,
-                            end: i + 1,
-                        },
-                        token_type: Self::tCOMMA,
-                        token_value: ",".to_string(),
-                    });
-                }
-                // Some((i, c)) => return Some(spanned!(Token::Char(c), 1)),
-                // Some((i, '\n')) => {
-                //     self.col = 0;
-                //     self.line = 0;
-                // }
-                Some((i, ' ')) => continue,
-                None => {
-                    // println!("Got nothing {:#?}", self);
-                    return Some(Token {
-                        token_type: Self::YYEOF,
-                        token_value: "".to_string(),
+                    let token_type = match token_value.as_str() {
+                        "fn" => Self::tFN,
+                        _ => Self::tIDENTIFIER
+                    };
+                    Some(Token {
                         loc: Loc {
                             begin: self.col,
-                            end: self.col,
+                            end: inc_col!(tokens.len()),
                         },
-                    });
+                        token_type,
+                        token_value,
+                        spaces_before: std::mem::take(&mut self.spaces),
+                    })
                 }
+                Some((i, ':')) => Some(Token {
+                    loc: Loc {
+                        begin: self.col,
+                        end: inc_col!(1),
+                    },
+                    token_type: Self::tCOLON,
+                    token_value: ":".to_string(),
+                    spaces_before: std::mem::take(&mut self.spaces),
+                }),
+                Some((i, ',')) => Some(Token {
+                    loc: Loc {
+                        begin: self.col,
+                        end: inc_col!(1),
+                    },
+                    token_type: Self::tCOMMA,
+                    token_value: ",".to_string(),
+                    spaces_before: std::mem::take(&mut self.spaces),
+                }),
+
+                Some((_, s @ ' ')) => {
+                    self.spaces.push(s);
+                    self.col += 1;
+                    continue;
+                }
+                None => Some(Token {
+                    token_type: Self::YYEOF,
+                    token_value: "".to_string(),
+                    spaces_before: std::mem::take(&mut self.spaces),
+
+                    loc: Loc {
+                        begin: self.col,
+                        end: inc_col!(1),
+                    },
+                }),
                 _ => continue,
-            }
+            };
+
+            // self.col+=1;
+            return m;
         }
     }
 }
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token {
     pub token_type: i32,
     pub token_value: String, //TODO: this should be something more like bytes, string is horrible here!
     pub loc: Loc,
+    pub spaces_before: String,
 }
 impl Token {
     pub fn from(v: Value) -> Token {
         match v {
-           
             Value::Token(t) => t,
-           _ => panic!("wrong")
+            _ => panic!("wrong"),
         }
     }
 }

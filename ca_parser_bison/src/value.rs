@@ -1,6 +1,5 @@
 use crate::lexer::Token;
 
-
 /// Enum that represents all kinds of values that can be returned
 /// from parser derivations.
 ///
@@ -24,19 +23,18 @@ pub enum Value {
     Program(Vec<Value>),
     ValueList(Vec<Value>),
     Function(String, Vec<Value>),
-    FunctionArg(Box<Value>,Box<Value>),
-    Ident(String)
-
+    FunctionArg(Box<Value>, Box<Value>),
+    Ident(String),
 }
 #[derive(Debug, Clone)]
 pub struct XFunction {
     pub name: String,
-    pub args: Vec<FunctionArg>
+    pub args: Vec<FunctionArg>,
 }
 #[derive(Debug, Clone)]
-pub struct FunctionArg{
+pub struct FunctionArg {
     pub name: String,
-    pub ty: String
+    pub ty: String,
 }
 impl Default for Value {
     fn default() -> Self {
@@ -53,21 +51,6 @@ impl Value {
     }
 }
 
-/// All other variants also must have according `from` methods.
-///
-/// Number is not really a struct, but `Variant::from(Value)` must be provided,
-/// so here we define a `mod` with the same name.
-#[allow(non_snake_case)]
-pub mod Number {
-    use super::Value;
-
-    pub(crate) fn from(value: Value) -> i32 {
-        match value {
-            // Value::Number(out) => out,
-            other => panic!("wrong type, expected Number, got {:?}", other),
-        }
-    }
-}
 #[allow(non_snake_case)]
 pub mod ValueList {
     use super::Value;
@@ -96,7 +79,7 @@ pub mod Ident {
 //     ($i: ident) => {
 //         pub mod $i {
 //             use super::Value;
-            
+
 //         }
 //     };
 // }

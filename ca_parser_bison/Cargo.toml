@@ -11,3 +11,5 @@ version = "0.37.0"
 prev-iter = {path = "../prev-iter"}
 peekmore = "1.0.0"
 # ca_lexer = {path="../ca_lexer"}
+colored = "2.0.0"
+# ca_pretty = {path = "../ca_pretty"}
