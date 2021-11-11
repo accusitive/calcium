@@ -1,6 +1,6 @@
 use std::{fmt::Debug, result::IntoIter, str::CharIndices};
 
-use crate::{loc::Loc, parser};
+use crate::{loc::Loc, parser, value::Value};
 use peekmore::{PeekMore, PeekMoreIterator};
 use prev_iter::PrevPeekable;
 
@@ -39,6 +39,7 @@ impl Lexer {
             _ => None,
         }
     }
+    
 }
 
 impl Iterator for Lexer {
@@ -138,6 +139,16 @@ impl Iterator for Lexer {
                         token_value: ":".to_string(),
                     });
                 }
+                Some((i, ',')) => {
+                    return Some(Token {
+                        loc: Loc {
+                            begin: i,
+                            end: i + 1,
+                        },
+                        token_type: Self::tCOMMA,
+                        token_value: ",".to_string(),
+                    });
+                }
                 // Some((i, c)) => return Some(spanned!(Token::Char(c), 1)),
                 // Some((i, '\n')) => {
                 //     self.col = 0;
@@ -165,4 +176,13 @@ pub struct Token {
     pub token_type: i32,
     pub token_value: String, //TODO: this should be something more like bytes, string is horrible here!
     pub loc: Loc,
+}
+impl Token {
+    pub fn from(v: Value) -> Token {
+        match v {
+           
+            Value::Token(t) => t,
+           _ => panic!("wrong")
+        }
+    }
 }

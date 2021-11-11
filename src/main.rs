@@ -125,7 +125,7 @@ use colored::{Color, ColoredString, Colorize};
 fn main() {
     // let driver = ca_driver::Driver{};
     // let source = "fn add(left: i32, right: i32): i32 {}";
-    let source = "fn add()";
+    let source = "fn add(a: i32, b: i32)";
 
     let mut src = source.to_string();
 
@@ -171,6 +171,7 @@ fn main() {
     let lexer = Lexer::new(source);
 
     let parser = Parser::new(lexer, "Cheese");
-    let (value, name) = parser.do_parse();
+    let (value, name, output) = parser.do_parse();
     println!("Value of {} is {:?}", name, value);
+    println!("Output: {:#?}", output.unwrap());
 }

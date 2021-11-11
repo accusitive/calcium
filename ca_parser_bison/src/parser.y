@@ -17,7 +17,9 @@
     use crate::loc::Loc;
     use crate::value::Value;
     use crate::value::Number;
-
+    use crate::value::Value::Function;
+    use crate::value::*;
+    // use crate::value::*:
 }
 
 %code parser_fields {
@@ -26,6 +28,7 @@
     pub name: String,
     /// Enables debug printing
     pub debug: bool,
+    pub output: Option<Value>
 }
 
 %token
@@ -38,6 +41,7 @@
     tLBRACK "{"
     tRBRACK "}"
     tCOLON  ":"
+    tCOMMA ","
     tINT    "int"
     tIDENTIFIER "local variable or method"
     tNUM    "number"
@@ -46,22 +50,47 @@
     tABORT  "controlled YYABORT"
     tACCEPT "controlled YYACCEPT"
 
-
 %left "-" "+"
 %left "*" "/"
-
+%type <Function> function
+%type <Functions> functions
+%type <FunctionArg> function_arg
+%type <FunctionArgs> function_args
+%type <Program> program
+%type <Ident> identifier
 %%
-
- program: function {
-     self.result = Some(1);
-     $$ = Value::None;
- } | program function {
-     self.result = Some(2);
-     $$ = Value::None;
+ program: functions {
+     self.result = Some(0);
+     self.output = Some($1);
+    $$ = $1
  }
- function: tFN tIDENTIFIER tLPAREN tRPAREN {
-     println!("Function named {:?}", $2);
-     $$ = Value::None;
+
+ functions: function {
+     $$ = Value::ValueList(vec![$1]);
+ } | functions function {
+     let mut fns = $<ValueList>1;
+     let v = Value::ValueList(fns);
+     $$ = v;
+ }
+ function: tFN identifier tLPAREN function_args tRPAREN {
+     $$ = Value::Function($<Ident>2, vec![$4]);
+ }
+ function_args: function_arg {
+     $$ = Value::ValueList(vec![$1]);
+ }
+ | function_args tCOMMA function_arg {
+     let mut args = $<crate::value::ValueList>1;
+     args.push($3);
+     let v = Value::ValueList(args);
+     $$ = v;
+ }
+ function_arg: identifier tCOLON identifier {
+     $$ = Value::FunctionArg(Box::new($1), Box::new($3));
+ }
+ identifier: tIDENTIFIER {
+     let tok = $<Token>1;
+     println!("Tok {:#?}", tok);
+     $$ = Value::Ident(tok.token_value);
  }
 
 %%
@@ -83,14 +112,15 @@ impl Parser {
             yylexer: lexer,
             result: None,
             name: name.to_owned(),
+            output: None
         }
     }
 
     /// Wrapper around generated `parse` method that also
     /// extracts `result` field and returns it.
-    pub fn do_parse(mut self) -> (Option<i32>, String) {
+    pub fn do_parse(mut self) -> (Option<i32>, String, Option<Value>) {
         self.parse();
-        (self.result, self.name)
+        (self.result, self.name, self.output)
     }
 
     fn next_token(&mut self) -> Token {
