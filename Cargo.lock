@@ -35,6 +35,8 @@ dependencies = [
  "ca_ast",
  "ca_parser_bison",
  "colored",
+ "paste",
+ "tt-equal",
 ]
 
 [[package]]
@@ -70,10 +72,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fbe5e23404da5b4f555ef85ebed98fb4083e55a00c317800bc2a50ede9f3d219"
 
 [[package]]
+name = "paste"
+version = "1.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0744126afe1a6dd7f394cb50a716dbe086cb06e255e53d8d0185d82828358fb5"
+
+[[package]]
 name = "peekmore"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca84ba11ed2de09f9a946e35be5efe5382bdd0621780b46ea8e24a7797b5be88"
+
+[[package]]
+name = "tt-call"
+version = "1.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5e66dcbec4290c69dd03c57e76c2469ea5c7ce109c6dd4351c13055cf71ea055"
+
+[[package]]
+name = "tt-equal"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be465ac1800caf32820b6d728cb0e8708eda450befdeca4a15766027be4a129b"
+dependencies = [
+ "tt-call",
+]
 
 [[package]]
 name = "winapi"

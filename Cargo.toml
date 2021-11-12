@@ -12,3 +12,6 @@ ca_parser_bison = {path="./ca_parser_bison"}
 # ca_driver = {path="./ca_driver"}
 # ca_backend_llvm = {path="./ca_backend_llvm"}
 colored = "2.0.0"
+[dev-dependencies]
+paste = "1.0.6"
+tt-equal = "0.1.2"
