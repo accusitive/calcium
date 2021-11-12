@@ -151,11 +151,8 @@ fn main() {
         Some(_result) => {
             let (_value, _name, output) = parsed;
             println!("Output: {:#?}", output.as_ref().unwrap());
-            let functions: Vec<_> = ca_ast::to_vec(&output.unwrap())
-                .iter()
-                .map(|f| ca_ast::to_function(f))
-                .collect();
-            println!("functions: {:#?}", functions);
+            let program = ca_ast::to_program(&output.unwrap());
+            println!("program: {:#?}", program);
         }
         None => {
             println!("{}", "Compilation failed.".bold())

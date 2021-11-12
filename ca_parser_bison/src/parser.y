@@ -76,7 +76,7 @@
 %%
  program: functions {
      self.result = Some(0);
-     self.output = Some($1);
+     self.output = Some(Value::Program(Box::new($1)));
     $$ = Value::Program(Box::new($1))
  }
 

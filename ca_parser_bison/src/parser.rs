@@ -727,7 +727,7 @@ impl Parser {
             /* "src/parser.y":77  */
             {
                 self.result = Some(0);
-                self.output = Some(yystack.owned_value_at(0));
+                self.output = Some(Value::Program(Box::new(yystack.owned_value_at(0))));
                 yyval = Value::Program(Box::new(yystack.owned_value_at(0)))
             }
 

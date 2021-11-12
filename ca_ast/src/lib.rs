@@ -96,12 +96,10 @@ pub fn to_vec(v: &Value) -> Vec<Value> {
 #[derive(Debug)]
 pub struct Identifier(String);
 #[derive(Debug)]
-
 pub struct Program {
     functions: Vec<Function>,
 }
 #[derive(Debug)]
-
 pub struct Function {
     name: Identifier,
     args: Vec<FunctionArg>,
@@ -109,25 +107,21 @@ pub struct Function {
     body: Expression,
 }
 #[derive(Debug)]
-
 pub struct FunctionArg {
     name: Identifier,
     ty: Ty,
 }
 #[derive(Debug)]
-
 pub struct ValueList<V> {
     content: Vec<V>,
 }
 #[derive(Debug)]
-
 pub struct Path {
     parts: Vec<PathSegment>,
 }
 
 type PathSegment = Identifier;
 #[derive(Debug)]
-
 pub enum Ty {
     Named(Path),
     Infer,
