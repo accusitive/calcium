@@ -128,7 +128,7 @@ fn main() {
 
     let source = "fn add(a: std::i32, b: i32::aa::asd::ee)";
     let lexer = Lexer::new(source);
- 
+
     for token in lexer {
         if token.token_type == Lexer::YYEOF {
             break;
