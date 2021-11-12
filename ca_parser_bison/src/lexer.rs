@@ -152,7 +152,6 @@ impl Iterator for Lexer {
                 }
 
                 Some(c @ (':' | ',' | '=' | '+' | '-' | '*' | '/' | '_')) => {
-                    
                     let ty = match c {
                         ':' => Self::tCOLON,
                         ',' => Self::tCOMMA,

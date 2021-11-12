@@ -33,6 +33,10 @@ pub fn print_error(source: &str, range: Range<usize>, line: usize) {
     for _ in range.start.saturating_sub(1)..range.end {
         print!("^")
     }
-    let fmted = format!(" Line {}:{:?}", line, range.start.saturating_sub(1)..range.end.saturating_sub(1));
+    let fmted = format!(
+        " Line {}:{:?}",
+        line,
+        range.start.saturating_sub(1)..range.end.saturating_sub(1)
+    );
     println!("{}", fmted.bright_red());
 }

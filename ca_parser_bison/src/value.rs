@@ -26,11 +26,14 @@ pub enum Value {
     ArithExpr(Box<Value>, Op, Box<Value>),
     CallExpr(Box<Value>, Box<Value>), // Path, args
     Ty(Box<Value>),
-    Infer
+    Infer,
 }
 #[derive(Debug, Clone, Copy)]
 pub enum Op {
-    Add, Sub, Mul, Div
+    Add,
+    Sub,
+    Mul,
+    Div,
 }
 impl Default for Value {
     fn default() -> Self {
