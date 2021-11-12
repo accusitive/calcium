@@ -150,21 +150,22 @@ impl Iterator for Lexer {
                     })
                 }
 
-                Some(c@ (':' | ',' | '=' |'+')) => { 
+                Some(c @ (':' | ',' | '=' | '+')) => {
                     let ty = match c {
                         ':' => Self::tCOLON,
                         ',' => Self::tCOMMA,
                         '=' => Self::tASSIGN,
                         '+' => Self::tPLUS,
-                        _ => panic!("Invalid single character token, not possible.")
+                        _ => panic!("Invalid single character token, not possible."),
                     };
                     Some(Token {
-                    loc: loc!(1),
-                    token_type: ty,
-                    token_value: c.to_string(),
-                    spaces_before: std::mem::take(&mut self.spaces),
-                })},
-               
+                        loc: loc!(1),
+                        token_type: ty,
+                        token_value: c.to_string(),
+                        spaces_before: std::mem::take(&mut self.spaces),
+                    })
+                }
+
                 Some(s @ ' ') => {
                     self.spaces.push(s);
                     self.col += 1;
