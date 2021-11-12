@@ -21,8 +21,8 @@ jobs:
       - name: Download
         run: |
           wget http://mirrors.syringanetworks.net/gnu/bison/bison-3.8.2.tar.xz
-          tar -xvf bison-3.8.tar.xz
-          cd bison-3.8
+          tar -xvf bison-3.8-2.tar.xz
+          cd bison-3.8-2
           ./configure
           make 
           sudo make install
