@@ -17,7 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Install packages
-        run: apt-get update && apt-get install -y autoconf bison build-essential
+        run: sudo apt-get update && apt-get install -y autoconf bison build-essential
+      - name: print bison
+        run: bison --version
       - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
