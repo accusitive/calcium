@@ -127,7 +127,7 @@
  }
 
  block_expr: tLBRACK statements tRBRACK {
-     $$ = $2
+     $$ = Value::BlockExpr(Box::new($2))
  }
  statements: statement {
     $$ = Value::ValueList(vec![$1]);
@@ -139,10 +139,10 @@
      $$ = v;
  }
  statement: let_stmt {
-     $$ = $1;
+     $$ = Value::Statement(Box::new($1));
  }
  | return_stmt {
-     $$ = $1
+     $$ = Value::Statement(Box::new($1));
  }
  let_stmt: tLET identifier tCOLON ty tASSIGN expr {
      $$ = Value::LetStatement(Box::new($2), Box::new($4), Box::new($6));

@@ -26,6 +26,7 @@ pub enum Value {
     ArithExpr(Box<Value>, Op, Box<Value>),
     CallExpr(Box<Value>, Box<Value>), // Path, args
     Ty(Box<Value>),
+    BlockExpr(Box<Value>),
     Infer,
 }
 #[derive(Debug, Clone, Copy)]
