@@ -29,7 +29,7 @@ pub enum Value {
     StatementLet(Box<Value>, Box<Value>, Box<Value>), //ident, path, right
     Expr(Box<Value>),
     LiteralExpr(String),
-    AdditionExpr(Box<Value>, Box<Value>)
+    AdditionExpr(Box<Value>, Box<Value>),
 }
 #[derive(Debug, Clone)]
 pub struct XFunction {

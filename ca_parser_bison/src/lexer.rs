@@ -146,7 +146,7 @@ impl Iterator for Lexer {
                         tokens.push(*value);
                         current += 1;
                     }
-                    
+
                     for _ in 0..current {
                         self.chars.next();
                     }
@@ -155,7 +155,7 @@ impl Iterator for Lexer {
                         s.push(*c);
                         s
                     });
-                    
+
                     Some(Token {
                         loc: loc!(tokens.len()),
                         token_type: Self::tNUM,
