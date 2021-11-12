@@ -72,22 +72,7 @@ impl Iterator for Lexer {
         }
         loop {
             let m = match self.chars.next() {
-                // Some(( 'f'))
-                //     if peek_matches!('n')
-                //         && self.chars.peek_nth(i + 1).map(|c| c.1) == Some(' ') =>
-                // {
-                //     self.advance_by(1).unwrap();
-                //     Some(Token {
-                //         token_type: Self::tFN,
-                //         token_value: "fn".to_string(),
-                //         spaces_before: std::mem::take(&mut self.spaces),
-
-                //         loc: Loc {
-                //             begin: self.col,
-                //             end: inc_col!(2),
-                //         },
-                //     })
-                // }
+                // Brackets () {}
                 Some(c) if Self::bracket_to_token(c).is_some() => Some(Token {
                     token_type: Self::bracket_to_token(c).unwrap(),
                     token_value: c.to_string(),
@@ -95,6 +80,7 @@ impl Iterator for Lexer {
 
                     loc: loc!(1),
                 }),
+                // Double colon
                 Some(':') if self.chars.peek_nth(0) == Some(&':') => {
                     self.chars.next().unwrap();
                     Some(Token {
@@ -104,6 +90,7 @@ impl Iterator for Lexer {
                         spaces_before: std::mem::take(&mut self.spaces),
                     })
                 }
+                // Identifier
                 Some(c) if c.is_alphabetic() => {
                     let mut tokens = vec![c];
                     let mut current = 0;
@@ -118,7 +105,6 @@ impl Iterator for Lexer {
                     for _ in 0..current {
                         self.chars.next();
                     }
-                    // self.chars.advance_by(current).unwrap();
                     let token_value = tokens.iter().fold(String::new(), |mut s, c| {
                         s.push(*c);
                         s
@@ -164,30 +150,21 @@ impl Iterator for Lexer {
                     })
                 }
 
-                Some(':') => Some(Token {
+                Some(c@ (':' | ',' | '=' |'+')) => { 
+                    let ty = match c {
+                        ':' => Self::tCOLON,
+                        ',' => Self::tCOMMA,
+                        '=' => Self::tASSIGN,
+                        '+' => Self::tPLUS,
+                        _ => panic!("Invalid single character token, not possible.")
+                    };
+                    Some(Token {
                     loc: loc!(1),
-                    token_type: Self::tCOLON,
-                    token_value: ":".to_string(),
+                    token_type: ty,
+                    token_value: c.to_string(),
                     spaces_before: std::mem::take(&mut self.spaces),
-                }),
-                Some(',') => Some(Token {
-                    loc: loc!(1),
-                    token_type: Self::tCOMMA,
-                    token_value: ",".to_string(),
-                    spaces_before: std::mem::take(&mut self.spaces),
-                }),
-                Some('=') => Some(Token {
-                    loc: loc!(1),
-                    token_type: Self::tASSIGN,
-                    token_value: "=".to_string(),
-                    spaces_before: std::mem::take(&mut self.spaces),
-                }),
-                Some('+') => Some(Token {
-                    loc: loc!(1),
-                    token_type: Self::tPLUS,
-                    token_value: "+".to_string(),
-                    spaces_before: std::mem::take(&mut self.spaces),
-                }),
+                })},
+               
                 Some(s @ ' ') => {
                     self.spaces.push(s);
                     self.col += 1;
