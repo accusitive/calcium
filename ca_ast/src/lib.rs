@@ -31,9 +31,10 @@ pub fn to_expression(v: &Value) -> Expression {
             Value::LiteralExpr(l) => Expression::Literal(l.parse().unwrap()),
             _ => todo!(),
         },
-        Value::BlockExpr(stmts) => Expression::Block(to_vec(stmts).iter().map(|s| to_statement(s)).collect()),
-        
-        
+        Value::BlockExpr(stmts) => {
+            Expression::Block(to_vec(stmts).iter().map(|s| to_statement(s)).collect())
+        }
+
         _ => todo!(),
     }
 }
@@ -42,11 +43,13 @@ pub fn to_statement(v: &Value) -> Statement {
 
     match v {
         Value::Statement(s) => match &**s {
-            Value::LetStatement(bind, ty, expr) => Statement::Let(to_identifier(&bind), to_ty(&ty), to_expression(&expr)),
+            Value::LetStatement(bind, ty, expr) => {
+                Statement::Let(to_identifier(&bind), to_ty(&ty), to_expression(&expr))
+            }
             Value::ReturnStatement(val) => Statement::Return(to_expression(val)),
-            _ => todo!()
-        }
-        _ => todo!()
+            _ => todo!(),
+        },
+        _ => todo!(),
     }
 }
 pub fn to_function_arg(v: &Value) -> FunctionArg {
