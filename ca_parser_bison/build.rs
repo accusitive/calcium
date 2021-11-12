@@ -1,6 +1,6 @@
 fn main() {
     println!("cargo:rerun-if-changed=src/parser.y");
-    
+
     match process_bison_file(Path::new("src/parser.y")) {
         Ok(_) => {}
         Err(BisonErr { message, .. }) => {
