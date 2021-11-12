@@ -22,9 +22,14 @@ pub enum Value {
     // Number(i32),
     Program(Vec<Value>),
     ValueList(Vec<Value>),
-    Function(String, Vec<Value>, Box<Value>),
+    Function(String, Vec<Value>, Box<Value>, Box<Value>), // Name, args, ty, body
     FunctionArg(Box<Value>, Box<Value>),
     Ident(String),
+    Statement(Box<Value>),
+    StatementLet(Box<Value>, Box<Value>, Box<Value>), //ident, path, right
+    Expr(Box<Value>),
+    LiteralExpr(String),
+    AdditionExpr(Box<Value>, Box<Value>)
 }
 #[derive(Debug, Clone)]
 pub struct XFunction {

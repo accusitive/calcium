@@ -6,7 +6,7 @@ use crate::lexer::Lexer;
 
 // Not pretty printing
 
-pub fn print_error(source: &str, range: Range<usize>) {
+pub fn print_error(source: &str, range: Range<usize>, line: usize) {
     let lexer = Lexer::new(source);
     for token in lexer {
         if token.token_type == Lexer::YYEOF {
@@ -32,5 +32,6 @@ pub fn print_error(source: &str, range: Range<usize>) {
     for _ in range.start - 1..range.end {
         print!("^")
     }
-    println!(" {}", "Error is here".bright_red());
+    let fmted = format!(" Line {}:{:?}", line, range.start-1..range.end-1);
+    println!("{}", fmted.bright_red());
 }

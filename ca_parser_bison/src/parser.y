@@ -38,6 +38,8 @@
     tPATHSEP "::"
     tCOMMA  ","
     tINT    "int"
+    tLET    "let"
+    tASSIGN "="
     tIDENTIFIER "local variable or method"
     tNUM    "number"
     tFN     "fn"
@@ -55,6 +57,13 @@
 %type <Ident> identifier
 %type <PathSegment> path_segment
 %type <Path> path
+%type <Statement> statement
+%type <StatementLet> let_stmt
+%type <Statements> statements
+%type <BlockExpr> block_expr
+%type <Expr> expr
+%type <LiteralExpr> literal_expr
+
 %%
  program: functions {
      self.result = Some(0);
@@ -72,8 +81,8 @@
      let v = Value::ValueList(fns);
      $$ = v;
  }
- function: tFN identifier tLPAREN function_args tRPAREN tCOLON path {
-     $$ = Value::Function($<Ident>2, vec![$4], Box::new($7));
+ function: tFN identifier tLPAREN function_args tRPAREN tCOLON path block_expr {
+     $$ = Value::Function($<Ident>2, vec![$4], Box::new($7), Box::new($8));
  }
  function_args: function_arg {
      $$ = Value::ValueList(vec![$1]);
@@ -91,6 +100,7 @@
      let tok = $<Token>1;
      $$ = Value::Ident(tok.token_value);
  }
+
  path: path_segment {
     $$ = Value::ValueList(vec![$1]);
  }
@@ -103,6 +113,35 @@
  path_segment: identifier {
      $$ = Value::Ident($<Ident>1);
  }
+
+ block_expr: tLBRACK statements tRBRACK {
+     $$ = $2
+ }
+ statements: statement {
+    $$ = Value::ValueList(vec![$1]);
+ }
+ | statements statement {
+     let mut stmts = $<ValueList>1;
+     stmts.push($2);
+     let v = Value::ValueList(stmts);
+     $$ = v;
+ }
+ statement: let_stmt {
+     $$ = $1;
+ }
+ let_stmt: tLET identifier tCOLON path tASSIGN expr {
+     $$ = Value::StatementLet(Box::new($2), Box::new($4), Box::new($6));
+ }
+ expr: literal_expr {
+     $$ = Value::Expr(Box::new($1))
+ }
+ | expr tPLUS expr {
+     $$ = Value::Expr(Box::new(Value::AdditionExpr(Box::new($1), Box::new($3))))
+ }
+ literal_expr: tNUM {
+     $$ = Value::LiteralExpr($<Token>1.token_value)
+ }
+
 %%
 
 impl Parser {
@@ -141,6 +180,6 @@ impl Parser {
     fn report_syntax_error(&self, _stack: &YYStack, _yytoken: &SymbolKind, loc: YYLoc) {
         //TODO: Look into using stack for error messages
         let source = self.source.to_string();
-        crate::pretty::print_error(&source, loc.to_range());
+        crate::pretty::print_error(&source, loc.to_range(), self.yylexer.line+1);
     }
 }

@@ -4,9 +4,9 @@ use peekmore::{PeekMore, PeekMoreIterator};
 #[derive(Debug)]
 pub struct Lexer {
     chars: PeekMoreIterator<std::vec::IntoIter<char>>,
-    spaces: String,
-    col: usize,
-    line: usize,
+    pub spaces: String,
+    pub col: usize,
+    pub line: usize,
 }
 impl Lexer {
     pub fn new(input: &str) -> Self {
@@ -114,6 +114,7 @@ impl Iterator for Lexer {
                         tokens.push(*value);
                         current += 1;
                     }
+
                     for _ in 0..current {
                         self.chars.next();
                     }
@@ -124,6 +125,7 @@ impl Iterator for Lexer {
                     });
                     let token_type = match token_value.as_str() {
                         "fn" => Self::tFN,
+                        "let" => Self::tLET,
                         _ => Self::tIDENTIFIER,
                     };
                     Some(Token {
@@ -133,6 +135,35 @@ impl Iterator for Lexer {
                         spaces_before: std::mem::take(&mut self.spaces),
                     })
                 }
+                // Number literal
+                Some(c) if c.is_numeric() => {
+                    let mut tokens = vec![c];
+                    let mut current = 0;
+                    while let Some(value) = self.chars.peek_nth(current) {
+                        if !char::is_numeric(*value) {
+                            break;
+                        }
+                        tokens.push(*value);
+                        current += 1;
+                    }
+                    
+                    for _ in 0..current {
+                        self.chars.next();
+                    }
+                    // self.chars.advance_by(current).unwrap();
+                    let token_value = tokens.iter().fold(String::new(), |mut s, c| {
+                        s.push(*c);
+                        s
+                    });
+                    
+                    Some(Token {
+                        loc: loc!(tokens.len()),
+                        token_type: Self::tNUM,
+                        token_value,
+                        spaces_before: std::mem::take(&mut self.spaces),
+                    })
+                }
+
                 Some(':') => Some(Token {
                     loc: loc!(1),
                     token_type: Self::tCOLON,
@@ -145,7 +176,18 @@ impl Iterator for Lexer {
                     token_value: ",".to_string(),
                     spaces_before: std::mem::take(&mut self.spaces),
                 }),
-
+                Some('=') => Some(Token {
+                    loc: loc!(1),
+                    token_type: Self::tASSIGN,
+                    token_value: "=".to_string(),
+                    spaces_before: std::mem::take(&mut self.spaces),
+                }),
+                Some('+') => Some(Token {
+                    loc: loc!(1),
+                    token_type: Self::tPLUS,
+                    token_value: "+".to_string(),
+                    spaces_before: std::mem::take(&mut self.spaces),
+                }),
                 Some(s @ ' ') => {
                     self.spaces.push(s);
                     self.col += 1;
