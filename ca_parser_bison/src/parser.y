@@ -4,7 +4,7 @@
 
 %define api.value.type {Value}
 
-%define parse.error detailed
+%define parse.error custom
 %define parse.trace
 
 %code use {
