@@ -150,7 +150,9 @@ fn main() {
     match parsed.0 {
         Some(_result) => {
             let (_value, _name, output) = parsed;
-            println!("Output: {:#?}", output.unwrap());
+            println!("Output: {:#?}", output.as_ref().unwrap());
+            let functions: Vec<_> = ca_ast::to_vec(&output.unwrap()).iter().map(|f| ca_ast::to_function(f)).collect();
+            println!("functions: {:#?}", functions);
         }
         None => {
             println!("{}", "Compilation failed.".bold())

@@ -1,100 +1,100 @@
-pub type BExpr = Box<Expr>;
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Program {
-    pub items: Vec<Item>,
+use std::ops::Deref;
+
+use ca_parser_bison::value::Value;
+
+pub fn build_ast(v: Value) {}
+pub fn to_program(v: &Value) -> Program {
+    match v {
+        Value::Program(list) => Program {
+            functions: to_vec(list).iter().map(|v| to_function(v)).collect(),
+        },
+        _ => todo!(),
+    }
 }
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Item {
-    Function(Function),
-    Struct(Struct),
+pub fn to_function(v: &Value) -> Function {
+    match v {
+        Value::Function(name, params, ty, body) => Function {
+            name: Identifier(name.to_string()),
+            args: to_vec(params).iter().map(|a| to_function_arg(a)).collect(),
+        },
+        _ => todo!(),
+    }
 }
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Struct {
-    pub name: String,
-    pub fields: Vec<StructField>,
+pub fn to_function_arg(v: &Value) -> FunctionArg {
+    match v {
+        Value::FunctionArg(name, ty) => FunctionArg {
+            name: Identifier(name.to_string()),
+            ty: to_ty(ty),
+        },
+        _ => todo!(),
+    }
 }
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct StructField {
-    pub name: String,
-    pub ty: Ty,
+pub fn to_ty(v: &Value) -> Ty {
+    match v {
+        Value::Ty(t) => match &**t {
+            Value::Infer => Ty::Infer,
+            Value::PathExpr(_segments) => Ty::Named(to_path(&t)),
+            _ => todo!(),
+        },
+        _ => todo!(),
+    }
 }
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Function {
-    pub name: String,
-    pub args: Vec<FunctionArg>,
-    pub body: Expr,
-    pub ty: Ty,
+pub fn to_path(v: &Value) -> Path {
+    match v {
+        Value::PathExpr(p) => {
+            let segments = to_vec(p).iter().map(|seg| to_identifier(seg)).collect();
+            Path { parts: segments }
+        }
+        _ => todo!(),
+    }
+}
+pub fn to_identifier(v: &Value) -> Identifier {
+    match v {
+        Value::Ident(s) => Identifier(s.to_string()),
+        _ => todo!(),
+    }
+}
+pub fn to_vec(v: &Value) -> Vec<Value> {
+    match v {
+        Value::ValueList(v) => v.to_vec(),
+        _ => todo!(),
+    }
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug)]
+pub struct Identifier(String);
+#[derive(Debug)]
+
+pub struct Program {
+    functions: Vec<Function>,
+}
+#[derive(Debug)]
+
+pub struct Function {
+    name: Identifier,
+    args: Vec<FunctionArg>,
+}
+#[derive(Debug)]
 
 pub struct FunctionArg {
-    pub ty: Ty,
-    pub ident: String,
+    name: Identifier,
+    ty: Ty,
 }
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug)]
+
+pub struct ValueList<V> {
+    content: Vec<V>,
+}
+#[derive(Debug)]
+
+pub struct Path {
+    parts: Vec<PathSegment>,
+}
+
+type PathSegment = Identifier;
+#[derive(Debug)]
+
 pub enum Ty {
-    Named(String),
-    Int32,
-    Bool,
-    Unit,
-}
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Stmt {
-    LetStmt {
-        name: String,
-        ty: Option<Ty>,
-        value: Expr,
-    },
-    ExprStmt(Expr),
-    Return(Box<Expr>),
-}
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Expr {
-    LiteralExpr(Literal),
-    Block(Vec<Stmt>),
-    BinOp(Box<Expr>, Op, Box<Expr>),
-    Ident(String),
-    UnaryOp(UnaryOp, Box<Expr>),
-    Call(String, Option<Vec<Expr>>),
-    If(Box<Expr>, Box<Expr>, Box<Expr>),
-}
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Op {
-    LShift,
-    RShift,
-    Mul,
-    Div,
-    Sub,
-    Add,
-    Xor,
-    And,
-    Or,
-    Lt,
-    Gt,
-}
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum UnaryOp {
-    Sub,
-    Invert,
-}
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Literal {
-    String(String),
-    Char(char),
-    Integer(i64),
-}
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Attribute {
-    Short(String),
-    Long(String, String),
-    Array(String, Vec<String>),
-}
-impl Expr {
-    pub fn assume_ident(&self) -> String {
-        match self {
-            Expr::Ident(s) => s.to_string(),
-            _ => panic!("Assumption was wrong."),
-        }
-    }
+    Named(Path),
+    Infer,
 }

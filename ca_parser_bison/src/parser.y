@@ -77,7 +77,7 @@
  program: functions {
      self.result = Some(0);
      self.output = Some($1);
-    $$ = $1
+    $$ = Value::Program(Box::new($1))
  }
 
  functions: function {
@@ -91,7 +91,7 @@
      $$ = v;
  }
  function: tFN identifier tLPAREN function_args tRPAREN tCOLON path block_expr {
-     $$ = Value::Function($<Ident>2, vec![$4], Box::new($7), Box::new($8));
+     $$ = Value::Function($<Ident>2, Box::new($4), Box::new(Value::Ty(Box::new($7))), Box::new($8));
  }
  function_args: function_arg {
      $$ = Value::ValueList(vec![$1]);
@@ -106,7 +106,7 @@
      $$ = Value::ValueList(vec![]);
  }
  function_arg: identifier tCOLON path {
-     $$ = Value::FunctionArg(Box::new($1), Box::new($3));
+     $$ = Value::FunctionArg($<Ident>1, Box::new(Value::Ty(Box::new($3))));
  }
  identifier: tIDENTIFIER {
      let tok = $<Token>1;
@@ -114,7 +114,7 @@
  }
 
  path: path_segment {
-    $$ = Value::ValueList(vec![$1]);
+    $$ = Value::PathExpr(Box::new(Value::ValueList(vec![$1])));
  }
  | path tPATHSEP path_segment {
      let mut args = $<ValueList>1;

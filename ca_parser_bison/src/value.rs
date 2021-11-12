@@ -11,10 +11,10 @@ pub enum Value {
     Uninitialized,
     Stolen,
     Token(Token),
-    Program(Vec<Value>),
+    Program(Box<Value>), // Valuelist
     ValueList(Vec<Value>),
-    Function(String, Vec<Value>, Box<Value>, Box<Value>), // Name, args, ty, body
-    FunctionArg(Box<Value>, Box<Value>),
+    Function(String, Box<Value>, Box<Value>, Box<Value>), // Name, args, ty, body
+    FunctionArg(String, Box<Value>),
     Ident(String),
     Statement(Box<Value>),
     LetStatement(Box<Value>, Box<Value>, Box<Value>), //ident, path, right
