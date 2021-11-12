@@ -8,7 +8,6 @@ name = "ca_parser_bison"
 repository = "https://github.com/iliabylich/rust-bison-skeleton"
 version = "0.37.0"
 [dependencies]
-prev-iter = {path = "../prev-iter"}
 peekmore = "1.0.0"
 # ca_lexer = {path="../ca_lexer"}
 colored = "2.0.0"

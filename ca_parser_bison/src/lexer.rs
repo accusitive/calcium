@@ -1,10 +1,9 @@
 use crate::{loc::Loc, value::Value};
 use peekmore::{PeekMore, PeekMoreIterator};
-use prev_iter::PrevPeekable;
 
 #[derive(Debug)]
 pub struct Lexer {
-    chars: PeekMoreIterator<PrevPeekable<std::vec::IntoIter<char>>>,
+    chars: PeekMoreIterator<std::vec::IntoIter<char>>,
     spaces: String,
     col: usize,
     line: usize,
@@ -12,7 +11,7 @@ pub struct Lexer {
 impl Lexer {
     pub fn new(input: &str) -> Self {
         Lexer {
-            chars: PrevPeekable::new(input.chars().collect::<Vec<_>>().into_iter()).peekmore(),
+            chars: input.chars().collect::<Vec<_>>().into_iter().peekmore(),
             col: 0,
             line: 0,
             spaces: String::new(),
