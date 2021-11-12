@@ -19,6 +19,7 @@ pub fn print_error(source: &str, range: Range<usize>, line: usize) {
             Lexer::tFN => s.cyan(),
             Lexer::tLPAREN | Lexer::tRPAREN | Lexer::tRBRACK | Lexer::tLBRACK => s.yellow(),
             Lexer::tCOLON => s.bright_purple(),
+            Lexer::tRETURN => s.bright_yellow(),
             _ => s.white(),
         };
 
@@ -29,9 +30,9 @@ pub fn print_error(source: &str, range: Range<usize>, line: usize) {
     for _ in 0..range.start {
         print!(" ")
     }
-    for _ in range.start - 1..range.end {
+    for _ in range.start.saturating_sub(1)..range.end {
         print!("^")
     }
-    let fmted = format!(" Line {}:{:?}", line, range.start - 1..range.end - 1);
+    let fmted = format!(" Line {}:{:?}", line, range.start.saturating_sub(1)..range.end.saturating_sub(1));
     println!("{}", fmted.bright_red());
 }

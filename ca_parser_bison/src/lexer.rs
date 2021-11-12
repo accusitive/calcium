@@ -112,6 +112,7 @@ impl Iterator for Lexer {
                     let token_type = match token_value.as_str() {
                         "fn" => Self::tFN,
                         "let" => Self::tLET,
+                        "return" => Self::tRETURN,
                         _ => Self::tIDENTIFIER,
                     };
                     Some(Token {
@@ -150,12 +151,17 @@ impl Iterator for Lexer {
                     })
                 }
 
-                Some(c @ (':' | ',' | '=' | '+')) => {
+                Some(c @ (':' | ',' | '=' | '+' | '-' | '*' | '/' | '_')) => {
+                    
                     let ty = match c {
                         ':' => Self::tCOLON,
                         ',' => Self::tCOMMA,
                         '=' => Self::tASSIGN,
                         '+' => Self::tPLUS,
+                        '-' => Self::tMINUS,
+                        '*' => Self::tMUL,
+                        '/' => Self::tDIV,
+                        '_' => Self::tINFER,
                         _ => panic!("Invalid single character token, not possible."),
                     };
                     Some(Token {

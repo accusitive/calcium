@@ -40,6 +40,8 @@
     tINT    "int"
     tLET    "let"
     tASSIGN "="
+    tRETURN "return"
+    tINFER "_"
     tIDENTIFIER "local variable or method"
     tNUM    "number"
     tFN     "fn"
@@ -58,11 +60,18 @@
 %type <PathSegment> path_segment
 %type <Path> path
 %type <Statement> statement
-%type <StatementLet> let_stmt
+%type <LetStatement> let_stmt
+%type <ReturnStatement> return_stmt
+
 %type <Statements> statements
 %type <BlockExpr> block_expr
 %type <Expr> expr
 %type <LiteralExpr> literal_expr
+
+%type <ThisDoesntMatter> ty
+%type <CallExpr> call_expr
+%type <CallParam> call_params
+%type <None> none
 
 %%
  program: functions {
@@ -92,6 +101,9 @@
      args.push($3);
      let v = Value::ValueList(args);
      $$ = v;
+ }
+ | none {
+     $$ = Value::ValueList(vec![]);
  }
  function_arg: identifier tCOLON path {
      $$ = Value::FunctionArg(Box::new($1), Box::new($3));
@@ -129,19 +141,75 @@
  statement: let_stmt {
      $$ = $1;
  }
- let_stmt: tLET identifier tCOLON path tASSIGN expr {
-     $$ = Value::StatementLet(Box::new($2), Box::new($4), Box::new($6));
+ | return_stmt {
+     $$ = $1
  }
+ let_stmt: tLET identifier tCOLON ty tASSIGN expr {
+     $$ = Value::LetStatement(Box::new($2), Box::new($4), Box::new($6));
+ }
+ return_stmt: tRETURN expr {
+     $$ = Value::ReturnStatement(Box::new($2))
+ }
+
+
+ ty: path {
+     $$ = Value::Ty(Box::new($1))
+ }
+ | tINFER {
+     $$ = Value::Ty(Box::new(Value::Infer))
+ }
+ call_params: none {
+     $$ = Value::ValueList(vec![])
+ } | expr {
+     $$ = Value::ValueList(vec![$1])
+ } | call_params tCOMMA expr {
+     let mut params = $<ValueList>1;
+     params.push($3);
+     let v = Value::ValueList(params);
+     $$ = v;
+ }
+ none: {
+    $$ = Value::None
+ }
+
+
+
+
+
  expr: literal_expr {
      $$ = Value::Expr(Box::new($1))
  }
+ | block_expr {
+     $$ = Value::Expr(Box::new($1))
+ }
+ | call_expr {
+   $$ = Value::Expr(Box::new($1))
+ }
+ | tLPAREN expr tRPAREN {
+     $$ = $2;
+ }
+ | path {
+     $$ = Value::Expr(Box::new($1))
+ }
  | expr tPLUS expr {
-     $$ = Value::Expr(Box::new(Value::AdditionExpr(Box::new($1), Box::new($3))))
+     $$ = Value::Expr(Box::new(Value::ArithExpr(Box::new($1), Op::Add, Box::new($3))))
+ }
+ | expr tMINUS expr {
+     $$ = Value::Expr(Box::new(Value::ArithExpr(Box::new($1), Op::Sub, Box::new($3))))
+ }
+ | expr tMUL expr {
+     $$ = Value::Expr(Box::new(Value::ArithExpr(Box::new($1), Op::Mul, Box::new($3))))
+ }
+ | expr tDIV expr {
+     $$ = Value::Expr(Box::new(Value::ArithExpr(Box::new($1), Op::Div, Box::new($3))))
  }
  literal_expr: tNUM {
      $$ = Value::LiteralExpr($<Token>1.token_value)
  }
-
+ call_expr: path tLPAREN call_params tRPAREN {
+     $$ = Value::CallExpr(Box::new($1), Box::new($3))
+ }
+ 
 %%
 
 impl Parser {

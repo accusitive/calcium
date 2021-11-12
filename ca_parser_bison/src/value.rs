@@ -7,39 +7,30 @@ use crate::lexer::Token;
 /// have a stack, and it's better for it to be heterogeneous.
 #[derive(Debug, Clone)]
 pub enum Value {
-    /// Required variant, parser expects it to be defined
     None,
-    /// Required variant, parser expects it to be defined
     Uninitialized,
-    /// Required variant, parser expects it to be defined
     Stolen,
-
-    /// Required variant, parser expects it to be defined.
-    /// Represents a token that is returned from a Lexer
     Token(Token),
-
-    /// Represents a number
-    // Number(i32),
     Program(Vec<Value>),
     ValueList(Vec<Value>),
     Function(String, Vec<Value>, Box<Value>, Box<Value>), // Name, args, ty, body
     FunctionArg(Box<Value>, Box<Value>),
     Ident(String),
     Statement(Box<Value>),
-    StatementLet(Box<Value>, Box<Value>, Box<Value>), //ident, path, right
+    LetStatement(Box<Value>, Box<Value>, Box<Value>), //ident, path, right
+    ReturnStatement(Box<Value>),
     Expr(Box<Value>),
+
     LiteralExpr(String),
-    AdditionExpr(Box<Value>, Box<Value>),
+    PathExpr(Box<Value>),
+    ArithExpr(Box<Value>, Op, Box<Value>),
+    CallExpr(Box<Value>, Box<Value>), // Path, args
+    Ty(Box<Value>),
+    Infer
 }
-#[derive(Debug, Clone)]
-pub struct XFunction {
-    pub name: String,
-    pub args: Vec<FunctionArg>,
-}
-#[derive(Debug, Clone)]
-pub struct FunctionArg {
-    pub name: String,
-    pub ty: String,
+#[derive(Debug, Clone, Copy)]
+pub enum Op {
+    Add, Sub, Mul, Div
 }
 impl Default for Value {
     fn default() -> Self {
