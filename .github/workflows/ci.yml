@@ -18,6 +18,16 @@ jobs:
         uses: actions/checkout@v1
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install -y autoconf bison build-essential
+      - name: Download
+        run: |
+          wget http://ftp.gnu.org/gnu/bison/bison-3.8.tar.xz
+          tar -xvf bison-3.8.tar.xz
+          cd bison
+          ./configure
+          make 
+          sudo make install
+
+        
       - name: print bison
         run: bison --version
       - name: Install rust
@@ -37,7 +47,7 @@ jobs:
 
   test:
     name: Test
-    
+
     runs-on: ubuntu-latest
 
     strategy:
