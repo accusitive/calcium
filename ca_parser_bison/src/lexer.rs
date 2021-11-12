@@ -96,7 +96,7 @@ impl Iterator for Lexer {
                     loc: loc!(1),
                 }),
                 Some(':') if self.chars.peek_nth(0) == Some(&':') => {
-                    self.chars.advance_by(1).unwrap();
+                    self.chars.next().unwrap();
                     Some(Token {
                         loc: loc!(2),
                         token_type: Self::tPATHSEP,
@@ -114,7 +114,10 @@ impl Iterator for Lexer {
                         tokens.push(*value);
                         current += 1;
                     }
-                    self.chars.advance_by(current).unwrap();
+                    for _ in 0..current {
+                        self.chars.next();
+                    }
+                    // self.chars.advance_by(current).unwrap();
                     let token_value = tokens.iter().fold(String::new(), |mut s, c| {
                         s.push(*c);
                         s
