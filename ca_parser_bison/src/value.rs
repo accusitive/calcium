@@ -22,7 +22,7 @@ pub enum Value {
     // Number(i32),
     Program(Vec<Value>),
     ValueList(Vec<Value>),
-    Function(String, Vec<Value>),
+    Function(String, Vec<Value>, Box<Value>),
     FunctionArg(Box<Value>, Box<Value>),
     Ident(String),
 }

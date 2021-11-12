@@ -126,7 +126,7 @@ use colored::Colorize;
 fn main() {
     // let source = "fn add(a: i32, b: i32), \nfn add(a: i32, b: i32::aa)";
 
-    let source = "fn add(a: std::i32, b: i32::aa::asd::ee)";
+    let source = "fn add(a: std::i32, b: i32::aa::asd::ee): i32";
     let lexer = Lexer::new(source);
 
     for token in lexer {
