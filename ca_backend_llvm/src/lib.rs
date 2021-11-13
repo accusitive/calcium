@@ -21,10 +21,10 @@ impl<'a> Compiler<'a> {
             .unwrap();
         let builder = context.create_builder();
         let compiler = Compiler {
-            context: context,
-            module: module,
-            builder: builder,
-            execution_engine: execution_engine,
+            context,
+            module,
+            builder,
+            execution_engine,
             program: p,
         };
         compiler
