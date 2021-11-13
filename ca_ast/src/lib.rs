@@ -13,17 +13,25 @@ pub fn to_item(v: &Value) -> Item {
         Value::Item(i) => match &**i {
             Value::Function(_, _, _, _) => Item::Function(to_function(i)),
             Value::Struct(_, _) => Item::Struct(to_struct(i)),
-
+            Value::Import(_, _) => Item::Import(to_import(i)),
             _ => todo!(),
         },
         _ => todo!(),
     }
 }
 pub fn to_function(v: &Value) -> Function {
+    // TODO: How can the parser not return a Value::None with no function args?
     match v {
         Value::Function(name, params, ty, body) => Function {
             name: Identifier(name.to_string()),
-            args: to_vec(params).iter().map(|a| to_function_arg(a)).collect(),
+            args: to_vec(params)
+                .iter()
+                .filter(|f| match &**f {
+                    Value::None => false,
+                    _ => true,
+                })
+                .map(|a| to_function_arg(a))
+                .collect(),
             ty: to_ty(ty),
             body: to_expression(body),
         },
@@ -44,6 +52,15 @@ pub fn to_struct_field(v: &Value) -> StructField {
         Value::StructField(name, ty) => StructField {
             name: to_identifier(name),
             ty: to_ty(ty),
+        },
+        _ => todo!(),
+    }
+}
+pub fn to_import(v: &Value) -> Import {
+    match v {
+        Value::Import(ident, prog) => Import {
+            ident: to_identifier(ident),
+            prog: to_program(prog),
         },
         _ => todo!(),
     }
@@ -128,6 +145,7 @@ pub struct Program {
 pub enum Item {
     Function(Function),
     Struct(Struct),
+    Import(Import),
 }
 #[derive(Debug)]
 pub struct Struct {
@@ -150,6 +168,11 @@ pub struct Function {
 pub struct FunctionArg {
     name: Identifier,
     ty: Ty,
+}
+#[derive(Debug)]
+pub struct Import {
+    ident: Identifier,
+    prog: Program,
 }
 #[derive(Debug)]
 pub struct ValueList<V> {

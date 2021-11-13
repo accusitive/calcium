@@ -23,7 +23,8 @@
     /// Enables debug printing
     pub debug: bool,
     pub output: Option<Value>,
-    source: String
+    source: String,
+    path: PathBuf
 }
 
 %token
@@ -138,17 +139,18 @@ items: item {
      $$ = Value::FunctionArg($<Ident>1, Box::new(Value::Ty(Box::new($3))));
  }
  | none {
-     $$ = Value::ValueList(vec![]);
+     $$ = Value::None;
  }
 import: tIMPORT identifier {
-    let mut p = PathBuf::new();
+    // let mut p = PathBuf::new();
+    let mut p = self.path.clone();
+    assert!(p.pop());
     let id = $<Ident>2;
-    p.push("./src");
     p.push(id.clone());
     p.set_extension("ca");
     let src = std::fs::read_to_string(p.clone()).expect(&format!("Dependency file {:?} not found.", p));
     let lexer = Lexer::new(&src);
-    let parser = Parser::new(lexer, "idk", &src);
+    let parser = Parser::new(lexer, "idk", &src, p);
     let prog = parser.do_parse().2.unwrap();
     $$ = Value::Import(Box::new(Value::Ident(id)), Box::new(prog));
  }
@@ -264,7 +266,7 @@ impl Parser {
     pub const ABORTED: i32 = -2;
 
     /// Constructor
-    pub fn new<'b> /* ' */ (lexer: Lexer, name: &str, source: &str) -> Self {
+    pub fn new<'b> /* ' */ (lexer: Lexer, name: &str, source: &str, path: PathBuf) -> Self {
         Self {
             yy_error_verbose: true,
             yynerrs: 0,
@@ -274,7 +276,8 @@ impl Parser {
             result: None,
             name: name.to_owned(),
             output: None,
-            source: source.to_string()
+            source: source.to_string(),
+            path
         }
     }
 

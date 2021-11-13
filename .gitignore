@@ -8,3 +8,5 @@ ca_backend_llvm/target
 ca_driver/target
 prev-iter/target
 out.o
+perf.data
+flamegraph.svg

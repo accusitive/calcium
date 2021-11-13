@@ -69,7 +69,8 @@ pub struct Parser {
     /// Enables debug printing
     pub debug: bool,
     pub output: Option<Value>,
-    source: String, /* "src/parser.rs":81  */
+    source: String,
+    path: PathBuf, /* "src/parser.rs":82  */
 }
 
 #[inline]
@@ -771,7 +772,7 @@ impl Parser {
         match yyn {
             2 =>
             /* program: items  */
-            /* "src/parser.y":84  */
+            /* "src/parser.y":85  */
             {
                 self.result = Some(0);
                 self.output = Some(Value::Program(Box::new(yystack.owned_value_at(0))));
@@ -780,7 +781,7 @@ impl Parser {
 
             3 =>
             /* program: error  */
-            /* "src/parser.y":88  */
+            /* "src/parser.y":89  */
             {
                 self.result = None;
                 yyval = Value::None;
@@ -788,14 +789,14 @@ impl Parser {
 
             4 =>
             /* items: item  */
-            /* "src/parser.y":92  */
+            /* "src/parser.y":93  */
             {
                 yyval = Value::ValueList(vec![yystack.owned_value_at(0)]);
             }
 
             5 =>
             /* items: items item  */
-            /* "src/parser.y":95  */
+            /* "src/parser.y":96  */
             {
                 let mut vl = ValueList::from(yystack.owned_value_at(1));
                 vl.push(yystack.owned_value_at(0));
@@ -805,28 +806,28 @@ impl Parser {
 
             6 =>
             /* item: struct  */
-            /* "src/parser.y":101  */
+            /* "src/parser.y":102  */
             {
                 yyval = Value::Item(Box::new(yystack.owned_value_at(0)))
             }
 
             7 =>
             /* item: function  */
-            /* "src/parser.y":104  */
+            /* "src/parser.y":105  */
             {
                 yyval = Value::Item(Box::new(yystack.owned_value_at(0)))
             }
 
             8 =>
             /* item: import  */
-            /* "src/parser.y":107  */
+            /* "src/parser.y":108  */
             {
                 yyval = Value::Item(Box::new(yystack.owned_value_at(0)))
             }
 
             9 =>
             /* struct: "struct" identifier "{" struct_fields "}"  */
-            /* "src/parser.y":110  */
+            /* "src/parser.y":111  */
             {
                 yyval = Value::Struct(
                     Box::new(yystack.owned_value_at(3)),
@@ -836,14 +837,14 @@ impl Parser {
 
             10 =>
             /* struct_fields: struct_field  */
-            /* "src/parser.y":113  */
+            /* "src/parser.y":114  */
             {
                 yyval = Value::ValueList(vec![yystack.owned_value_at(0)])
             }
 
             11 =>
             /* struct_fields: struct_fields "," struct_field  */
-            /* "src/parser.y":116  */
+            /* "src/parser.y":117  */
             {
                 let mut vl = crate::value::ValueList::from(yystack.owned_value_at(2));
                 vl.push(yystack.owned_value_at(0));
@@ -852,7 +853,7 @@ impl Parser {
 
             12 =>
             /* struct_field: identifier ":" ty  */
-            /* "src/parser.y":121  */
+            /* "src/parser.y":122  */
             {
                 yyval = Value::StructField(
                     Box::new(yystack.owned_value_at(2)),
@@ -862,7 +863,7 @@ impl Parser {
 
             13 =>
             /* function: "fn" identifier "(" function_args ")" ":" path block_expr  */
-            /* "src/parser.y":125  */
+            /* "src/parser.y":126  */
             {
                 yyval = Value::Function(
                     Ident::from(yystack.owned_value_at(6)),
@@ -874,14 +875,14 @@ impl Parser {
 
             14 =>
             /* function_args: function_arg  */
-            /* "src/parser.y":128  */
+            /* "src/parser.y":129  */
             {
                 yyval = Value::ValueList(vec![yystack.owned_value_at(0)]);
             }
 
             15 =>
             /* function_args: function_args "," function_arg  */
-            /* "src/parser.y":131  */
+            /* "src/parser.y":132  */
             {
                 let mut args = crate::value::ValueList::from(yystack.owned_value_at(2));
                 args.push(yystack.owned_value_at(0));
@@ -891,7 +892,7 @@ impl Parser {
 
             16 =>
             /* function_arg: identifier ":" path  */
-            /* "src/parser.y":137  */
+            /* "src/parser.y":138  */
             {
                 yyval = Value::FunctionArg(
                     Ident::from(yystack.owned_value_at(2)),
@@ -901,31 +902,32 @@ impl Parser {
 
             17 =>
             /* function_arg: none  */
-            /* "src/parser.y":140  */
+            /* "src/parser.y":141  */
             {
-                yyval = Value::ValueList(vec![]);
+                yyval = Value::None;
             }
 
             18 =>
             /* import: "import" identifier  */
-            /* "src/parser.y":143  */
+            /* "src/parser.y":144  */
             {
-                let mut p = PathBuf::new();
+                // let mut p = PathBuf::new();
+                let mut p = self.path.clone();
+                assert!(p.pop());
                 let id = Ident::from(yystack.owned_value_at(0));
-                p.push("./src");
                 p.push(id.clone());
                 p.set_extension("ca");
                 let src = std::fs::read_to_string(p.clone())
                     .expect(&format!("Dependency file {:?} not found.", p));
                 let lexer = Lexer::new(&src);
-                let parser = Parser::new(lexer, "idk", &src);
+                let parser = Parser::new(lexer, "idk", &src, p);
                 let prog = parser.do_parse().2.unwrap();
                 yyval = Value::Import(Box::new(Value::Ident(id)), Box::new(prog));
             }
 
             19 =>
             /* identifier: "local variable or method"  */
-            /* "src/parser.y":155  */
+            /* "src/parser.y":157  */
             {
                 let tok = Token::from(yystack.owned_value_at(0));
                 yyval = Value::Ident(tok.token_value);
@@ -933,7 +935,7 @@ impl Parser {
 
             20 =>
             /* path: path_segment  */
-            /* "src/parser.y":160  */
+            /* "src/parser.y":162  */
             {
                 yyval =
                     Value::PathExpr(Box::new(Value::ValueList(vec![yystack.owned_value_at(0)])));
@@ -941,7 +943,7 @@ impl Parser {
 
             21 =>
             /* path: path "::" path_segment  */
-            /* "src/parser.y":163  */
+            /* "src/parser.y":165  */
             {
                 let mut args = ValueList::from(yystack.owned_value_at(2));
                 args.push(yystack.owned_value_at(0));
@@ -951,28 +953,28 @@ impl Parser {
 
             22 =>
             /* path_segment: identifier  */
-            /* "src/parser.y":169  */
+            /* "src/parser.y":171  */
             {
                 yyval = Value::Ident(Ident::from(yystack.owned_value_at(0)));
             }
 
             23 =>
             /* block_expr: "{" statements "}"  */
-            /* "src/parser.y":173  */
+            /* "src/parser.y":175  */
             {
                 yyval = Value::BlockExpr(Box::new(yystack.owned_value_at(1)))
             }
 
             24 =>
             /* statements: statement  */
-            /* "src/parser.y":176  */
+            /* "src/parser.y":178  */
             {
                 yyval = Value::ValueList(vec![yystack.owned_value_at(0)]);
             }
 
             25 =>
             /* statements: statements statement  */
-            /* "src/parser.y":179  */
+            /* "src/parser.y":181  */
             {
                 let mut stmts = ValueList::from(yystack.owned_value_at(1));
                 stmts.push(yystack.owned_value_at(0));
@@ -982,21 +984,21 @@ impl Parser {
 
             26 =>
             /* statement: let_stmt  */
-            /* "src/parser.y":185  */
+            /* "src/parser.y":187  */
             {
                 yyval = Value::Statement(Box::new(yystack.owned_value_at(0)));
             }
 
             27 =>
             /* statement: return_stmt  */
-            /* "src/parser.y":188  */
+            /* "src/parser.y":190  */
             {
                 yyval = Value::Statement(Box::new(yystack.owned_value_at(0)));
             }
 
             28 =>
             /* let_stmt: "let" identifier ":" ty "=" expr  */
-            /* "src/parser.y":191  */
+            /* "src/parser.y":193  */
             {
                 yyval = Value::LetStatement(
                     Box::new(yystack.owned_value_at(4)),
@@ -1007,42 +1009,42 @@ impl Parser {
 
             29 =>
             /* return_stmt: "return" expr  */
-            /* "src/parser.y":194  */
+            /* "src/parser.y":196  */
             {
                 yyval = Value::ReturnStatement(Box::new(yystack.owned_value_at(0)))
             }
 
             30 =>
             /* ty: path  */
-            /* "src/parser.y":199  */
+            /* "src/parser.y":201  */
             {
                 yyval = Value::Ty(Box::new(yystack.owned_value_at(0)))
             }
 
             31 =>
             /* ty: "_"  */
-            /* "src/parser.y":202  */
+            /* "src/parser.y":204  */
             {
                 yyval = Value::Ty(Box::new(Value::Infer))
             }
 
             32 =>
             /* call_params: none  */
-            /* "src/parser.y":205  */
+            /* "src/parser.y":207  */
             {
                 yyval = Value::ValueList(vec![])
             }
 
             33 =>
             /* call_params: expr  */
-            /* "src/parser.y":207  */
+            /* "src/parser.y":209  */
             {
                 yyval = Value::ValueList(vec![yystack.owned_value_at(0)])
             }
 
             34 =>
             /* call_params: call_params "," expr  */
-            /* "src/parser.y":209  */
+            /* "src/parser.y":211  */
             {
                 let mut params = ValueList::from(yystack.owned_value_at(2));
                 params.push(yystack.owned_value_at(0));
@@ -1052,49 +1054,49 @@ impl Parser {
 
             35 =>
             /* none: %empty  */
-            /* "src/parser.y":215  */
+            /* "src/parser.y":217  */
             {
                 yyval = Value::None
             }
 
             36 =>
             /* expr: literal_expr  */
-            /* "src/parser.y":223  */
+            /* "src/parser.y":225  */
             {
                 yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
             }
 
             37 =>
             /* expr: block_expr  */
-            /* "src/parser.y":226  */
+            /* "src/parser.y":228  */
             {
                 yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
             }
 
             38 =>
             /* expr: call_expr  */
-            /* "src/parser.y":229  */
+            /* "src/parser.y":231  */
             {
                 yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
             }
 
             39 =>
             /* expr: "(" expr ")"  */
-            /* "src/parser.y":232  */
+            /* "src/parser.y":234  */
             {
                 yyval = yystack.owned_value_at(1);
             }
 
             40 =>
             /* expr: path  */
-            /* "src/parser.y":235  */
+            /* "src/parser.y":237  */
             {
                 yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
             }
 
             41 =>
             /* expr: expr "+" expr  */
-            /* "src/parser.y":238  */
+            /* "src/parser.y":240  */
             {
                 yyval = Value::Expr(Box::new(Value::ArithExpr(
                     Box::new(yystack.owned_value_at(2)),
@@ -1105,7 +1107,7 @@ impl Parser {
 
             42 =>
             /* expr: expr "-" expr  */
-            /* "src/parser.y":241  */
+            /* "src/parser.y":243  */
             {
                 yyval = Value::Expr(Box::new(Value::ArithExpr(
                     Box::new(yystack.owned_value_at(2)),
@@ -1116,7 +1118,7 @@ impl Parser {
 
             43 =>
             /* expr: expr "*" expr  */
-            /* "src/parser.y":244  */
+            /* "src/parser.y":246  */
             {
                 yyval = Value::Expr(Box::new(Value::ArithExpr(
                     Box::new(yystack.owned_value_at(2)),
@@ -1127,7 +1129,7 @@ impl Parser {
 
             44 =>
             /* expr: expr "/" expr  */
-            /* "src/parser.y":247  */
+            /* "src/parser.y":249  */
             {
                 yyval = Value::Expr(Box::new(Value::ArithExpr(
                     Box::new(yystack.owned_value_at(2)),
@@ -1138,14 +1140,14 @@ impl Parser {
 
             45 =>
             /* literal_expr: "number"  */
-            /* "src/parser.y":250  */
+            /* "src/parser.y":252  */
             {
                 yyval = Value::LiteralExpr(Token::from(yystack.owned_value_at(0)).token_value)
             }
 
             46 =>
             /* call_expr: path "(" call_params ")"  */
-            /* "src/parser.y":253  */
+            /* "src/parser.y":255  */
             {
                 yyval = Value::CallExpr(
                     Box::new(yystack.owned_value_at(3)),
@@ -1153,7 +1155,7 @@ impl Parser {
                 )
             }
 
-            /* "src/parser.rs":1004  */
+            /* "src/parser.rs":1006  */
             _ => {}
         }
 
@@ -1559,9 +1561,9 @@ impl Parser {
     /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
     #[allow(non_upper_case_globals)]
     const yyrline_: &'static [i32] = &[
-        0, 84, 84, 88, 92, 95, 101, 104, 107, 110, 113, 116, 121, 125, 128, 131, 137, 140, 143,
-        155, 160, 163, 169, 173, 176, 179, 185, 188, 191, 194, 199, 202, 205, 207, 209, 215, 223,
-        226, 229, 232, 235, 238, 241, 244, 247, 250, 253,
+        0, 85, 85, 89, 93, 96, 102, 105, 108, 111, 114, 117, 122, 126, 129, 132, 138, 141, 144,
+        157, 162, 165, 171, 175, 178, 181, 187, 190, 193, 196, 201, 204, 207, 209, 211, 217, 225,
+        228, 231, 234, 237, 240, 243, 246, 249, 252, 255,
     ];
 
     // Report on the debug stream that the rule yyrule is going to be reduced.
@@ -1625,7 +1627,7 @@ impl Parser {
     const YYNTOKENS_: i32 = 26;
 }
 
-/* "src/parser.y":257  */
+/* "src/parser.y":259  */
 
 impl Parser {
     /// "Sucess" status-code of the parser
@@ -1635,7 +1637,7 @@ impl Parser {
     pub const ABORTED: i32 = -2;
 
     /// Constructor
-    pub fn new<'b>(lexer: Lexer, name: &str, source: &str) -> Self {
+    pub fn new<'b>(lexer: Lexer, name: &str, source: &str, path: PathBuf) -> Self {
         Self {
             yy_error_verbose: true,
             yynerrs: 0,
@@ -1646,6 +1648,7 @@ impl Parser {
             name: name.to_owned(),
             output: None,
             source: source.to_string(),
+            path,
         }
     }
 

@@ -1,4 +1,4 @@
-import example2
+import aux
 
 fn add(i: i32): i32 {
     return 0
