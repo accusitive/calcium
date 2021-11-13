@@ -157,7 +157,6 @@ fn main() {
             // println!("program: {:#?}", program);
             let ctx = ca_backend_llvm::inkwell::context::Context::create();
             let compiler = ca_backend_llvm::Compiler::new_compiler(program, &ctx);
-
         }
         None => {
             println!("{}", "Compilation failed.".bold())

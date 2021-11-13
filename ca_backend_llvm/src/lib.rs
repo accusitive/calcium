@@ -1,6 +1,9 @@
 use ca_ast::Program;
 pub use inkwell;
-use inkwell::{OptimizationLevel, builder::Builder, context::Context, execution_engine::ExecutionEngine, module::Module};
+use inkwell::{
+    builder::Builder, context::Context, execution_engine::ExecutionEngine, module::Module,
+    OptimizationLevel,
+};
 
 pub struct Compiler<'a> {
     pub module: Module<'a>,
@@ -23,10 +26,7 @@ impl<'a> Compiler<'a> {
             builder: builder,
             execution_engine: execution_engine,
             program: p,
-           
         };
         compiler
     }
-
-  
 }

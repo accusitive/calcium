@@ -31,7 +31,7 @@ pub enum Value {
     StructField(Box<Value>, Box<Value>), // Identifier, Ty
     Struct(Box<Value>, Box<Value>),      // Identifier, ValueList<StructField>
     Item(Box<Value>),                    // Function|Struct
-    Import(Box<Value>, Box<Value>)
+    Import(Box<Value>, Box<Value>),
 }
 #[derive(Debug, Clone, Copy)]
 pub enum Op {
