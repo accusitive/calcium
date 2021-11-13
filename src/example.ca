@@ -1,3 +1,5 @@
+import example2
+
 fn add(i: i32): i32 {
     return 0
 }

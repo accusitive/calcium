@@ -13,6 +13,7 @@
     use crate::lexer::Token;
     use crate::loc::Loc;
     use crate::value::*;
+    use std::path::PathBuf;
 }
 
 %code parser_fields {
@@ -37,11 +38,11 @@
     tCOLON  ":"
     tPATHSEP "::"
     tCOMMA  ","
-    tINT    "int"
     tLET    "let"
     tASSIGN "="
     tRETURN "return"
     tSTRUCT "struct"
+    tIMPORT "import"
     tINFER "_"
     tIDENTIFIER "local variable or method"
     tNUM    "number"
@@ -75,6 +76,7 @@
     struct_fields
     item
     items
+    import
     none
 
 
@@ -100,6 +102,9 @@ items: item {
      $$ = Value::Item(Box::new($1))
  }
  | function {
+     $$ = Value::Item(Box::new($1))
+ }
+ | import {
      $$ = Value::Item(Box::new($1))
  }
  struct: tSTRUCT identifier tLBRACK struct_fields tRBRACK {
@@ -135,7 +140,18 @@ items: item {
  | none {
      $$ = Value::ValueList(vec![]);
  }
-
+import: tIMPORT identifier {
+    let mut p = PathBuf::new();
+    let id = $<Ident>2;
+    p.push("./src");
+    p.push(id.clone());
+    p.set_extension("ca");
+    let src = std::fs::read_to_string(p.clone()).expect(&format!("Dependency file {:?} not found.", p));
+    let lexer = Lexer::new(&src);
+    let parser = Parser::new(lexer, "idk", &src);
+    let prog = parser.do_parse().2.unwrap();
+    $$ = Value::Import(Box::new(Value::Ident(id)), Box::new(prog));
+ }
  identifier: tIDENTIFIER {
      let tok = $<Token>1;
      $$ = Value::Ident(tok.token_value);

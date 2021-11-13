@@ -1,8 +1,3 @@
-fn add(a: std::i32, b: i32::aa::asd::ee ): i32 {
-    let a: i32 = 5 + 2 - 2 * 5 / 2
-    let b: i32 = ABC + DEF::TEST
-    let z: _ = {
-        return 2
-    }
-    return a
+fn add(left: i32, right: i32): i32 {
+    return 0
 }

@@ -115,6 +115,7 @@ impl Iterator for Lexer {
                         "let" => Self::tLET,
                         "return" => Self::tRETURN,
                         "struct" => Self::tSTRUCT,
+                        "import" => Self::tIMPORT,
                         _ => Self::tIDENTIFIER,
                     };
                     Some(Token {

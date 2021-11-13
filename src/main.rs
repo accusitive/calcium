@@ -137,7 +137,6 @@ fn main() {
             "{:>15} := {:<10} @ {:>2}..{:>2}  ",
             token_name(token.token_type),
             token.token_value,
-            // token.lin,
             token.loc.begin,
             token.loc.end
         );
@@ -152,9 +151,13 @@ fn main() {
     match parsed.0 {
         Some(_result) => {
             let (_value, _name, output) = parsed;
-            // println!("Output: {:#?}", output.as_ref().unwrap());
+            println!("Output: {:#?}", output.as_ref().unwrap());
+            panic!();
             let program = ca_ast::to_program(&output.unwrap());
-            println!("program: {:#?}", program);
+            // println!("program: {:#?}", program);
+            let ctx = ca_backend_llvm::inkwell::context::Context::create();
+            let compiler = ca_backend_llvm::Compiler::new_compiler(program, &ctx);
+
         }
         None => {
             println!("{}", "Compilation failed.".bold())
