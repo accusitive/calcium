@@ -134,10 +134,12 @@ fn main() {
             break;
         }
         println!(
-            "{} = {}@{:?}",
+            "{:>15} := {:<10} @ {:>2}..{:>2}  ",
             token_name(token.token_type),
             token.token_value,
-            token.loc
+            // token.lin,
+            token.loc.begin,
+            token.loc.end
         );
     }
 
@@ -150,7 +152,7 @@ fn main() {
     match parsed.0 {
         Some(_result) => {
             let (_value, _name, output) = parsed;
-            println!("Output: {:#?}", output.as_ref().unwrap());
+            // println!("Output: {:#?}", output.as_ref().unwrap());
             let program = ca_ast::to_program(&output.unwrap());
             println!("program: {:#?}", program);
         }
@@ -163,56 +165,7 @@ fn main() {
 mod tests {
     use ca_parser_bison::value::Value;
     use paste::paste;
-    macro_rules! test_stmt {
-        ($i: ident, $v: expr) => {
-            paste! {
-                #[test]
-                fn [<stmt_ $i>]() {
-                    let v = $v;
-                    ca_ast::to_statement(v);
-                }
-                #[test]
-                #[should_panic]
-                fn [<expr_ $i>]() {
-                    let v = $v;
-                    ca_ast::to_expression(v);
-                }
-                #[test]
-                #[should_panic]
-                fn [<func_ $i>]() {
-                    let v = $v;
-                    ca_ast::to_function(v);
-                }
-            }
-        };
-    }
-    macro_rules! test_expr {
-        ($i: ident, $v: expr) => {
-            paste! {
-                #[test]
-                #[should_panic]
-                fn [<stmt_ $i>]() {
-                    let v = $v;
-                    ca_ast::to_statement(v);
-                }
-                #[test]
-                fn [<expr_ $i>]() {
-                    let v = $v;
-                    ca_ast::to_expression(v);
-                }
-                #[test]
-                #[should_panic]
-                fn [<func_ $i>]() {
-                    let v = $v;
-                    ca_ast::to_function(v);
-                }
-            }
-        };
-    }
-    test_stmt! { return_stmt, &Value::Statement(Box::new(Value::ReturnStatement(Box::new(Value::Expr(Box::new(Value::LiteralExpr("12".to_string())))))))}
-    test_stmt! { let_infer, &Value::Statement(Box::new(Value::LetStatement(Box::new(Value::Ident("someident".to_string())),Box::new(Value::Ty(Box::new(Value::Infer))), Box::new(Value::Expr(Box::new(Value::LiteralExpr("12".to_string())))))))}
-    test_stmt! { let_i32, &Value::Statement(Box::new(Value::LetStatement(Box::new(Value::Ident("someident".to_string())),Box::new(Value::Ty(Box::new(Value::PathExpr(Box::new(Value::ValueList(vec![Value::Ident("i32".to_string())])))))), Box::new(Value::Expr(Box::new(Value::LiteralExpr("12".to_string())))))))}
-    test_expr! {basic_expr, &Value::Expr(Box::new(Value::LiteralExpr("12".to_string())))}
+
     use ca_ast::*;
     macro_rules! asdf {
         ($main: ident, $test_case: expr, $($i: ident),*) => {
@@ -232,7 +185,6 @@ mod tests {
             }
         };
     }
-    // asdf!(program, function, expression, statement, function_arg, ty, path, indetifier, vec);
     macro_rules! test_case_program {
         () => {
             Box::new(Value::Program(Box::new(Value::ValueList(vec![]))))

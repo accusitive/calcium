@@ -1,3 +1,11 @@
 fn add(i: i32): i32 {
     return 0
 }
+struct TwoNumbers {
+    first: i32,
+    second: i32
+}
+struct FourNumbers {
+    first: TwoNumbers,
+    second: TwoNumbers
+}

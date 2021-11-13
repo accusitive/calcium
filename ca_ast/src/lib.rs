@@ -1,10 +1,20 @@
 use ca_parser_bison::value::Value;
 
-pub fn build_ast(v: Value) {}
 pub fn to_program(v: &Value) -> Program {
     match v {
         Value::Program(list) => Program {
-            functions: to_vec(list).iter().map(|v| to_function(v)).collect(),
+            functions: to_vec(list).iter().map(|v| to_item(v)).collect(),
+        },
+        _ => todo!(),
+    }
+}
+pub fn to_item(v: &Value) -> Item {
+    match v {
+        Value::Item(i) => match &**i {
+            Value::Function(_, _, _, _) => Item::Function(to_function(i)),
+            Value::Struct(_, _) => Item::Struct(to_struct(i)),
+
+            _ => todo!(),
         },
         _ => todo!(),
     }
@@ -20,8 +30,25 @@ pub fn to_function(v: &Value) -> Function {
         _ => todo!(),
     }
 }
+pub fn to_struct(v: &Value) -> Struct {
+    match v {
+        Value::Struct(name, fields) => Struct {
+            name: to_identifier(name),
+            fields: to_vec(fields).iter().map(|v| to_struct_field(v)).collect(),
+        },
+        _ => todo!(),
+    }
+}
+pub fn to_struct_field(v: &Value) -> StructField {
+    match v {
+        Value::StructField(name, ty) => StructField {
+            name: to_identifier(name),
+            ty: to_ty(ty),
+        },
+        _ => todo!(),
+    }
+}
 pub fn to_expression(v: &Value) -> Expression {
-    println!("To expr {:#?}", v);
     match v {
         Value::Expr(e) => match &**e {
             Value::CallExpr(func, values) => Expression::Call(
@@ -39,8 +66,6 @@ pub fn to_expression(v: &Value) -> Expression {
     }
 }
 pub fn to_statement(v: &Value) -> Statement {
-    println!("To stmt {:#?}", v);
-
     match v {
         Value::Statement(s) => match &**s {
             Value::LetStatement(bind, ty, expr) => {
@@ -97,7 +122,22 @@ pub fn to_vec(v: &Value) -> Vec<Value> {
 pub struct Identifier(String);
 #[derive(Debug)]
 pub struct Program {
-    functions: Vec<Function>,
+    functions: Vec<Item>,
+}
+#[derive(Debug)]
+pub enum Item {
+    Function(Function),
+    Struct(Struct),
+}
+#[derive(Debug)]
+pub struct Struct {
+    name: Identifier,
+    fields: Vec<StructField>,
+}
+#[derive(Debug)]
+pub struct StructField {
+    name: Identifier,
+    ty: Ty,
 }
 #[derive(Debug)]
 pub struct Function {

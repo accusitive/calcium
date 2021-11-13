@@ -41,6 +41,7 @@
     tLET    "let"
     tASSIGN "="
     tRETURN "return"
+    tSTRUCT "struct"
     tINFER "_"
     tIDENTIFIER "local variable or method"
     tNUM    "number"
@@ -51,45 +52,71 @@
 
 %left "-" "+"
 %left "*" "/"
-%type <Function> function
-%type <Functions> functions
-%type <FunctionArg> function_arg
-%type <FunctionArgs> function_args
-%type <Program> program
-%type <Ident> identifier
-%type <PathSegment> path_segment
-%type <Path> path
-%type <Statement> statement
-%type <LetStatement> let_stmt
-%type <ReturnStatement> return_stmt
+%type <Value>
+    function
+    function_arg
+    function_args
+    program
+    identifier
+    path_segment
+    path
+    statement
+    let_stmt
+    return_stmt
+    statements
+    block_expr
+    expr
+    literal_expr
+    ty
+    call_expr
+    call_params
+    struct
+    struct_field
+    struct_fields
+    item
+    items
+    none
 
-%type <Statements> statements
-%type <BlockExpr> block_expr
-%type <Expr> expr
-%type <LiteralExpr> literal_expr
-
-%type <ThisDoesntMatter> ty
-%type <CallExpr> call_expr
-%type <CallParam> call_params
-%type <None> none
 
 %%
- program: functions {
+ program: items {
      self.result = Some(0);
      self.output = Some(Value::Program(Box::new($1)));
     $$ = Value::Program(Box::new($1))
+ } | error {
+     self.result = None;
+     $$ = Value::None;
  }
-
- functions: function {
+items: item {
      $$ = Value::ValueList(vec![$1]);
  }
- | functions tCOMMA function {
-     println!("multiple functions");
-     let mut fns = $<ValueList>1;
-     fns.push($3);
-     let v = Value::ValueList(fns);
+ | items item {
+     let mut vl = $<ValueList>1;
+     vl.push($2);
+     let v = Value::ValueList(vl);
      $$ = v;
  }
+ item: struct{
+     $$ = Value::Item(Box::new($1))
+ }
+ | function {
+     $$ = Value::Item(Box::new($1))
+ }
+ struct: tSTRUCT identifier tLBRACK struct_fields tRBRACK {
+     $$ = Value::Struct(Box::new($2), Box::new($4))
+ }
+ struct_fields: struct_field {
+     $$ = Value::ValueList(vec![$1])
+ }
+ | struct_fields tCOMMA struct_field {
+     let mut vl = $<crate::value::ValueList>1;
+     vl.push($3);
+     $$ = Value::ValueList(vl);
+ }
+ struct_field: identifier tCOLON ty {
+     $$ = Value::StructField(Box::new($1), Box::new($3))
+ }
+
  function: tFN identifier tLPAREN function_args tRPAREN tCOLON path block_expr {
      $$ = Value::Function($<Ident>2, Box::new($4), Box::new(Value::Ty(Box::new($7))), Box::new($8));
  }
@@ -102,12 +129,13 @@
      let v = Value::ValueList(args);
      $$ = v;
  }
+  function_arg: identifier tCOLON path {
+     $$ = Value::FunctionArg($<Ident>1, Box::new(Value::Ty(Box::new($3))));
+ }
  | none {
      $$ = Value::ValueList(vec![]);
  }
- function_arg: identifier tCOLON path {
-     $$ = Value::FunctionArg($<Ident>1, Box::new(Value::Ty(Box::new($3))));
- }
+
  identifier: tIDENTIFIER {
      let tok = $<Token>1;
      $$ = Value::Ident(tok.token_value);

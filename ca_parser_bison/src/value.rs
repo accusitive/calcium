@@ -25,9 +25,12 @@ pub enum Value {
     PathExpr(Box<Value>),
     ArithExpr(Box<Value>, Op, Box<Value>),
     CallExpr(Box<Value>, Box<Value>), // Path, args
-    Ty(Box<Value>),
-    BlockExpr(Box<Value>),
+    Ty(Box<Value>),                   // Infer | PathExpr
+    BlockExpr(Box<Value>),            // ValueList<Statement>
     Infer,
+    StructField(Box<Value>, Box<Value>), // Identifier, Ty
+    Struct(Box<Value>, Box<Value>),      // Identifier, ValueList<StructField>
+    Item(Box<Value>),                    // Function|Struct
 }
 #[derive(Debug, Clone, Copy)]
 pub enum Op {

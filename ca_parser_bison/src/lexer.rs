@@ -8,6 +8,7 @@ pub struct Lexer {
     pub col: usize,
     pub line: usize,
 }
+
 impl Lexer {
     pub fn new(input: &str) -> Self {
         Lexer {
@@ -113,6 +114,7 @@ impl Iterator for Lexer {
                         "fn" => Self::tFN,
                         "let" => Self::tLET,
                         "return" => Self::tRETURN,
+                        "struct" => Self::tSTRUCT,
                         _ => Self::tIDENTIFIER,
                     };
                     Some(Token {
