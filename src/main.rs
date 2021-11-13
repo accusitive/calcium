@@ -38,10 +38,12 @@ fn main() {
             let (_value, _name, output) = parsed;
             println!("Output: {:#?}", output.as_ref().unwrap());
             // panic!();
-            let program = ca_ast::to_program(&output.unwrap());
+            let program = ca_uir::to_program(&output.unwrap());
             // println!("program: {:#?}", program);
             let ctx = ca_backend_llvm::inkwell::context::Context::create();
-            let _compiler = ca_backend_llvm::Compiler::new_compiler(program, &ctx);
+            let mut compiler = ca_backend_llvm::Compiler::new_compiler(&ctx);
+            compiler.compile_program(&program);
+            compiler.module.print_to_stderr();
         }
         None => {
             println!("{}", "Compilation failed.".bold())
@@ -53,7 +55,7 @@ mod tests {
     use ca_parser_bison::value::Value;
     use paste::paste;
 
-    use ca_ast::*;
+    use ca_uir::*;
     macro_rules! asdf {
         ($main: ident, $test_case: expr, $($i: ident),*) => {
             paste! {

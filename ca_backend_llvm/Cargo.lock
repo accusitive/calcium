@@ -97,17 +97,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "ca_ast"
-version = "0.1.0"
-dependencies = [
- "ca_parser_bison",
-]
-
-[[package]]
 name = "ca_backend_llvm"
 version = "0.1.0"
 dependencies = [
- "ca_ast",
+ "ca_uir",
  "inkwell",
 ]
 
@@ -117,6 +110,13 @@ version = "0.37.0"
 dependencies = [
  "colored",
  "peekmore",
+]
+
+[[package]]
+name = "ca_uir"
+version = "0.1.0"
+dependencies = [
+ "ca_parser_bison",
 ]
 
 [[package]]

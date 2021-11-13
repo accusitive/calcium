@@ -14,18 +14,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "ca_ast"
-version = "0.1.0"
-dependencies = [
- "ca_parser_bison",
-]
-
-[[package]]
 name = "ca_parser_bison"
 version = "0.37.0"
 dependencies = [
  "colored",
  "peekmore",
+]
+
+[[package]]
+name = "ca_uir"
+version = "0.1.0"
+dependencies = [
+ "ca_parser_bison",
 ]
 
 [[package]]

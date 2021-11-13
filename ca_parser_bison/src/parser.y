@@ -39,8 +39,9 @@
     tCOLON  ":"
     tPATHSEP "::"
     tCOMMA  ","
-    tLET    "let"
     tASSIGN "="
+    tLET    "let"
+    tI32    "i32"
     tRETURN "return"
     tSTRUCT "struct"
     tIMPORT "import"
@@ -123,8 +124,8 @@ items: item {
      $$ = Value::StructField(Box::new($1), Box::new($3))
  }
 
- function: tFN identifier tLPAREN function_args tRPAREN tCOLON path block_expr {
-     $$ = Value::Function($<Ident>2, Box::new($4), Box::new(Value::Ty(Box::new($7))), Box::new($8));
+ function: tFN identifier tLPAREN function_args tRPAREN tCOLON ty block_expr {
+     $$ = Value::Function($<Ident>2, Box::new($4), Box::new($7), Box::new($8));
  }
  function_args: function_arg {
      $$ = Value::ValueList(vec![$1]);
@@ -135,8 +136,8 @@ items: item {
      let v = Value::ValueList(args);
      $$ = v;
  }
-  function_arg: identifier tCOLON path {
-     $$ = Value::FunctionArg($<Ident>1, Box::new(Value::Ty(Box::new($3))));
+  function_arg: identifier tCOLON ty {
+     $$ = Value::FunctionArg($<Ident>1, Box::new($3));
  }
  | none {
      $$ = Value::None;
@@ -198,12 +199,16 @@ import: tIMPORT identifier {
  }
 
 
- ty: path {
+ ty: tI32 {
+     $$ = Value::Ty(Box::new(Value::Int32))
+ }
+ |path {
      $$ = Value::Ty(Box::new($1))
  }
  | tINFER {
      $$ = Value::Ty(Box::new(Value::Infer))
  }
+
  call_params: none {
      $$ = Value::ValueList(vec![])
  } | expr {

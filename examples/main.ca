@@ -1,13 +1,6 @@
-import aux
+import structs
 
-fn add(i: i32): i32 {
-    return 0
-}
-struct TwoNumbers {
-    first: i32,
-    second: i32
-}
-struct FourNumbers {
-    first: TwoNumbers,
-    second: TwoNumbers
+fn addtwototwo(left: TwoNumbers, right: TwoNumbers): i32 {
+    let z: i32 = 5;
+    return z + 5;
 }

@@ -1,9 +1,11 @@
-use ca_parser_bison::value::Value;
+use std::fmt::Display;
+
+use ca_parser_bison::value::{Op, Value};
 
 pub fn to_program(v: &Value) -> Program {
     match v {
         Value::Program(list) => Program {
-            functions: to_vec(list).iter().map(|v| to_item(v)).collect(),
+            items: to_vec(list).iter().map(|v| to_item(v)).collect(),
         },
         _ => todo!(),
     }
@@ -32,7 +34,7 @@ pub fn to_function(v: &Value) -> Function {
                 })
                 .map(|a| to_function_arg(a))
                 .collect(),
-            ty: to_ty(ty),
+            return_ty: to_ty(ty),
             body: to_expression(body),
         },
         _ => todo!(),
@@ -69,10 +71,16 @@ pub fn to_expression(v: &Value) -> Expression {
     match v {
         Value::Expr(e) => match &**e {
             Value::CallExpr(func, values) => Expression::Call(
-                to_identifier(&func),
+                to_path(&func),
                 to_vec(&values).iter().map(|a| to_expression(a)).collect(),
             ),
             Value::LiteralExpr(l) => Expression::Literal(l.parse().unwrap()),
+            Value::PathExpr(p) => Expression::Path(to_path(e)),
+            Value::ArithExpr(left, op, right) => Expression::Arith(
+                Box::new(to_expression(left)),
+                *op,
+                Box::new(to_expression(right)),
+            ),
             _ => todo!(),
         },
         Value::BlockExpr(stmts) => {
@@ -108,12 +116,14 @@ pub fn to_ty(v: &Value) -> Ty {
         Value::Ty(t) => match &**t {
             Value::Infer => Ty::Infer,
             Value::PathExpr(_segments) => Ty::Named(to_path(&t)),
+            Value::Int32 => Ty::Int32,
             _ => todo!(),
         },
         _ => todo!(),
     }
 }
 pub fn to_path(v: &Value) -> Path {
+    println!("TO PATH {:#?}", v);
     match v {
         Value::PathExpr(p) => {
             let segments = to_vec(p).iter().map(|seg| to_identifier(seg)).collect();
@@ -135,11 +145,16 @@ pub fn to_vec(v: &Value) -> Vec<Value> {
     }
 }
 
-#[derive(Debug)]
-pub struct Identifier(String);
+#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Identifier(pub String);
+impl Display for Identifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.0.as_str())
+    }
+}
 #[derive(Debug)]
 pub struct Program {
-    functions: Vec<Item>,
+    pub items: Vec<Item>,
 }
 #[derive(Debug)]
 pub enum Item {
@@ -149,38 +164,38 @@ pub enum Item {
 }
 #[derive(Debug)]
 pub struct Struct {
-    name: Identifier,
-    fields: Vec<StructField>,
+    pub name: Identifier,
+    pub fields: Vec<StructField>,
 }
 #[derive(Debug)]
 pub struct StructField {
-    name: Identifier,
-    ty: Ty,
+    pub name: Identifier,
+    pub ty: Ty,
 }
 #[derive(Debug)]
 pub struct Function {
-    name: Identifier,
-    args: Vec<FunctionArg>,
-    ty: Ty,
-    body: Expression,
+    pub name: Identifier,
+    pub args: Vec<FunctionArg>,
+    pub return_ty: Ty,
+    pub body: Expression,
 }
 #[derive(Debug)]
 pub struct FunctionArg {
-    name: Identifier,
-    ty: Ty,
+    pub name: Identifier,
+    pub ty: Ty,
 }
 #[derive(Debug)]
 pub struct Import {
-    ident: Identifier,
-    prog: Program,
+    pub ident: Identifier,
+    pub prog: Program,
 }
 #[derive(Debug)]
 pub struct ValueList<V> {
-    content: Vec<V>,
+    pub content: Vec<V>,
 }
-#[derive(Debug)]
+#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Path {
-    parts: Vec<PathSegment>,
+    pub parts: Vec<PathSegment>,
 }
 
 type PathSegment = Identifier;
@@ -188,13 +203,15 @@ type PathSegment = Identifier;
 pub enum Ty {
     Named(Path),
     Infer,
+    Int32,
 }
 #[derive(Debug)]
 pub enum Expression {
-    Call(PathSegment, Vec<Expression>),
-    Arith(Box<Expression>),
+    Call(Path, Vec<Expression>),
+    Arith(Box<Expression>, Op, Box<Expression>),
     Literal(i32),
     Block(Vec<Statement>),
+    Path(Path),
 }
 #[derive(Debug)]
 pub enum Statement {

@@ -1,5 +1,5 @@
 /target
-ca_ast/target
+ca_uir/target
 ca_parser/target
 ca_parser_bison/target
 ca_lexer_flex/target
