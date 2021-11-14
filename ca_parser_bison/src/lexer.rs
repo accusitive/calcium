@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{loc::Loc, value::Value};
 use peekmore::{PeekMore, PeekMoreIterator};
 
@@ -7,6 +9,7 @@ pub struct Lexer {
     pub spaces: String,
     pub col: usize,
     pub line: usize,
+    pub is_comment: bool,
 }
 
 impl Lexer {
@@ -16,6 +19,7 @@ impl Lexer {
             col: 0,
             line: 0,
             spaces: String::new(),
+            is_comment: false,
         }
     }
     pub fn yylex(&mut self) -> Token {
@@ -31,7 +35,19 @@ impl Lexer {
         }
     }
 }
-
+static TOKS: &[(char, i32)] = &[
+    (':', Lexer::tCOLON),
+    (',', Lexer::tCOMMA),
+    ('.', Lexer::tPERIOD),
+    ('=', Lexer::tASSIGN),
+    ('+', Lexer::tPLUS),
+    ('-', Lexer::tMINUS),
+    ('*', Lexer::tMUL),
+    ('/', Lexer::tDIV),
+    ('_', Lexer::tINFER),
+    (';', Lexer::tSEMICOLON),
+    ('&', Lexer::tAMPERSAND),
+];
 impl Iterator for Lexer {
     type Item = Token;
 
@@ -74,6 +90,11 @@ impl Iterator for Lexer {
         loop {
             let m = match self.chars.next() {
                 // Brackets () {}
+                Some('#') => {
+                    self.is_comment = true;
+                    continue;
+                }
+                Some(c) if self.is_comment => continue,
                 Some(c) if Self::bracket_to_token(c).is_some() => Some(Token {
                     token_type: Self::bracket_to_token(c).unwrap(),
                     token_value: c.to_string(),
@@ -113,9 +134,10 @@ impl Iterator for Lexer {
                     let token_type = match token_value.as_str() {
                         "fn" => Self::tFN,
                         "let" => Self::tLET,
-                        "return" => Self::tRETURN,
-                        "struct" => Self::tSTRUCT,
-                        "import" => Self::tIMPORT,
+                        "return" => Self::kwRETURN,
+                        "struct" => Self::kwSTRUCT,
+                        "import" => Self::kwIMPORT,
+                        "new" => Self::kwNEW,
                         "i32" => Self::tI32,
                         _ => Self::tIDENTIFIER,
                     };
@@ -155,18 +177,21 @@ impl Iterator for Lexer {
                     })
                 }
 
-                Some(c @ (':' | ',' | '=' | '+' | '-' | '*' | '/' | '_')) => {
-                    let ty = match c {
-                        ':' => Self::tCOLON,
-                        ',' => Self::tCOMMA,
-                        '=' => Self::tASSIGN,
-                        '+' => Self::tPLUS,
-                        '-' => Self::tMINUS,
-                        '*' => Self::tMUL,
-                        '/' => Self::tDIV,
-                        '_' => Self::tINFER,
-                        _ => panic!("Invalid single character token, not possible."),
-                    };
+                Some(c) if TOKS.iter().map(|t| t.0).collect::<Vec<_>>().contains(&c) => {
+                    let (_c, ty) = *TOKS.iter().find(|t| t.0 == c).unwrap();
+                    // let ty = match c {
+                    //     ':' => Self::tCOLON,
+                    //     ',' => Self::tCOMMA,
+                    //     '=' => Self::tASSIGN,
+                    //     '+' => Self::tPLUS,
+                    //     '-' => Self::tMINUS,
+                    //     '*' => Self::tMUL,
+                    //     '/' => Self::tDIV,
+                    //     '_' => Self::tINFER,
+                    //     ';' => Self::tSEMICOLON,
+                    //     '&' => Self::tAMPERSAND,
+                    //     _ => panic!("Invalid single character token, not possible."),
+                    // };
                     Some(Token {
                         loc: loc!(1),
                         token_type: ty,
@@ -184,6 +209,7 @@ impl Iterator for Lexer {
                     self.spaces.push(n);
                     self.col = 0;
                     self.line += 1;
+                    self.is_comment = false;
                     continue;
                     // self.line +=1;
                 }

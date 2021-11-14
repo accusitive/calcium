@@ -37,14 +37,18 @@
     tLBRACK "{"
     tRBRACK "}"
     tCOLON  ":"
-    tPATHSEP "::"
+    tPERIOD "."
+tAMPERSAND  "&"
+    tSEMICOLON ";"
+    tPATHSEP"::"
     tCOMMA  ","
     tASSIGN "="
     tLET    "let"
     tI32    "i32"
-    tRETURN "return"
-    tSTRUCT "struct"
-    tIMPORT "import"
+    kwRETURN "return"
+    kwSTRUCT "struct"
+    kwIMPORT "import"
+    kwNEW   "new"
     tINFER "_"
     tIDENTIFIER "local variable or method"
     tNUM    "number"
@@ -55,6 +59,7 @@
 
 %left "-" "+"
 %left "*" "/"
+%left "."
 %type <Value>
     function
     function_arg
@@ -64,6 +69,7 @@
     path_segment
     path
     statement
+    field_expression
     let_stmt
     return_stmt
     statements
@@ -78,7 +84,9 @@
     struct_fields
     item
     items
+    path_expr
     import
+    expr_stmt
     none
 
 
@@ -109,7 +117,7 @@ items: item {
  | import {
      $$ = Value::Item(Box::new($1))
  }
- struct: tSTRUCT identifier tLBRACK struct_fields tRBRACK {
+ struct: kwSTRUCT identifier tLBRACK struct_fields tRBRACK {
      $$ = Value::Struct(Box::new($2), Box::new($4))
  }
  struct_fields: struct_field {
@@ -142,7 +150,7 @@ items: item {
  | none {
      $$ = Value::None;
  }
-import: tIMPORT identifier {
+import: kwIMPORT identifier {
     // let mut p = PathBuf::new();
     let mut p = self.path.clone();
     assert!(p.pop());
@@ -161,8 +169,8 @@ import: tIMPORT identifier {
  }
 
  path: path_segment {
-    $$ = Value::PathExpr(Box::new(Value::ValueList(vec![$1])));
- }
+    $$ = Value::ValueList(vec![$1]);
+ } 
  | path tPATHSEP path_segment {
      let mut args = $<ValueList>1;
      args.push($3);
@@ -176,26 +184,35 @@ import: tIMPORT identifier {
  block_expr: tLBRACK statements tRBRACK {
      $$ = Value::BlockExpr(Box::new($2))
  }
+ | tLBRACK tRBRACK {
+     $$ = Value::BlockExpr(Box::new(Value::ValueList(vec![])))
+ }
  statements: statement {
     $$ = Value::ValueList(vec![$1]);
  }
- | statements statement {
+ | statements tSEMICOLON statement {
      let mut stmts = $<ValueList>1;
-     stmts.push($2);
+     stmts.push($3);
      let v = Value::ValueList(stmts);
      $$ = v;
- }
+ } 
  statement: let_stmt {
      $$ = Value::Statement(Box::new($1));
  }
  | return_stmt {
      $$ = Value::Statement(Box::new($1));
  }
+ | expr_stmt {
+     $$ = Value::Statement(Box::new($1))
+ }
  let_stmt: tLET identifier tCOLON ty tASSIGN expr {
      $$ = Value::LetStatement(Box::new($2), Box::new($4), Box::new($6));
  }
- return_stmt: tRETURN expr {
+ return_stmt: kwRETURN expr {
      $$ = Value::ReturnStatement(Box::new($2))
+ }
+ expr_stmt: expr {
+     $$ = Value::ExprStatement(Box::new($1))
  }
 
 
@@ -207,6 +224,9 @@ import: tIMPORT identifier {
  }
  | tINFER {
      $$ = Value::Ty(Box::new(Value::Infer))
+ }
+ | tAMPERSAND ty {
+     $$ = Value::Ty(Box::new(Value::PointerTy(Box::new($2))))
  }
 
  call_params: none {
@@ -230,6 +250,9 @@ import: tIMPORT identifier {
  expr: literal_expr {
      $$ = Value::Expr(Box::new($1))
  }
+ | kwNEW path tLPAREN call_params tRPAREN{
+     $$ = Value::Expr(Box::new(Value::NewExpr(Box::new($2), Box::new($4))))
+ }
  | block_expr {
      $$ = Value::Expr(Box::new($1))
  }
@@ -239,7 +262,10 @@ import: tIMPORT identifier {
  | tLPAREN expr tRPAREN {
      $$ = $2;
  }
- | path {
+ | path_expr {
+     $$ = Value::Expr(Box::new($1))
+ }
+ | field_expression {
      $$ = Value::Expr(Box::new($1))
  }
  | expr tPLUS expr {
@@ -259,6 +285,12 @@ import: tIMPORT identifier {
  }
  call_expr: path tLPAREN call_params tRPAREN {
      $$ = Value::CallExpr(Box::new($1), Box::new($3))
+ }
+ path_expr: path {
+     $$ = Value::PathExpr(Box::new($1))
+ }
+ field_expression: expr tPERIOD identifier {
+     $$ = Value::FieldExpr(Box::new($1), Box::new($3))
  }
  
 %%

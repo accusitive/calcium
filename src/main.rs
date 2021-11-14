@@ -1,5 +1,10 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
+use ca_backend_llvm::inkwell::{
+    execution_engine::JitFunction,
+    targets::{CodeModel, FileType, RelocMode, Target, TargetTriple},
+    OptimizationLevel,
+};
 use ca_parser_bison::{
     lexer::Lexer,
     parser::{token_name, Parser},
@@ -44,11 +49,55 @@ fn main() {
             let mut compiler = ca_backend_llvm::Compiler::new_compiler(&ctx);
             compiler.compile_program(&program);
             compiler.module.print_to_stderr();
+            // println!("Valid: ")
+            if let Err(e) = compiler.module.verify() {
+                println!("LLVM ERROR: {}", e.to_string());
+            } else {
+                let good_target = Target::from_name("x86-64").unwrap();
+                let target_machine = good_target
+                    .create_target_machine(
+                        &TargetTriple::create("x86_64-pc-linux-gnu"),
+                        "x86-64",
+                        "+avx2",
+                        OptimizationLevel::Default,
+                        RelocMode::Default,
+                        CodeModel::Default,
+                    )
+                    .unwrap();
+                target_machine
+                    .write_to_file(&compiler.module, FileType::Object, Path::new("./out.o"))
+                    .unwrap();
+
+                unsafe {
+                    macro_rules! get_f {
+                        ($f: expr) => {
+                            compiler.execution_engine.get_function($f).unwrap()
+                        }
+                    }
+                    let main: JitFunction<unsafe extern "C" fn() -> TwoNumbers> =
+                        get_f!("cheese__main");
+                    let get_first: JitFunction<unsafe extern "C" fn(TwoNumbers) -> i32> =
+                        get_f!("cheese__first");
+                    let get_second: JitFunction<unsafe extern "C" fn(TwoNumbers) -> i32> =
+                        get_f!("cheese__second");
+                    
+                        let tn = main.call();
+                        let first = get_first.call(tn.clone());
+                        let second = get_second.call(tn);
+                    println!("First: {}\nSecond: {}", first, second);
+                }
+            }
         }
         None => {
             println!("{}", "Compilation failed.".bold())
         }
     }
+}
+#[derive(Debug, Clone)]
+#[repr(C)]
+struct TwoNumbers {
+    first: i32,
+    second: i32,
 }
 #[cfg(test)]
 mod tests {

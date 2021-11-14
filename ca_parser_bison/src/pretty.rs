@@ -20,7 +20,7 @@ pub fn print_error(source: &str, range: Range<usize>, line: usize) {
             Lexer::tFN => s.cyan(),
             Lexer::tLPAREN | Lexer::tRPAREN | Lexer::tRBRACK | Lexer::tLBRACK => s.yellow(),
             Lexer::tCOLON => s.bright_purple(),
-            Lexer::tRETURN => s.bright_yellow(),
+            Lexer::kwRETURN => s.bright_yellow(),
             _ => s.white(),
         };
         // let line = buf.matches('\n').collect::<Vec<_>>().len();

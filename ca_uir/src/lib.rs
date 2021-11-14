@@ -68,6 +68,7 @@ pub fn to_import(v: &Value) -> Import {
     }
 }
 pub fn to_expression(v: &Value) -> Expression {
+    println!("To ExPR {:?}", v);
     match v {
         Value::Expr(e) => match &**e {
             Value::CallExpr(func, values) => Expression::Call(
@@ -75,12 +76,15 @@ pub fn to_expression(v: &Value) -> Expression {
                 to_vec(&values).iter().map(|a| to_expression(a)).collect(),
             ),
             Value::LiteralExpr(l) => Expression::Literal(l.parse().unwrap()),
-            Value::PathExpr(p) => Expression::Path(to_path(e)),
+            Value::PathExpr(p) => Expression::Path(to_path(p)),
             Value::ArithExpr(left, op, right) => Expression::Arith(
                 Box::new(to_expression(left)),
                 *op,
                 Box::new(to_expression(right)),
             ),
+            Value::BlockExpr(stmts) => Expression::Block(to_vec(stmts).iter().map(|s| to_statement(s)).collect()),
+            Value::NewExpr(p, a) => Expression::New(to_path(&p), to_vec(&a).iter().map(|a| to_expression(a)).collect()),
+            Value::FieldExpr(e, i) => Expression::FieldExpr(Box::new(to_expression(e)), to_identifier(i)),
             _ => todo!(),
         },
         Value::BlockExpr(stmts) => {
@@ -97,6 +101,7 @@ pub fn to_statement(v: &Value) -> Statement {
                 Statement::Let(to_identifier(&bind), to_ty(&ty), to_expression(&expr))
             }
             Value::ReturnStatement(val) => Statement::Return(to_expression(val)),
+            Value::ExprStatement(e) => Statement::Expr(to_expression(e)),
             _ => todo!(),
         },
         _ => todo!(),
@@ -115,8 +120,10 @@ pub fn to_ty(v: &Value) -> Ty {
     match v {
         Value::Ty(t) => match &**t {
             Value::Infer => Ty::Infer,
-            Value::PathExpr(_segments) => Ty::Named(to_path(&t)),
+            Value::ValueList(_segments) => Ty::Named(to_path(&t)),
             Value::Int32 => Ty::Int32,
+            Value::PointerTy(t) => Ty::Pointer(Box::new(to_ty(t))),
+            //
             _ => todo!(),
         },
         _ => todo!(),
@@ -125,10 +132,17 @@ pub fn to_ty(v: &Value) -> Ty {
 pub fn to_path(v: &Value) -> Path {
     println!("TO PATH {:#?}", v);
     match v {
-        Value::PathExpr(p) => {
+        Value::Path(p) => {
             let segments = to_vec(p).iter().map(|seg| to_identifier(seg)).collect();
             Path { parts: segments }
+        },
+        Value::ValueList(vl) => {
+            let segments = vl.iter().map(|seg| to_identifier(seg)).collect();
+            Path {
+                parts: segments
+            }
         }
+
         _ => todo!(),
     }
 }
@@ -145,7 +159,7 @@ pub fn to_vec(v: &Value) -> Vec<Value> {
     }
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord,)]
 pub struct Identifier(pub String);
 impl Display for Identifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -204,6 +218,7 @@ pub enum Ty {
     Named(Path),
     Infer,
     Int32,
+    Pointer(Box<Self>)
 }
 #[derive(Debug)]
 pub enum Expression {
@@ -212,9 +227,12 @@ pub enum Expression {
     Literal(i32),
     Block(Vec<Statement>),
     Path(Path),
+    New(Path, Vec<Expression>),
+    FieldExpr(Box<Expression>, Identifier)
 }
 #[derive(Debug)]
 pub enum Statement {
     Let(Identifier, Ty, Expression),
     Return(Expression),
+    Expr(Expression)
 }
