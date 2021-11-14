@@ -6,11 +6,12 @@ use inkwell::{
     context::Context,
     execution_engine::ExecutionEngine,
     module::Module,
+    targets::{CodeModel, FileType, RelocMode, Target, TargetTriple},
     types::{BasicType, BasicTypeEnum, StructType},
     values::{BasicValue, BasicValueEnum, FunctionValue},
     OptimizationLevel,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, path::Path as StdPath};
 
 pub struct Compiler<'a> {
     pub module: Module<'a>,
@@ -332,5 +333,21 @@ impl<'a> Compiler<'a> {
             .map(|p| p.0.clone())
             .collect::<Vec<_>>()
             .join("__")
+    }
+    pub fn write_object_file(&self, p: &StdPath) {
+        let good_target = Target::from_name("x86-64").unwrap();
+        let target_machine = good_target
+            .create_target_machine(
+                &TargetTriple::create("x86_64-pc-linux-gnu"),
+                "x86-64",
+                "+avx2",
+                OptimizationLevel::Default,
+                RelocMode::Default,
+                CodeModel::Default,
+            )
+            .unwrap();
+        target_machine
+            .write_to_file(&self.module, FileType::Object, &p)
+            .unwrap();
     }
 }
