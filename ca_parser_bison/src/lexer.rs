@@ -178,6 +178,7 @@ impl Iterator for Lexer {
                         "i128" => Self::tI128,
                         "u32" => Self::tU32,
                         "u64" => Self::tU64,
+                        "i8" => Self::tI8,
                         _ => Self::tIDENTIFIER,
                     };
                     Some(Token {

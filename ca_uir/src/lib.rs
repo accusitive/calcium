@@ -13,8 +13,7 @@ pub fn to_program(v: &Value) -> Program {
 pub fn to_item(v: &Value) -> Item {
     match v {
         Value::Item(i) => match &**i {
-            Value::Function(_, _, _, _) => Item::Function(to_function(i)),
-            Value::ExternFunction(_, _, _) => Item::Function(to_function(i)),
+            Value::Function(_, _, _, _, _, _) => Item::Function(to_function(i)),
             Value::Struct(_, _) => Item::Struct(to_struct(i)),
             Value::Import(_, _) => Item::Import(to_import(i)),
             _ => todo!(),
@@ -25,7 +24,7 @@ pub fn to_item(v: &Value) -> Item {
 pub fn to_function(v: &Value) -> Function {
     // TODO: How can the parser not return a Value::None with no function args?
     match v {
-        Value::Function(name, params, ty, body) => Function {
+        Value::Function(name, params, ty, body,is_extern, is_varargs) => Function {
             name: Identifier(name.to_string()),
             args: to_vec(params)
                 .iter()
@@ -36,21 +35,11 @@ pub fn to_function(v: &Value) -> Function {
                 .map(|a| to_function_arg(a))
                 .collect(),
             return_ty: to_ty(ty),
-            body: Some(to_expression(body)),
+            body: body.as_ref().map(|e| to_expression(e)),
+            is_extern: *is_extern,
+            is_varargs: *is_varargs
         },
-        Value::ExternFunction(name, params, ty) => Function {
-            name: Identifier(name.to_string()),
-            args: to_vec(params)
-                .iter()
-                .filter(|f| match &**f {
-                    Value::None => false,
-                    _ => true,
-                })
-                .map(|a| to_function_arg(a))
-                .collect(),
-            return_ty: to_ty(ty),
-            body: None,
-        },
+        
         _ => todo!(),
     }
 }
@@ -139,8 +128,6 @@ pub fn to_literal(v: &Value) -> Literal {
         Value::IntegerLiteral(i, ty) => {
             let to_ty = to_ty(ty);
             match to_ty {
-                Ty::Named(_) => todo!(),
-                Ty::Infer => todo!(),
                 Ty::Int32 => Literal::Number(
                     i.parse::<i32>()
                         .expect("failed tp parse number")
@@ -176,7 +163,7 @@ pub fn to_literal(v: &Value) -> Literal {
                         .unwrap(),
                     to_ty,
                 ),
-                Ty::Pointer(_) => todo!(),
+                _ => todo!()
             }
         }
         _ => todo!(),
@@ -209,13 +196,15 @@ pub fn to_ty(v: &Value) -> Ty {
         Value::Ty(t) => match &**t {
             Value::Infer => Ty::Infer,
             Value::ValueList(_segments) => Ty::Named(to_path(&t)),
+            Value::Int8 => Ty::Int8,
             Value::Int32 => Ty::Int32,
             Value::Int64 => Ty::Int64,
             Value::Int128 => Ty::Int128,
             Value::UInt32 => Ty::UInt32,
             Value::UInt64 => Ty::UInt64,
             Value::PointerTy(t) => Ty::Pointer(Box::new(to_ty(t))),
-            //
+            Value::ArrayTy(ty, len) => Ty::ArrayTy(Box::new(to_ty(ty)), to_literal(len).get_integer_value().try_into().unwrap()),
+            // Value::
             _ => todo!(),
         },
         _ => todo!(),
@@ -282,6 +271,8 @@ pub struct Function {
     pub args: Vec<FunctionArg>,
     pub return_ty: Ty,
     pub body: Option<Expression>,
+    pub is_extern: bool,
+    pub is_varargs: bool
 }
 #[derive(Debug)]
 pub struct FunctionArg {
@@ -307,6 +298,7 @@ type PathSegment = Identifier;
 pub enum Ty {
     Named(Path),
     Infer,
+    Int8,
     Int32,
     Int64,
     Int128,
@@ -314,6 +306,7 @@ pub enum Ty {
     UInt64,
 
     Pointer(Box<Self>),
+    ArrayTy(Box<Self>, u32)
 }
 #[derive(Debug)]
 pub enum Expression {
@@ -329,10 +322,20 @@ pub enum Expression {
 pub enum Literal {
     Number(i128, Ty),
     String(String),
+    
 }
 #[derive(Debug)]
 pub enum Statement {
     Let(Identifier, Ty, Expression),
     Return(Expression),
     Expr(Expression),
+}
+
+impl Literal{
+    fn get_integer_value(&self) -> i128{
+        match self {
+            Literal::Number(n, _) => *n,
+            Literal::String(_) => panic!("Invalid type."),
+        }
+    }
 }

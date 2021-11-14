@@ -1,11 +1,12 @@
+import std
 struct TwoNumbers {
     first: i32,
     second: i64
 }
 fn main(): TwoNumbers {
     # Anything here
-    let z: _ = new TwoNumbers(1i32, 9i64);
-    let y: _ = "test";
+    let z: _ = new TwoNumbers(155i32, 9i64);
+    let x: _ = std::print("abc %i def %i \n", z.first, z.second);
     return z
 }
 fn first(self: TwoNumbers): i32 {
@@ -14,4 +15,3 @@ fn first(self: TwoNumbers): i32 {
 fn second(self: TwoNumbers): i64 {
     return self.second
 }
-extern fn printf(self: &i32): i32

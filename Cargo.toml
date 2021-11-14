@@ -6,6 +6,7 @@ license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+libc = "0.2.107"
 ca_uir = {path = "./ca_uir"}
 # ca_parser = {path = "./ca_parser"}
 ca_parser_bison = {path="./ca_parser_bison"}

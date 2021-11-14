@@ -44,13 +44,13 @@ tAMPERSAND  "&"
     tCOMMA  ","
     tASSIGN "="
     tLET    "let"
-
+    tSTR    "str"
     tI32    "i32"
     tI64    "i64"
     tI128   "i128"
     tU32    "u32"
     tU64    "u64"
-
+    tI8     "i8"
     tSTRING "Text wrapped in quotes"
     kwRETURN "return"
     kwSTRUCT "struct"
@@ -144,10 +144,13 @@ items: item {
  }
 
  function: tFN identifier tLPAREN function_args tRPAREN tCOLON ty block_expr {
-     $$ = Value::Function($<Ident>2, Box::new($4), Box::new($7), Box::new($8));
+     $$ = Value::Function($<Ident>2, Box::new($4), Box::new($7), Some(Box::new($8)), false, false);
  }
  | kwEXTERN tFN identifier tLPAREN function_args tRPAREN tCOLON ty {
-     $$ = Value::ExternFunction($<Ident>3, Box::new($5), Box::new($8))
+     $$ = Value::Function($<Ident>3, Box::new($5), Box::new($8), None, true, false)
+ }
+ | kwEXTERN tFN identifier tPERIOD tPERIOD tPERIOD tLPAREN function_args tRPAREN tCOLON ty {
+     $$ = Value::Function($<Ident>3, Box::new($8), Box::new($11), None, true, true)
  }
  function_args: function_arg {
      $$ = Value::ValueList(vec![$1]);
@@ -245,7 +248,10 @@ import: kwIMPORT identifier {
  | tU64 {
     $$ = Value::Ty(Box::new(Value::UInt64))
  }
- |path {
+ | tI8 {
+    $$ = Value::Ty(Box::new(Value::Int8))
+ }
+ | path {
      $$ = Value::Ty(Box::new($1))
  }
  | tINFER {
@@ -253,6 +259,12 @@ import: kwIMPORT identifier {
  }
  | tAMPERSAND ty {
      $$ = Value::Ty(Box::new(Value::PointerTy(Box::new($2))))
+ }
+ | tLPAREN ty tSEMICOLON integer_literal tRPAREN {
+     $$ = Value::Ty(Box::new(Value::ArrayTy(Box::new($2), Box::new($4))))
+ }
+ | tSTR {
+     $$ = Value::Ty(Box::new(Value::StrTy))
  }
 
  call_params: none {

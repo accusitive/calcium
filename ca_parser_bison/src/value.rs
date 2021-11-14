@@ -13,8 +13,9 @@ pub enum Value {
     Token(Token),
     Program(Box<Value>), // Valuelist
     ValueList(Vec<Value>),
-    Function(String, Box<Value>, Box<Value>, Box<Value>), // Name, args, ty, body
-    ExternFunction(String, Box<Value>, Box<Value>),       // Name, args, ty
+    /// First bool is extern or not
+    /// second bool is vararg or not
+    Function(String, Box<Value>, Box<Value>, Option<Box<Value>>, bool, bool), // Name, args, ty, body
 
     FunctionArg(String, Box<Value>),
     Ident(String),
@@ -31,11 +32,13 @@ pub enum Value {
     Ty(Box<Value>),                   // Infer | PathExpr
     BlockExpr(Box<Value>),            // ValueList<Statement>
     Infer,
+    Int8,
     Int32,
     Int64,
     Int128,
     UInt32,
     UInt64,
+    
     StructField(Box<Value>, Box<Value>), // Identifier, Ty
     Struct(Box<Value>, Box<Value>),      // Identifier, ValueList<StructField>
     Item(Box<Value>),                    // Function|Struct
@@ -45,6 +48,8 @@ pub enum Value {
     NewExpr(Box<Value>, Box<Value>),   // Path, args
     PointerTy(Box<Value>),             //ty
     FieldExpr(Box<Value>, Box<Value>), // Expression, Identifier
+    ArrayTy(Box<Value>, Box<Value>), // Ty, IntegerLiteral
+    StrTy,
 }
 #[derive(Debug, Clone, Copy)]
 pub enum Op {

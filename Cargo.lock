@@ -128,6 +128,7 @@ dependencies = [
  "ca_parser_bison",
  "ca_uir",
  "colored",
+ "libc",
  "paste",
  "tt-equal",
 ]

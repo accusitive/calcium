@@ -1,16 +1,7 @@
 use ca_uir::{Expression, Function, Identifier, Path, Program, Statement, Struct, Ty};
 use debug_cell::RefCell;
 pub use inkwell;
-use inkwell::{
-    builder::Builder,
-    context::Context,
-    execution_engine::ExecutionEngine,
-    module::Module,
-    targets::{CodeModel, FileType, RelocMode, Target, TargetTriple},
-    types::{BasicType, BasicTypeEnum, StructType},
-    values::{BasicValue, BasicValueEnum, FunctionValue},
-    OptimizationLevel,
-};
+use inkwell::{OptimizationLevel, builder::Builder, context::Context, execution_engine::ExecutionEngine, module::{Linkage, Module}, targets::{CodeModel, FileType, RelocMode, Target, TargetTriple}, types::{BasicType, BasicTypeEnum, StructType}, values::{BasicValue, BasicValueEnum, FunctionValue}};
 use std::{collections::HashMap, path::Path as StdPath};
 
 pub struct Compiler<'a> {
@@ -72,19 +63,24 @@ impl<'a> Compiler<'a> {
             .iter()
             .map(|a| self.compile_ty(&a.ty))
             .collect::<Vec<_>>();
-
-        let fnty = ty.fn_type(&args, false);
+        //TODO: THIS MEANS EVERY EXTERN IS A VARARGS
+        dbg!(f);
+        let fnty = ty.fn_type(&args, f.is_varargs);
         let func_name = format!("{}__{}", self.prefixes.borrow().last().unwrap(), f.name);
 
+        let linkage = match f.is_extern {
+            true => Some(Linkage::DLLImport),
+            false => None,
+        };
         let func = match self.module.get_function(&func_name) {
             Some(stub) => {
                 // println!("Found stub function. Fixing");
-                let func = self.module.add_function(&(func_name + ""), fnty, None);
+                let func = self.module.add_function(&(func_name + ""), fnty, linkage);
                 stub.replace_all_uses_with(func);
                 unsafe { stub.delete() };
                 func
             }
-            None => self.module.add_function(&func_name, fnty, None),
+            None => self.module.add_function(&func_name, fnty, linkage),
         };
 
         match &f.body {
@@ -185,10 +181,15 @@ impl<'a> Compiler<'a> {
                         _ => panic!("Bad literal ty"),
                     }
                 }
-                ca_uir::Literal::String(s) => dbg!(self
-                    .context
-                    .const_string(s.as_bytes(), false)
-                    .as_basic_value_enum()),
+                ca_uir::Literal::String(s) => {
+                    let s = self.builder.build_global_string_ptr(&s, "idk");
+                    // let vec = self
+                    // .context
+                    // .(s.as_bytes(), true);
+
+                    // let ptr_to_vec = self.builder.build_store(ptr, value)
+                    s.as_basic_value_enum()
+                }
             }),
             Expression::Block(stmts) => {
                 {
@@ -364,6 +365,10 @@ impl<'a> Compiler<'a> {
             Ty::UInt64 => {
                 inkwell::types::BasicTypeEnum::IntType(self.context.custom_width_int_type(64))
             }
+            Ty::ArrayTy(ty, len) => {
+                inkwell::types::BasicTypeEnum::ArrayType(self.compile_ty(ty).array_type(*len))
+            }
+            Ty::Int8 => inkwell::types::BasicTypeEnum::IntType(self.context.i8_type()),
         }
     }
     pub fn path_to_s(p: &Path) -> String {
@@ -381,7 +386,7 @@ impl<'a> Compiler<'a> {
                 "x86-64",
                 "+avx2",
                 OptimizationLevel::Default,
-                RelocMode::Default,
+                RelocMode::PIC,
                 CodeModel::Default,
             )
             .unwrap();

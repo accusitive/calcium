@@ -6,7 +6,11 @@ use ca_parser_bison::{
     parser::{token_name, Parser},
 };
 use colored::Colorize;
-
+#[no_mangle]
+pub extern "C" fn cheese__print(hmm: *const i8, think: i32) -> i32{
+    println!("Cheese print");
+    return 42;
+}
 fn main() {
     let mut path = PathBuf::new();
     path.push("examples");
@@ -48,32 +52,7 @@ fn main() {
             } else {
                 compiler.write_object_file(&PathBuf::from("./out.o"));
 
-                unsafe {
-                    macro_rules! get_f {
-                        ($f: expr) => {
-                            compiler.execution_engine.get_function($f).unwrap()
-                        };
-                    }
-                    #[derive(Debug, Clone)]
-                    #[repr(C)]
-                    struct TwoNumbers {
-                        first: i32,
-                        _pad: i16,
-                        second: i64,
-                    }
-
-                    let main: JitFunction<unsafe extern "C" fn() -> TwoNumbers> =
-                        get_f!("cheese__main");
-                    let get_first: JitFunction<unsafe extern "C" fn(TwoNumbers) -> i32> =
-                        get_f!("cheese__first");
-                    let get_second: JitFunction<unsafe extern "C" fn(TwoNumbers) -> i64> =
-                        get_f!("cheese__second");
-
-                    let tn = main.call();
-                    let first = get_first.call(tn.clone());
-                    let second = get_second.call(tn);
-                    println!("First: {}\nSecond: {}", first, second);
-                }
+                std::process::Command::new("gcc").arg("rt.c").arg("out.o").spawn();
             }
         }
         None => {
@@ -81,6 +60,7 @@ fn main() {
         }
     }
 }
+
 #[test]
 fn test_add() {
     let source = include_str!("../examples/tests/add.ca");
