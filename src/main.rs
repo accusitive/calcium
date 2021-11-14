@@ -1,16 +1,11 @@
 use std::path::PathBuf;
 
-use ca_backend_llvm::inkwell::execution_engine::JitFunction;
 use ca_parser_bison::{
     lexer::Lexer,
     parser::{token_name, Parser},
 };
 use colored::Colorize;
-#[no_mangle]
-pub extern "C" fn cheese__print(hmm: *const i8, think: i32) -> i32 {
-    println!("Cheese print");
-    return 42;
-}
+
 fn main() {
     let mut path = PathBuf::new();
     path.push("examples");
@@ -55,7 +50,8 @@ fn main() {
                 std::process::Command::new("clang")
                     .arg("rt.c")
                     .arg("out.o")
-                    .spawn().unwrap();
+                    .spawn()
+                    .unwrap();
             }
         }
         None => {
@@ -77,7 +73,9 @@ fn test_add() {
     compiler.compile_program(&program);
 
     unsafe {
-        let add: JitFunction<unsafe extern "C" fn(i32, i32) -> i32> = compiler
+        let add: ca_backend_llvm::inkwell::execution_engine::JitFunction<
+            unsafe extern "C" fn(i32, i32) -> i32,
+        > = compiler
             .execution_engine
             .get_function("cheese__add")
             .unwrap();
