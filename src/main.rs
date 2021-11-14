@@ -1,10 +1,6 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
-use ca_backend_llvm::inkwell::{
-    execution_engine::JitFunction,
-    targets::{CodeModel, FileType, RelocMode, Target, TargetTriple},
-    OptimizationLevel,
-};
+use ca_backend_llvm::inkwell::execution_engine::JitFunction;
 use ca_parser_bison::{
     lexer::Lexer,
     parser::{token_name, Parser},
