@@ -52,10 +52,10 @@ fn main() {
             } else {
                 compiler.write_object_file(&PathBuf::from("./out.o"));
 
-                std::process::Command::new("gcc")
+                std::process::Command::new("clang")
                     .arg("rt.c")
                     .arg("out.o")
-                    .spawn();
+                    .spawn().unwrap();
             }
         }
         None => {
