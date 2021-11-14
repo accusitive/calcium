@@ -122,17 +122,50 @@ pub fn to_literal(v: &Value) -> Literal {
                 } */
     match v {
         Value::StringLiteral(s) => Literal::String(s.to_string()),
-        Value::IntegerLiteral(i, ty) => { let to_ty = to_ty(ty); match to_ty {
-            Ty::Named(_) => todo!(),
-            Ty::Infer => todo!(),
-            Ty::Int32  => Literal::Number(i.parse::<i32 >().expect("failed tp parse number").try_into().unwrap(), to_ty),
-            Ty::Int64  => Literal::Number(i.parse::<i64 >().expect("failed tp parse number").try_into().unwrap(), to_ty),
-            Ty::Int128 => Literal::Number(i.parse::<i128>().expect("failed tp parse number").try_into().unwrap(), to_ty),
-            Ty::UInt32 => Literal::Number(i.parse::<u32> ().expect("failed tp parse number").try_into().unwrap(), to_ty),
-            Ty::UInt64 => Literal::Number(i.parse::<u64 >().expect("failed tp parse number").try_into().unwrap(), to_ty),
-            Ty::Pointer(_) => todo!(),
-        } },
-        _ => todo!()
+        Value::IntegerLiteral(i, ty) => {
+            let to_ty = to_ty(ty);
+            match to_ty {
+                Ty::Named(_) => todo!(),
+                Ty::Infer => todo!(),
+                Ty::Int32 => Literal::Number(
+                    i.parse::<i32>()
+                        .expect("failed tp parse number")
+                        .try_into()
+                        .unwrap(),
+                    to_ty,
+                ),
+                Ty::Int64 => Literal::Number(
+                    i.parse::<i64>()
+                        .expect("failed tp parse number")
+                        .try_into()
+                        .unwrap(),
+                    to_ty,
+                ),
+                Ty::Int128 => Literal::Number(
+                    i.parse::<i128>()
+                        .expect("failed tp parse number")
+                        .try_into()
+                        .unwrap(),
+                    to_ty,
+                ),
+                Ty::UInt32 => Literal::Number(
+                    i.parse::<u32>()
+                        .expect("failed tp parse number")
+                        .try_into()
+                        .unwrap(),
+                    to_ty,
+                ),
+                Ty::UInt64 => Literal::Number(
+                    i.parse::<u64>()
+                        .expect("failed tp parse number")
+                        .try_into()
+                        .unwrap(),
+                    to_ty,
+                ),
+                Ty::Pointer(_) => todo!(),
+            }
+        }
+        _ => todo!(),
     }
 }
 pub fn to_statement(v: &Value) -> Statement {
@@ -281,7 +314,7 @@ pub enum Expression {
 #[derive(Debug)]
 pub enum Literal {
     Number(i128, Ty),
-    String(String)
+    String(String),
 }
 #[derive(Debug)]
 pub enum Statement {

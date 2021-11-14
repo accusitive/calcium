@@ -20,7 +20,7 @@ pub enum Value {
     LetStatement(Box<Value>, Box<Value>, Box<Value>), //ident, path, right
     ReturnStatement(Box<Value>),
     Expr(Box<Value>),
-    LiteralExpr(Box<Value>), // IntegerLiteral | String Literal 
+    LiteralExpr(Box<Value>),            // IntegerLiteral | String Literal
     IntegerLiteral(String, Box<Value>), // Token Ty
     StringLiteral(String),
     PathExpr(Box<Value>),

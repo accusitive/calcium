@@ -132,7 +132,7 @@ impl Iterator for Lexer {
                         current += 1;
                     }
                     // Has to be plus one to account for the second quote.
-                    for _ in 0..current+1 {
+                    for _ in 0..current + 1 {
                         self.chars.next();
                     }
                     let token_value = tokens.iter().fold(String::new(), |mut s, c| {
@@ -145,8 +145,7 @@ impl Iterator for Lexer {
                         token_value,
                         spaces_before: std::mem::take(&mut self.spaces),
                     })
-
-                } 
+                }
                 // Identifier
                 Some(c) if c.is_alphabetic() => {
                     let mut tokens = vec![c];
