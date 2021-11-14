@@ -1,15 +1,15 @@
 struct TwoNumbers {
     first: i32,
-    second: i32
+    second: i64
 }
 fn main(): i32 {
     # Anything here
-    let z: _ = new TwoNumbers(50, 10);
+    let z: _ = new TwoNumbers(781231822, 10);
     return z.first
 }
 fn first(self: TwoNumbers): i32 {
     return self.first
 }
-fn second(self: TwoNumbers): i32 {
+fn second(self: TwoNumbers): i64 {
     return self.second
 }

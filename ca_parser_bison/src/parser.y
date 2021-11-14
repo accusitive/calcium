@@ -44,7 +44,13 @@ tAMPERSAND  "&"
     tCOMMA  ","
     tASSIGN "="
     tLET    "let"
+
     tI32    "i32"
+    tI64    "i64"
+    tI128   "i128"
+    tU32    "u32"
+    tU64    "u64"
+
     kwRETURN "return"
     kwSTRUCT "struct"
     kwIMPORT "import"
@@ -219,6 +225,18 @@ import: kwIMPORT identifier {
  ty: tI32 {
      $$ = Value::Ty(Box::new(Value::Int32))
  }
+ | tI64 {
+    $$ = Value::Ty(Box::new(Value::Int64))
+ }
+ | tI128 {
+    $$ = Value::Ty(Box::new(Value::Int128))
+ }
+ | tU32 {
+    $$ = Value::Ty(Box::new(Value::UInt32))
+ }
+ | tU64 {
+    $$ = Value::Ty(Box::new(Value::UInt64))
+ }
  |path {
      $$ = Value::Ty(Box::new($1))
  }
@@ -280,8 +298,11 @@ import: kwIMPORT identifier {
  | expr tDIV expr {
      $$ = Value::Expr(Box::new(Value::ArithExpr(Box::new($1), Op::Div, Box::new($3))))
  }
- literal_expr: tNUM {
-     $$ = Value::LiteralExpr($<Token>1.token_value)
+ literal_expr: tNUM ty{
+     $$ = Value::LiteralExpr($<Token>1.token_value, Box::new($2))
+ }
+ | tNUM {
+    $$ = Value::LiteralExpr($<Token>1.token_value, Box::new(Value::Ty(Box::new(Value::Int32))))
  }
  call_expr: path tLPAREN call_params tRPAREN {
      $$ = Value::CallExpr(Box::new($1), Box::new($3))

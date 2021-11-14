@@ -78,7 +78,7 @@ impl<'a> Compiler<'a> {
 
         let func = match self.module.get_function(&func_name) {
             Some(stub) => {
-                println!("Found stub function. Fixing");
+                // println!("Found stub function. Fixing");
                 let func = self.module.add_function(&(func_name + ""), fnty, None);
                 stub.replace_all_uses_with(func);
                 unsafe { stub.delete() };
@@ -159,9 +159,9 @@ impl<'a> Compiler<'a> {
                         .as_basic_value_enum(),
                 )
             }
-            Expression::Literal(num) => Some(inkwell::values::BasicValueEnum::IntValue(
-                self.context
-                    .i32_type()
+            Expression::Literal(num, ty) => Some(inkwell::values::BasicValueEnum::IntValue(
+                self.compile_ty(ty)
+                    .into_int_type()
                     .const_int((*num).try_into().unwrap(), false),
             )),
             Expression::Block(stmts) => {
@@ -325,6 +325,18 @@ impl<'a> Compiler<'a> {
                 self.compile_ty(p).ptr_type(inkwell::AddressSpace::Generic),
             ),
             Ty::Infer => todo!(),
+            Ty::Int64 => {
+                inkwell::types::BasicTypeEnum::IntType(self.context.custom_width_int_type(64))
+            }
+            Ty::Int128 => {
+                inkwell::types::BasicTypeEnum::IntType(self.context.custom_width_int_type(128))
+            }
+            Ty::UInt32 => {
+                inkwell::types::BasicTypeEnum::IntType(self.context.custom_width_int_type(32))
+            }
+            Ty::UInt64 => {
+                inkwell::types::BasicTypeEnum::IntType(self.context.custom_width_int_type(64))
+            }
         }
     }
     pub fn path_to_s(p: &Path) -> String {

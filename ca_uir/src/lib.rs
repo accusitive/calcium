@@ -75,7 +75,22 @@ pub fn to_expression(v: &Value) -> Expression {
                 to_path(&func),
                 to_vec(&values).iter().map(|a| to_expression(a)).collect(),
             ),
-            Value::LiteralExpr(l) => Expression::Literal(l.parse().unwrap()),
+            #[rustfmt::skip]
+            Value::LiteralExpr(l, t) => {
+                let to_ty = to_ty(t);
+                // Converting to u64 should be fine for everything except u128.
+                match to_ty {
+                    Ty::Named(_) => panic!("Cannot have a literal type as a named."),
+                    Ty::Infer => panic!("This should never happen"),
+                    Ty::Int32  => Expression::Literal(l.parse::<i32>() .expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
+                    Ty::Int64  => Expression::Literal(l.parse::<i64>() .expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
+                    Ty::Int128 => Expression::Literal(l.parse::<i128>().expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
+                    Ty::UInt32 => Expression::Literal(l.parse::<u128>().expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
+                    Ty::UInt64 => Expression::Literal(l.parse::<u64>() .expect("Failed to parser integer literal."), to_ty),
+                    Ty::Pointer(_) => panic!("Cannot have a literal type as a pointer."),
+                }
+            }
+
             Value::PathExpr(p) => Expression::Path(to_path(p)),
             Value::ArithExpr(left, op, right) => Expression::Arith(
                 Box::new(to_expression(left)),
@@ -129,6 +144,10 @@ pub fn to_ty(v: &Value) -> Ty {
             Value::Infer => Ty::Infer,
             Value::ValueList(_segments) => Ty::Named(to_path(&t)),
             Value::Int32 => Ty::Int32,
+            Value::Int64 => Ty::Int64,
+            Value::Int128 => Ty::Int128,
+            Value::UInt32 => Ty::UInt32,
+            Value::UInt64 => Ty::UInt64,
             Value::PointerTy(t) => Ty::Pointer(Box::new(to_ty(t))),
             //
             _ => todo!(),
@@ -223,13 +242,18 @@ pub enum Ty {
     Named(Path),
     Infer,
     Int32,
+    Int64,
+    Int128,
+    UInt32,
+    UInt64,
+
     Pointer(Box<Self>),
 }
 #[derive(Debug)]
 pub enum Expression {
     Call(Path, Vec<Expression>),
     Arith(Box<Expression>, Op, Box<Expression>),
-    Literal(i32),
+    Literal(u64, Ty),
     Block(Vec<Statement>),
     Path(Path),
     New(Path, Vec<Expression>),

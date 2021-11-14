@@ -145,6 +145,10 @@ impl Iterator for Lexer {
                         "import" => Self::kwIMPORT,
                         "new" => Self::kwNEW,
                         "i32" => Self::tI32,
+                        "i64" => Self::tI64,
+                        "i128" => Self::tI128,
+                        "u32" => Self::tU32,
+                        "u64" => Self::tU64,
                         _ => Self::tIDENTIFIER,
                     };
                     Some(Token {
@@ -159,7 +163,8 @@ impl Iterator for Lexer {
                     let mut tokens = vec![c];
                     let mut current = 0;
                     while let Some(value) = self.chars.peek_nth(current) {
-                        if !char::is_numeric(*value) {
+                        let valid = char::is_numeric(*value) || c == '_';
+                        if !valid {
                             break;
                         }
                         tokens.push(*value);

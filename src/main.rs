@@ -62,7 +62,7 @@ fn main() {
                         get_f!("cheese__main");
                     let get_first: JitFunction<unsafe extern "C" fn(TwoNumbers) -> i32> =
                         get_f!("cheese__first");
-                    let get_second: JitFunction<unsafe extern "C" fn(TwoNumbers) -> i32> =
+                    let get_second: JitFunction<unsafe extern "C" fn(TwoNumbers) -> i64> =
                         get_f!("cheese__second");
 
                     let tn = main.call();

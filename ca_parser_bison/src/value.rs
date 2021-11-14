@@ -20,13 +20,18 @@ pub enum Value {
     LetStatement(Box<Value>, Box<Value>, Box<Value>), //ident, path, right
     ReturnStatement(Box<Value>),
     Expr(Box<Value>),
-    LiteralExpr(String),
+    LiteralExpr(String, Box<Value>), // Token, Ty
     PathExpr(Box<Value>),
     ArithExpr(Box<Value>, Op, Box<Value>),
     CallExpr(Box<Value>, Box<Value>), // Path, args
     Ty(Box<Value>),                   // Infer | PathExpr
     BlockExpr(Box<Value>),            // ValueList<Statement>
     Infer,
+    Int32,
+    Int64,
+    Int128,
+    UInt32,
+    UInt64,
     StructField(Box<Value>, Box<Value>), // Identifier, Ty
     Struct(Box<Value>, Box<Value>),      // Identifier, ValueList<StructField>
     Item(Box<Value>),                    // Function|Struct
@@ -36,7 +41,6 @@ pub enum Value {
     NewExpr(Box<Value>, Box<Value>),   // Path, args
     PointerTy(Box<Value>),             //ty
     FieldExpr(Box<Value>, Box<Value>), // Expression, Identifier
-    Int32,
 }
 #[derive(Debug, Clone, Copy)]
 pub enum Op {

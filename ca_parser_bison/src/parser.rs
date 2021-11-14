@@ -184,121 +184,133 @@ impl SymbolKind {
     const S_tI32: i32 = 19; /* "i32"  */
 
     #[allow(non_upper_case_globals)]
-    const S_kwRETURN: i32 = 20; /* "return"  */
+    const S_tI64: i32 = 20; /* "i64"  */
 
     #[allow(non_upper_case_globals)]
-    const S_kwSTRUCT: i32 = 21; /* "struct"  */
+    const S_tI128: i32 = 21; /* "i128"  */
 
     #[allow(non_upper_case_globals)]
-    const S_kwIMPORT: i32 = 22; /* "import"  */
+    const S_tU32: i32 = 22; /* "u32"  */
 
     #[allow(non_upper_case_globals)]
-    const S_kwNEW: i32 = 23; /* "new"  */
+    const S_tU64: i32 = 23; /* "u64"  */
 
     #[allow(non_upper_case_globals)]
-    const S_tINFER: i32 = 24; /* "_"  */
+    const S_kwRETURN: i32 = 24; /* "return"  */
 
     #[allow(non_upper_case_globals)]
-    const S_tIDENTIFIER: i32 = 25; /* "local variable or method"  */
+    const S_kwSTRUCT: i32 = 25; /* "struct"  */
 
     #[allow(non_upper_case_globals)]
-    const S_tNUM: i32 = 26; /* "number"  */
+    const S_kwIMPORT: i32 = 26; /* "import"  */
 
     #[allow(non_upper_case_globals)]
-    const S_tFN: i32 = 27; /* "fn"  */
+    const S_kwNEW: i32 = 27; /* "new"  */
 
     #[allow(non_upper_case_globals)]
-    const S_tERROR: i32 = 28; /* "controlled YYERROR"  */
+    const S_tINFER: i32 = 28; /* "_"  */
 
     #[allow(non_upper_case_globals)]
-    const S_tABORT: i32 = 29; /* "controlled YYABORT"  */
+    const S_tIDENTIFIER: i32 = 29; /* "local variable or method"  */
 
     #[allow(non_upper_case_globals)]
-    const S_tACCEPT: i32 = 30; /* "controlled YYACCEPT"  */
+    const S_tNUM: i32 = 30; /* "number"  */
 
     #[allow(non_upper_case_globals)]
-    const S_YYACCEPT: i32 = 31; /* $accept  */
+    const S_tFN: i32 = 31; /* "fn"  */
 
     #[allow(non_upper_case_globals)]
-    const S_program: i32 = 32; /* program  */
+    const S_tERROR: i32 = 32; /* "controlled YYERROR"  */
 
     #[allow(non_upper_case_globals)]
-    const S_items: i32 = 33; /* items  */
+    const S_tABORT: i32 = 33; /* "controlled YYABORT"  */
 
     #[allow(non_upper_case_globals)]
-    const S_item: i32 = 34; /* item  */
+    const S_tACCEPT: i32 = 34; /* "controlled YYACCEPT"  */
 
     #[allow(non_upper_case_globals)]
-    const S_struct: i32 = 35; /* struct  */
+    const S_YYACCEPT: i32 = 35; /* $accept  */
 
     #[allow(non_upper_case_globals)]
-    const S_struct_fields: i32 = 36; /* struct_fields  */
+    const S_program: i32 = 36; /* program  */
 
     #[allow(non_upper_case_globals)]
-    const S_struct_field: i32 = 37; /* struct_field  */
+    const S_items: i32 = 37; /* items  */
 
     #[allow(non_upper_case_globals)]
-    const S_function: i32 = 38; /* function  */
+    const S_item: i32 = 38; /* item  */
 
     #[allow(non_upper_case_globals)]
-    const S_function_args: i32 = 39; /* function_args  */
+    const S_struct: i32 = 39; /* struct  */
 
     #[allow(non_upper_case_globals)]
-    const S_function_arg: i32 = 40; /* function_arg  */
+    const S_struct_fields: i32 = 40; /* struct_fields  */
 
     #[allow(non_upper_case_globals)]
-    const S_import: i32 = 41; /* import  */
+    const S_struct_field: i32 = 41; /* struct_field  */
 
     #[allow(non_upper_case_globals)]
-    const S_identifier: i32 = 42; /* identifier  */
+    const S_function: i32 = 42; /* function  */
 
     #[allow(non_upper_case_globals)]
-    const S_path: i32 = 43; /* path  */
+    const S_function_args: i32 = 43; /* function_args  */
 
     #[allow(non_upper_case_globals)]
-    const S_path_segment: i32 = 44; /* path_segment  */
+    const S_function_arg: i32 = 44; /* function_arg  */
 
     #[allow(non_upper_case_globals)]
-    const S_block_expr: i32 = 45; /* block_expr  */
+    const S_import: i32 = 45; /* import  */
 
     #[allow(non_upper_case_globals)]
-    const S_statements: i32 = 46; /* statements  */
+    const S_identifier: i32 = 46; /* identifier  */
 
     #[allow(non_upper_case_globals)]
-    const S_statement: i32 = 47; /* statement  */
+    const S_path: i32 = 47; /* path  */
 
     #[allow(non_upper_case_globals)]
-    const S_let_stmt: i32 = 48; /* let_stmt  */
+    const S_path_segment: i32 = 48; /* path_segment  */
 
     #[allow(non_upper_case_globals)]
-    const S_return_stmt: i32 = 49; /* return_stmt  */
+    const S_block_expr: i32 = 49; /* block_expr  */
 
     #[allow(non_upper_case_globals)]
-    const S_expr_stmt: i32 = 50; /* expr_stmt  */
+    const S_statements: i32 = 50; /* statements  */
 
     #[allow(non_upper_case_globals)]
-    const S_ty: i32 = 51; /* ty  */
+    const S_statement: i32 = 51; /* statement  */
 
     #[allow(non_upper_case_globals)]
-    const S_call_params: i32 = 52; /* call_params  */
+    const S_let_stmt: i32 = 52; /* let_stmt  */
 
     #[allow(non_upper_case_globals)]
-    const S_none: i32 = 53; /* none  */
+    const S_return_stmt: i32 = 53; /* return_stmt  */
 
     #[allow(non_upper_case_globals)]
-    const S_expr: i32 = 54; /* expr  */
+    const S_expr_stmt: i32 = 54; /* expr_stmt  */
 
     #[allow(non_upper_case_globals)]
-    const S_literal_expr: i32 = 55; /* literal_expr  */
+    const S_ty: i32 = 55; /* ty  */
 
     #[allow(non_upper_case_globals)]
-    const S_call_expr: i32 = 56; /* call_expr  */
+    const S_call_params: i32 = 56; /* call_params  */
 
     #[allow(non_upper_case_globals)]
-    const S_path_expr: i32 = 57; /* path_expr  */
+    const S_none: i32 = 57; /* none  */
 
     #[allow(non_upper_case_globals)]
-    const S_field_expression: i32 = 58; /* field_expression  */
+    const S_expr: i32 = 58; /* expr  */
+
+    #[allow(non_upper_case_globals)]
+    const S_literal_expr: i32 = 59; /* literal_expr  */
+
+    #[allow(non_upper_case_globals)]
+    const S_call_expr: i32 = 60; /* call_expr  */
+
+    #[allow(non_upper_case_globals)]
+    const S_path_expr: i32 = 61; /* path_expr  */
+
+    #[allow(non_upper_case_globals)]
+    const S_field_expression: i32 = 62; /* field_expression  */
 
     const VALUES_: &'static [SymbolKind] = &[
         SymbolKind {
@@ -360,6 +372,18 @@ impl SymbolKind {
         },
         SymbolKind {
             value: SymbolKind::S_tI32,
+        },
+        SymbolKind {
+            value: SymbolKind::S_tI64,
+        },
+        SymbolKind {
+            value: SymbolKind::S_tI128,
+        },
+        SymbolKind {
+            value: SymbolKind::S_tU32,
+        },
+        SymbolKind {
+            value: SymbolKind::S_tU64,
         },
         SymbolKind {
             value: SymbolKind::S_kwRETURN,
@@ -512,6 +536,10 @@ impl SymbolKind {
         "=",
         "let",
         "i32",
+        "i64",
+        "i128",
+        "u32",
+        "u64",
         "return",
         "struct",
         "import",
@@ -625,39 +653,51 @@ impl Lexer {
     /// Token `` "i32" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
     pub const tI32: i32 = 274;
+    /// Token `` "i64" ``, to be returned by the scanner.
+    #[allow(non_upper_case_globals, dead_code)]
+    pub const tI64: i32 = 275;
+    /// Token `` "i128" ``, to be returned by the scanner.
+    #[allow(non_upper_case_globals, dead_code)]
+    pub const tI128: i32 = 276;
+    /// Token `` "u32" ``, to be returned by the scanner.
+    #[allow(non_upper_case_globals, dead_code)]
+    pub const tU32: i32 = 277;
+    /// Token `` "u64" ``, to be returned by the scanner.
+    #[allow(non_upper_case_globals, dead_code)]
+    pub const tU64: i32 = 278;
     /// Token `` "return" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
-    pub const kwRETURN: i32 = 275;
+    pub const kwRETURN: i32 = 279;
     /// Token `` "struct" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
-    pub const kwSTRUCT: i32 = 276;
+    pub const kwSTRUCT: i32 = 280;
     /// Token `` "import" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
-    pub const kwIMPORT: i32 = 277;
+    pub const kwIMPORT: i32 = 281;
     /// Token `` "new" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
-    pub const kwNEW: i32 = 278;
+    pub const kwNEW: i32 = 282;
     /// Token `` "_" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
-    pub const tINFER: i32 = 279;
+    pub const tINFER: i32 = 283;
     /// Token `` "local variable or method" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
-    pub const tIDENTIFIER: i32 = 280;
+    pub const tIDENTIFIER: i32 = 284;
     /// Token `` "number" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
-    pub const tNUM: i32 = 281;
+    pub const tNUM: i32 = 285;
     /// Token `` "fn" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
-    pub const tFN: i32 = 282;
+    pub const tFN: i32 = 286;
     /// Token `` "controlled YYERROR" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
-    pub const tERROR: i32 = 283;
+    pub const tERROR: i32 = 287;
     /// Token `` "controlled YYABORT" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
-    pub const tABORT: i32 = 284;
+    pub const tABORT: i32 = 288;
     /// Token `` "controlled YYACCEPT" ``, to be returned by the scanner.
     #[allow(non_upper_case_globals, dead_code)]
-    pub const tACCEPT: i32 = 285;
+    pub const tACCEPT: i32 = 289;
 
     // Deprecated, use YYEOF instead.
     #[allow(dead_code)]
@@ -686,6 +726,10 @@ impl Lexer {
         "tASSIGN",
         "tLET",
         "tI32",
+        "tI64",
+        "tI128",
+        "tU32",
+        "tU64",
         "kwRETURN",
         "kwSTRUCT",
         "kwIMPORT",
@@ -848,7 +892,7 @@ impl Parser {
         match yyn {
             2 =>
             /* program: items  */
-            /* "src/parser.y":94  */
+            /* "src/parser.y":100  */
             {
                 self.result = Some(0);
                 self.output = Some(Value::Program(Box::new(yystack.owned_value_at(0))));
@@ -857,7 +901,7 @@ impl Parser {
 
             3 =>
             /* program: error  */
-            /* "src/parser.y":98  */
+            /* "src/parser.y":104  */
             {
                 self.result = None;
                 yyval = Value::None;
@@ -865,14 +909,14 @@ impl Parser {
 
             4 =>
             /* items: item  */
-            /* "src/parser.y":102  */
+            /* "src/parser.y":108  */
             {
                 yyval = Value::ValueList(vec![yystack.owned_value_at(0)]);
             }
 
             5 =>
             /* items: items item  */
-            /* "src/parser.y":105  */
+            /* "src/parser.y":111  */
             {
                 let mut vl = ValueList::from(yystack.owned_value_at(1));
                 vl.push(yystack.owned_value_at(0));
@@ -882,28 +926,28 @@ impl Parser {
 
             6 =>
             /* item: struct  */
-            /* "src/parser.y":111  */
+            /* "src/parser.y":117  */
             {
                 yyval = Value::Item(Box::new(yystack.owned_value_at(0)))
             }
 
             7 =>
             /* item: function  */
-            /* "src/parser.y":114  */
+            /* "src/parser.y":120  */
             {
                 yyval = Value::Item(Box::new(yystack.owned_value_at(0)))
             }
 
             8 =>
             /* item: import  */
-            /* "src/parser.y":117  */
+            /* "src/parser.y":123  */
             {
                 yyval = Value::Item(Box::new(yystack.owned_value_at(0)))
             }
 
             9 =>
             /* struct: "struct" identifier "{" struct_fields "}"  */
-            /* "src/parser.y":120  */
+            /* "src/parser.y":126  */
             {
                 yyval = Value::Struct(
                     Box::new(yystack.owned_value_at(3)),
@@ -913,14 +957,14 @@ impl Parser {
 
             10 =>
             /* struct_fields: struct_field  */
-            /* "src/parser.y":123  */
+            /* "src/parser.y":129  */
             {
                 yyval = Value::ValueList(vec![yystack.owned_value_at(0)])
             }
 
             11 =>
             /* struct_fields: struct_fields "," struct_field  */
-            /* "src/parser.y":126  */
+            /* "src/parser.y":132  */
             {
                 let mut vl = crate::value::ValueList::from(yystack.owned_value_at(2));
                 vl.push(yystack.owned_value_at(0));
@@ -929,7 +973,7 @@ impl Parser {
 
             12 =>
             /* struct_field: identifier ":" ty  */
-            /* "src/parser.y":131  */
+            /* "src/parser.y":137  */
             {
                 yyval = Value::StructField(
                     Box::new(yystack.owned_value_at(2)),
@@ -939,7 +983,7 @@ impl Parser {
 
             13 =>
             /* function: "fn" identifier "(" function_args ")" ":" ty block_expr  */
-            /* "src/parser.y":135  */
+            /* "src/parser.y":141  */
             {
                 yyval = Value::Function(
                     Ident::from(yystack.owned_value_at(6)),
@@ -951,14 +995,14 @@ impl Parser {
 
             14 =>
             /* function_args: function_arg  */
-            /* "src/parser.y":138  */
+            /* "src/parser.y":144  */
             {
                 yyval = Value::ValueList(vec![yystack.owned_value_at(0)]);
             }
 
             15 =>
             /* function_args: function_args "," function_arg  */
-            /* "src/parser.y":141  */
+            /* "src/parser.y":147  */
             {
                 let mut args = crate::value::ValueList::from(yystack.owned_value_at(2));
                 args.push(yystack.owned_value_at(0));
@@ -968,7 +1012,7 @@ impl Parser {
 
             16 =>
             /* function_arg: identifier ":" ty  */
-            /* "src/parser.y":147  */
+            /* "src/parser.y":153  */
             {
                 yyval = Value::FunctionArg(
                     Ident::from(yystack.owned_value_at(2)),
@@ -978,14 +1022,14 @@ impl Parser {
 
             17 =>
             /* function_arg: none  */
-            /* "src/parser.y":150  */
+            /* "src/parser.y":156  */
             {
                 yyval = Value::None;
             }
 
             18 =>
             /* import: "import" identifier  */
-            /* "src/parser.y":153  */
+            /* "src/parser.y":159  */
             {
                 // let mut p = PathBuf::new();
                 let mut p = self.path.clone();
@@ -1003,7 +1047,7 @@ impl Parser {
 
             19 =>
             /* identifier: "local variable or method"  */
-            /* "src/parser.y":166  */
+            /* "src/parser.y":172  */
             {
                 let tok = Token::from(yystack.owned_value_at(0));
                 yyval = Value::Ident(tok.token_value);
@@ -1011,14 +1055,14 @@ impl Parser {
 
             20 =>
             /* path: path_segment  */
-            /* "src/parser.y":171  */
+            /* "src/parser.y":177  */
             {
                 yyval = Value::ValueList(vec![yystack.owned_value_at(0)]);
             }
 
             21 =>
             /* path: path "::" path_segment  */
-            /* "src/parser.y":174  */
+            /* "src/parser.y":180  */
             {
                 let mut args = ValueList::from(yystack.owned_value_at(2));
                 args.push(yystack.owned_value_at(0));
@@ -1028,35 +1072,35 @@ impl Parser {
 
             22 =>
             /* path_segment: identifier  */
-            /* "src/parser.y":180  */
+            /* "src/parser.y":186  */
             {
                 yyval = Value::Ident(Ident::from(yystack.owned_value_at(0)));
             }
 
             23 =>
             /* block_expr: "{" statements "}"  */
-            /* "src/parser.y":184  */
+            /* "src/parser.y":190  */
             {
                 yyval = Value::BlockExpr(Box::new(yystack.owned_value_at(1)))
             }
 
             24 =>
             /* block_expr: "{" "}"  */
-            /* "src/parser.y":187  */
+            /* "src/parser.y":193  */
             {
                 yyval = Value::BlockExpr(Box::new(Value::ValueList(vec![])))
             }
 
             25 =>
             /* statements: statement  */
-            /* "src/parser.y":190  */
+            /* "src/parser.y":196  */
             {
                 yyval = Value::ValueList(vec![yystack.owned_value_at(0)]);
             }
 
             26 =>
             /* statements: statements ";" statement  */
-            /* "src/parser.y":193  */
+            /* "src/parser.y":199  */
             {
                 let mut stmts = ValueList::from(yystack.owned_value_at(2));
                 stmts.push(yystack.owned_value_at(0));
@@ -1066,28 +1110,28 @@ impl Parser {
 
             27 =>
             /* statement: let_stmt  */
-            /* "src/parser.y":199  */
+            /* "src/parser.y":205  */
             {
                 yyval = Value::Statement(Box::new(yystack.owned_value_at(0)));
             }
 
             28 =>
             /* statement: return_stmt  */
-            /* "src/parser.y":202  */
+            /* "src/parser.y":208  */
             {
                 yyval = Value::Statement(Box::new(yystack.owned_value_at(0)));
             }
 
             29 =>
             /* statement: expr_stmt  */
-            /* "src/parser.y":205  */
+            /* "src/parser.y":211  */
             {
                 yyval = Value::Statement(Box::new(yystack.owned_value_at(0)))
             }
 
             30 =>
             /* let_stmt: "let" identifier ":" ty "=" expr  */
-            /* "src/parser.y":208  */
+            /* "src/parser.y":214  */
             {
                 yyval = Value::LetStatement(
                     Box::new(yystack.owned_value_at(4)),
@@ -1098,65 +1142,93 @@ impl Parser {
 
             31 =>
             /* return_stmt: "return" expr  */
-            /* "src/parser.y":211  */
+            /* "src/parser.y":217  */
             {
                 yyval = Value::ReturnStatement(Box::new(yystack.owned_value_at(0)))
             }
 
             32 =>
             /* expr_stmt: expr  */
-            /* "src/parser.y":214  */
+            /* "src/parser.y":220  */
             {
                 yyval = Value::ExprStatement(Box::new(yystack.owned_value_at(0)))
             }
 
             33 =>
             /* ty: "i32"  */
-            /* "src/parser.y":219  */
+            /* "src/parser.y":225  */
             {
                 yyval = Value::Ty(Box::new(Value::Int32))
             }
 
             34 =>
+            /* ty: "i64"  */
+            /* "src/parser.y":228  */
+            {
+                yyval = Value::Ty(Box::new(Value::Int64))
+            }
+
+            35 =>
+            /* ty: "i128"  */
+            /* "src/parser.y":231  */
+            {
+                yyval = Value::Ty(Box::new(Value::Int128))
+            }
+
+            36 =>
+            /* ty: "u32"  */
+            /* "src/parser.y":234  */
+            {
+                yyval = Value::Ty(Box::new(Value::UInt32))
+            }
+
+            37 =>
+            /* ty: "u64"  */
+            /* "src/parser.y":237  */
+            {
+                yyval = Value::Ty(Box::new(Value::UInt64))
+            }
+
+            38 =>
             /* ty: path  */
-            /* "src/parser.y":222  */
+            /* "src/parser.y":240  */
             {
                 yyval = Value::Ty(Box::new(yystack.owned_value_at(0)))
             }
 
-            35 =>
+            39 =>
             /* ty: "_"  */
-            /* "src/parser.y":225  */
+            /* "src/parser.y":243  */
             {
                 yyval = Value::Ty(Box::new(Value::Infer))
             }
 
-            36 =>
+            40 =>
             /* ty: "&" ty  */
-            /* "src/parser.y":228  */
+            /* "src/parser.y":246  */
             {
                 yyval = Value::Ty(Box::new(Value::PointerTy(Box::new(
                     yystack.owned_value_at(0),
                 ))))
             }
 
-            37 =>
+            41 =>
             /* call_params: none  */
-            /* "src/parser.y":232  */
+            /* "src/parser.y":250  */
             {
                 yyval = Value::ValueList(vec![])
             }
 
-            38 =>
+            42 =>
             /* call_params: expr  */
-            /* "src/parser.y":234  */
+            /* "src/parser.y":252  */
             {
                 yyval = Value::ValueList(vec![yystack.owned_value_at(0)])
             }
 
-            39 =>
+            43 =>
             /* call_params: call_params "," expr  */
-            /* "src/parser.y":236  */
+            /* "src/parser.y":254  */
             {
                 let mut params = ValueList::from(yystack.owned_value_at(2));
                 params.push(yystack.owned_value_at(0));
@@ -1164,23 +1236,23 @@ impl Parser {
                 yyval = v;
             }
 
-            40 =>
+            44 =>
             /* none: %empty  */
-            /* "src/parser.y":242  */
+            /* "src/parser.y":260  */
             {
                 yyval = Value::None
             }
 
-            41 =>
+            45 =>
             /* expr: literal_expr  */
-            /* "src/parser.y":250  */
+            /* "src/parser.y":268  */
             {
                 yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
             }
 
-            42 =>
+            46 =>
             /* expr: "new" path "(" call_params ")"  */
-            /* "src/parser.y":253  */
+            /* "src/parser.y":271  */
             {
                 yyval = Value::Expr(Box::new(Value::NewExpr(
                     Box::new(yystack.owned_value_at(3)),
@@ -1188,44 +1260,44 @@ impl Parser {
                 )))
             }
 
-            43 =>
-            /* expr: block_expr  */
-            /* "src/parser.y":256  */
-            {
-                yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
-            }
-
-            44 =>
-            /* expr: call_expr  */
-            /* "src/parser.y":259  */
-            {
-                yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
-            }
-
-            45 =>
-            /* expr: "(" expr ")"  */
-            /* "src/parser.y":262  */
-            {
-                yyval = yystack.owned_value_at(1);
-            }
-
-            46 =>
-            /* expr: path_expr  */
-            /* "src/parser.y":265  */
-            {
-                yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
-            }
-
             47 =>
-            /* expr: field_expression  */
-            /* "src/parser.y":268  */
+            /* expr: block_expr  */
+            /* "src/parser.y":274  */
             {
                 yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
             }
 
             48 =>
+            /* expr: call_expr  */
+            /* "src/parser.y":277  */
+            {
+                yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
+            }
+
+            49 =>
+            /* expr: "(" expr ")"  */
+            /* "src/parser.y":280  */
+            {
+                yyval = yystack.owned_value_at(1);
+            }
+
+            50 =>
+            /* expr: path_expr  */
+            /* "src/parser.y":283  */
+            {
+                yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
+            }
+
+            51 =>
+            /* expr: field_expression  */
+            /* "src/parser.y":286  */
+            {
+                yyval = Value::Expr(Box::new(yystack.owned_value_at(0)))
+            }
+
+            52 =>
             /* expr: expr "+" expr  */
-            /* "src/parser.y":271  */
+            /* "src/parser.y":289  */
             {
                 yyval = Value::Expr(Box::new(Value::ArithExpr(
                     Box::new(yystack.owned_value_at(2)),
@@ -1234,9 +1306,9 @@ impl Parser {
                 )))
             }
 
-            49 =>
+            53 =>
             /* expr: expr "-" expr  */
-            /* "src/parser.y":274  */
+            /* "src/parser.y":292  */
             {
                 yyval = Value::Expr(Box::new(Value::ArithExpr(
                     Box::new(yystack.owned_value_at(2)),
@@ -1245,9 +1317,9 @@ impl Parser {
                 )))
             }
 
-            50 =>
+            54 =>
             /* expr: expr "*" expr  */
-            /* "src/parser.y":277  */
+            /* "src/parser.y":295  */
             {
                 yyval = Value::Expr(Box::new(Value::ArithExpr(
                     Box::new(yystack.owned_value_at(2)),
@@ -1256,9 +1328,9 @@ impl Parser {
                 )))
             }
 
-            51 =>
+            55 =>
             /* expr: expr "/" expr  */
-            /* "src/parser.y":280  */
+            /* "src/parser.y":298  */
             {
                 yyval = Value::Expr(Box::new(Value::ArithExpr(
                     Box::new(yystack.owned_value_at(2)),
@@ -1267,16 +1339,29 @@ impl Parser {
                 )))
             }
 
-            52 =>
-            /* literal_expr: "number"  */
-            /* "src/parser.y":283  */
+            56 =>
+            /* literal_expr: "number" ty  */
+            /* "src/parser.y":301  */
             {
-                yyval = Value::LiteralExpr(Token::from(yystack.owned_value_at(0)).token_value)
+                yyval = Value::LiteralExpr(
+                    Token::from(yystack.owned_value_at(1)).token_value,
+                    Box::new(yystack.owned_value_at(0)),
+                )
             }
 
-            53 =>
+            57 =>
+            /* literal_expr: "number"  */
+            /* "src/parser.y":304  */
+            {
+                yyval = Value::LiteralExpr(
+                    Token::from(yystack.owned_value_at(0)).token_value,
+                    Box::new(Value::Ty(Box::new(Value::Int32))),
+                )
+            }
+
+            58 =>
             /* call_expr: path "(" call_params ")"  */
-            /* "src/parser.y":286  */
+            /* "src/parser.y":307  */
             {
                 yyval = Value::CallExpr(
                     Box::new(yystack.owned_value_at(3)),
@@ -1284,16 +1369,16 @@ impl Parser {
                 )
             }
 
-            54 =>
+            59 =>
             /* path_expr: path  */
-            /* "src/parser.y":289  */
+            /* "src/parser.y":310  */
             {
                 yyval = Value::PathExpr(Box::new(yystack.owned_value_at(0)))
             }
 
-            55 =>
+            60 =>
             /* field_expression: expr "." identifier  */
-            /* "src/parser.y":292  */
+            /* "src/parser.y":313  */
             {
                 yyval = Value::FieldExpr(
                     Box::new(yystack.owned_value_at(2)),
@@ -1301,7 +1386,7 @@ impl Parser {
                 )
             }
 
-            /* "src/parser.rs":1127  */
+            /* "src/parser.rs":1198  */
             _ => {}
         }
 
@@ -1620,7 +1705,7 @@ fn yy_table_value_is_error(yyvalue: i32) -> bool {
     yyvalue == YYTABLE_NINF_
 }
 
-const YYPACT_NINF_: i32 = -41;
+const YYPACT_NINF_: i32 = -73;
 const YYTABLE_NINF_: i32 = -1;
 
 impl Parser {
@@ -1628,11 +1713,12 @@ impl Parser {
     STATE-NUM.  */
     #[allow(non_upper_case_globals)]
     const yypact_: &'static [i32] = &[
-        2, -41, -18, -18, -18, 20, 83, -41, -41, -41, -41, -41, 33, -41, 32, -41, -41, -18, -18,
-        49, -41, 41, 3, -41, 51, -41, -41, -18, 8, 58, -18, 8, -41, 8, -41, -41, -41, 29, -41, -41,
-        8, -41, -41, -41, -18, 66, -41, 38, -41, 63, -41, -18, 63, -18, -41, 7, -41, 57, -41, -41,
-        -41, -41, 97, -41, -41, -41, -41, 87, 67, 97, 11, 63, -41, 59, 63, 63, 63, 63, -18, -41, 8,
-        63, 30, -41, 97, -41, 68, 68, 48, 48, -41, 64, 35, -41, 63, 63, -41, 97, 97,
+        4, -73, -17, -17, -17, 13, 11, -73, -73, -73, -73, -73, 18, -73, 17, -73, -73, -17, -17,
+        99, -73, 27, 15, -73, 28, -73, -73, -17, 64, 29, -17, 64, -73, 64, -73, -73, -73, -73, -73,
+        -73, -73, 44, -73, -73, 64, -73, -73, -73, -17, 34, -73, 45, -73, 41, -73, -17, 41, -17,
+        64, 42, -73, 12, -73, -73, -73, -73, 101, -73, -73, -73, -73, 91, 51, 101, 73, -73, 41,
+        -73, 49, 41, 41, 41, 41, -17, -73, 64, 41, 74, -73, 101, -73, 5, 5, 54, 54, -73, 72, 92,
+        -73, 41, 41, -73, 101, 101,
     ];
 
     /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -1640,24 +1726,24 @@ impl Parser {
     means the default is an error.  */
     #[allow(non_upper_case_globals)]
     const yydefact_: &'static [i32] = &[
-        0, 3, 0, 0, 0, 0, 2, 4, 6, 7, 8, 19, 0, 18, 0, 1, 5, 0, 40, 0, 10, 0, 0, 14, 0, 17, 9, 0,
-        0, 0, 40, 0, 11, 0, 33, 35, 22, 34, 20, 12, 0, 15, 16, 36, 0, 0, 21, 0, 13, 0, 24, 0, 0, 0,
-        52, 54, 43, 0, 25, 27, 28, 29, 32, 41, 44, 46, 47, 0, 0, 31, 0, 40, 23, 0, 0, 0, 0, 0, 0,
-        45, 0, 40, 0, 37, 38, 26, 48, 49, 50, 51, 55, 0, 0, 53, 0, 0, 42, 39, 30,
+        0, 3, 0, 0, 0, 0, 2, 4, 6, 7, 8, 19, 0, 18, 0, 1, 5, 0, 44, 0, 10, 0, 0, 14, 0, 17, 9, 0,
+        0, 0, 44, 0, 11, 0, 33, 34, 35, 36, 37, 39, 22, 38, 20, 12, 0, 15, 16, 40, 0, 0, 21, 0, 13,
+        0, 24, 0, 0, 0, 57, 59, 47, 0, 25, 27, 28, 29, 32, 45, 48, 50, 51, 0, 0, 31, 0, 56, 44, 23,
+        0, 0, 0, 0, 0, 0, 49, 0, 44, 0, 41, 42, 26, 52, 53, 54, 55, 60, 0, 0, 58, 0, 0, 46, 43, 30,
     ];
 
     /* YYPGOTO[NTERM-NUM].  */
     #[allow(non_upper_case_globals)]
     const yypgoto_: &'static [i32] = &[
-        -41, -41, -41, 77, -41, -41, 60, -41, -41, 76, -41, -2, -23, 50, 52, -41, 23, -41, -41,
-        -41, -27, 17, -31, -40, -41, -41, -41, -41,
+        -73, -73, -73, 85, -73, -73, 71, -73, -73, 80, -73, -2, -25, 53, 62, -73, 24, -73, -73,
+        -73, -24, 26, -72, -35, -73, -73, -73, -73,
     ];
 
     /* YYDEFGOTO[NTERM-NUM].  */
     #[allow(non_upper_case_globals)]
     const yydefgoto_: &'static [i32] = &[
-        0, 5, 6, 7, 8, 19, 20, 9, 22, 23, 10, 36, 55, 38, 56, 57, 58, 59, 60, 61, 39, 82, 25, 62,
-        63, 64, 65, 66,
+        0, 5, 6, 7, 8, 19, 20, 9, 22, 23, 10, 40, 59, 42, 60, 61, 62, 63, 64, 65, 43, 87, 25, 66,
+        67, 68, 69, 70,
     ];
 
     /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -1665,55 +1751,57 @@ impl Parser {
     number is the opposite.  If YYTABLE_NINF, syntax error.  */
     #[allow(non_upper_case_globals)]
     const yytable_: &'static [i32] = &[
-        12, 13, 14, 1, 42, 37, 43, 11, 37, 67, 37, 29, 69, 45, 71, 21, 24, 37, 81, 30, 15, 33, 44,
-        2, 3, 21, 44, 34, 24, 4, 70, 84, 35, 11, 86, 87, 88, 89, 93, 18, 83, 84, 17, 96, 44, 49,
-        94, 47, 50, 68, 83, 94, 28, 91, 97, 98, 51, 37, 52, 26, 78, 53, 31, 11, 54, 27, 49, 72, 47,
-        40, 49, 73, 47, 76, 77, 47, 90, 51, 80, 52, 78, 95, 53, 16, 11, 54, 53, 32, 11, 54, 74, 75,
-        76, 77, 46, 79, 85, 48, 92, 78, 74, 75, 76, 77, 2, 3, 41, 0, 0, 78, 4,
+        12, 13, 14, 41, 88, 1, 41, 46, 41, 47, 81, 82, 11, 15, 88, 21, 24, 83, 71, 41, 49, 73, 77,
+        29, 18, 21, 78, 17, 24, 2, 3, 30, 74, 41, 75, 4, 2, 3, 28, 31, 44, 89, 4, 51, 91, 92, 93,
+        94, 53, 76, 51, 89, 53, 72, 51, 54, 53, 48, 51, 48, 41, 96, 85, 55, 102, 103, 83, 55, 57,
+        56, 11, 58, 57, 56, 11, 58, 57, 33, 11, 58, 86, 95, 98, 34, 35, 36, 37, 38, 48, 100, 99,
+        16, 39, 11, 79, 80, 81, 82, 32, 84, 101, 50, 90, 83, 79, 80, 81, 82, 99, 26, 45, 52, 97,
+        83, 0, 27,
     ];
 
     #[allow(non_upper_case_globals)]
     const yycheck_: &'static [i32] = &[
-        2, 3, 4, 1, 31, 28, 33, 25, 31, 49, 33, 8, 52, 40, 7, 17, 18, 40, 7, 16, 0, 13, 15, 21, 22,
-        27, 15, 19, 30, 27, 53, 71, 24, 25, 74, 75, 76, 77, 8, 7, 71, 81, 9, 8, 15, 7, 16, 9, 10,
-        51, 81, 16, 11, 80, 94, 95, 18, 80, 20, 10, 12, 23, 11, 25, 26, 16, 7, 10, 9, 11, 7, 14, 9,
-        5, 6, 9, 78, 18, 11, 20, 12, 17, 23, 6, 25, 26, 23, 27, 25, 26, 3, 4, 5, 6, 44, 8, 73, 45,
-        81, 12, 3, 4, 5, 6, 21, 22, 30, -1, -1, 12, 27,
+        2, 3, 4, 28, 76, 1, 31, 31, 33, 33, 5, 6, 29, 0, 86, 17, 18, 12, 53, 44, 44, 56, 10, 8, 7,
+        27, 14, 9, 30, 25, 26, 16, 57, 58, 58, 31, 25, 26, 11, 11, 11, 76, 31, 9, 79, 80, 81, 82,
+        7, 7, 9, 86, 7, 55, 9, 10, 7, 15, 9, 15, 85, 85, 11, 18, 99, 100, 12, 18, 27, 24, 29, 30,
+        27, 24, 29, 30, 27, 13, 29, 30, 7, 83, 8, 19, 20, 21, 22, 23, 15, 17, 16, 6, 28, 29, 3, 4,
+        5, 6, 27, 8, 8, 48, 78, 12, 3, 4, 5, 6, 16, 10, 30, 49, 86, 12, -1, 16,
     ];
 
     /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
     state STATE-NUM.  */
     #[allow(non_upper_case_globals)]
     const yystos_: &'static [i32] = &[
-        0, 1, 21, 22, 27, 32, 33, 34, 35, 38, 41, 25, 42, 42, 42, 0, 34, 9, 7, 36, 37, 42, 39, 40,
-        42, 53, 10, 16, 11, 8, 16, 11, 37, 13, 19, 24, 42, 43, 44, 51, 11, 40, 51, 51, 15, 51, 44,
-        9, 45, 7, 10, 18, 20, 23, 26, 43, 45, 46, 47, 48, 49, 50, 54, 55, 56, 57, 58, 54, 42, 54,
-        43, 7, 10, 14, 3, 4, 5, 6, 12, 8, 11, 7, 52, 53, 54, 47, 54, 54, 54, 54, 42, 51, 52, 8, 16,
-        17, 8, 54, 54,
+        0, 1, 25, 26, 31, 36, 37, 38, 39, 42, 45, 29, 46, 46, 46, 0, 38, 9, 7, 40, 41, 46, 43, 44,
+        46, 57, 10, 16, 11, 8, 16, 11, 41, 13, 19, 20, 21, 22, 23, 28, 46, 47, 48, 55, 11, 44, 55,
+        55, 15, 55, 48, 9, 49, 7, 10, 18, 24, 27, 30, 47, 49, 50, 51, 52, 53, 54, 58, 59, 60, 61,
+        62, 58, 46, 58, 47, 55, 7, 10, 14, 3, 4, 5, 6, 12, 8, 11, 7, 56, 57, 58, 51, 58, 58, 58,
+        58, 46, 55, 56, 8, 16, 17, 8, 58, 58,
     ];
 
     /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
     #[allow(non_upper_case_globals)]
     const yyr1_: &'static [i32] = &[
-        0, 31, 32, 32, 33, 33, 34, 34, 34, 35, 36, 36, 37, 38, 39, 39, 40, 40, 41, 42, 43, 43, 44,
-        45, 45, 46, 46, 47, 47, 47, 48, 49, 50, 51, 51, 51, 51, 52, 52, 52, 53, 54, 54, 54, 54, 54,
-        54, 54, 54, 54, 54, 54, 55, 56, 57, 58,
+        0, 35, 36, 36, 37, 37, 38, 38, 38, 39, 40, 40, 41, 42, 43, 43, 44, 44, 45, 46, 47, 47, 48,
+        49, 49, 50, 50, 51, 51, 51, 52, 53, 54, 55, 55, 55, 55, 55, 55, 55, 55, 56, 56, 56, 57, 58,
+        58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 59, 59, 60, 61, 62,
     ];
 
     /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
     #[allow(non_upper_case_globals)]
     const yyr2_: &'static [i32] = &[
         0, 2, 1, 1, 1, 2, 1, 1, 1, 5, 1, 3, 3, 8, 1, 3, 3, 1, 2, 1, 1, 3, 1, 3, 2, 1, 3, 1, 1, 1,
-        6, 2, 1, 1, 1, 1, 2, 1, 1, 3, 0, 1, 5, 1, 1, 3, 1, 1, 3, 3, 3, 3, 1, 4, 1, 3,
+        6, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 3, 0, 1, 5, 1, 1, 3, 1, 1, 3, 3, 3, 3, 2, 1, 4, 1,
+        3,
     ];
 
     /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
     #[allow(non_upper_case_globals)]
     const yyrline_: &'static [i32] = &[
-        0, 94, 94, 98, 102, 105, 111, 114, 117, 120, 123, 126, 131, 135, 138, 141, 147, 150, 153,
-        166, 171, 174, 180, 184, 187, 190, 193, 199, 202, 205, 208, 211, 214, 219, 222, 225, 228,
-        232, 234, 236, 242, 250, 253, 256, 259, 262, 265, 268, 271, 274, 277, 280, 283, 286, 289,
-        292,
+        0, 100, 100, 104, 108, 111, 117, 120, 123, 126, 129, 132, 137, 141, 144, 147, 153, 156,
+        159, 172, 177, 180, 186, 190, 193, 196, 199, 205, 208, 211, 214, 217, 220, 225, 228, 231,
+        234, 237, 240, 243, 246, 250, 252, 254, 260, 268, 271, 274, 277, 280, 283, 286, 289, 292,
+        295, 298, 301, 304, 307, 310, 313,
     ];
 
     // Report on the debug stream that the rule yyrule is going to be reduced.
@@ -1747,7 +1835,7 @@ impl Parser {
     as returned by yylex, with out-of-bounds checking.  */
     fn yytranslate_(t: i32) -> &'static SymbolKind {
         // Last valid token kind.
-        let code_max: i32 = 285;
+        let code_max: i32 = 289;
         if t <= 0 {
             SymbolKind::get(0)
         } else if t <= code_max {
@@ -1768,16 +1856,16 @@ impl Parser {
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
-        14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+        14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34,
     ];
 
-    const YYLAST_: i32 = 110;
+    const YYLAST_: i32 = 115;
     const YYEMPTY_: i32 = -2;
     const YYFINAL_: i32 = 15;
-    const YYNTOKENS_: i32 = 31;
+    const YYNTOKENS_: i32 = 35;
 }
 
-/* "src/parser.y":296  */
+/* "src/parser.y":317  */
 
 impl Parser {
     /// "Sucess" status-code of the parser
