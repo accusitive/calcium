@@ -3,10 +3,22 @@
 Calcium is a new prgramming language i'm making for fun, with no real goals
 Calcium is implemented in rust, using [bison](https://github.com/iliabylich/rust-bison-skeleton) for the parser and llvm for the backend.
 # Syntax
-The syntax is subject to change at any moment, but current a simple function to add 2 numbers would look like
+The syntax is subject to change at any moment, but current a simple function to create an object and return some data looks like
 ```rust
-fn add(left: i32, right: i32): i32 {
-    return left + right
+struct TwoNumbers {
+    first: i32,
+    second: i32
+}
+fn main(): i32 {
+    # Anything here
+    let z: _ = new TwoNumbers(50, 10);
+    return z.first
+}
+fn first(self: TwoNumbers): i32 {
+    return self.first
+}
+fn second(self: TwoNumbers): i32 {
+    return self.second
 }
 ```
 Its quite similar to rust as you can see, since it is my favorite language.
