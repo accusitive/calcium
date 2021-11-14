@@ -40,9 +40,10 @@ fn main() {
             // type_checker.check_program(&program);
             // return;
             compiler.compile_program(&program);
+            compiler.module.print_to_stderr();
+
             if let Err(e) = compiler.module.verify() {
                 println!("LLVM ERROR: {}", e.to_string());
-                compiler.module.print_to_stderr();
             } else {
                 compiler.write_object_file(&PathBuf::from("./out.o"));
 

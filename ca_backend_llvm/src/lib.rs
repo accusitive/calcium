@@ -11,7 +11,7 @@ use inkwell::{
     values::{BasicValue, BasicValueEnum, FunctionValue},
     OptimizationLevel,
 };
-use std::{collections::HashMap, path::Path as StdPath};
+use std::{collections::HashMap, ops::Deref, path::Path as StdPath};
 
 pub struct Compiler<'a> {
     pub module: Module<'a>,
@@ -24,6 +24,7 @@ pub struct Compiler<'a> {
     pub structs: RefCell<HashMap<String, StructType<'a>>>,
     pub depth: RefCell<i32>,
     pub struct_fields: RefCell<HashMap<&'a Identifier, u32>>,
+    pub main_function: RefCell<Option<FunctionValue<'a>>>,
 }
 #[derive(Debug, Clone)]
 pub struct Local<'a> {
@@ -44,11 +45,12 @@ impl<'a> Compiler<'a> {
             module,
             builder,
             execution_engine,
-            prefixes: RefCell::new(vec!["cheese".to_string()]),
+            prefixes: RefCell::new(vec![]),
             structs: RefCell::new(HashMap::new()),
             locals: RefCell::new(Vec::new()),
             depth: RefCell::new(0),
             struct_fields: RefCell::new(HashMap::new()),
+            main_function: RefCell::new(None),
         };
         compiler
     }
@@ -74,7 +76,11 @@ impl<'a> Compiler<'a> {
             .collect::<Vec<_>>();
 
         let fnty = ty.fn_type(&args, f.is_varargs);
-        let func_name = format!("{}__{}", self.prefixes.borrow().last().unwrap(), f.name);
+        // let func_name = format!("{}__{}", self.prefixes.borrow().last().unwrap(), f.name);
+        let func_name = match self.prefixes.borrow().last() {
+            Some(p) => format!("{}__{}", p, f.name.0),
+            None => f.name.0.to_string(),
+        };
 
         let linkage = match f.is_extern {
             true => Some(Linkage::DLLImport),
@@ -89,7 +95,14 @@ impl<'a> Compiler<'a> {
             }
             None => self.module.add_function(&func_name, fnty, linkage),
         };
-
+        if &f.name.0 == "main" {
+            let mut borrow = self.main_function.borrow_mut();
+            if borrow.is_some() {
+                panic!("Cannot define {} more than once.", f.name)
+            } else {
+                *borrow = Some(func);
+            }
+        }
         match &f.body {
             Some(body) => {
                 let entry = self.context.append_basic_block(func, "entry");
@@ -103,7 +116,7 @@ impl<'a> Compiler<'a> {
                     let mut mref = self.locals.borrow_mut();
                     mref.push(Local {
                         depth: depth_borrow,
-                        name: arg.name.to_string(),
+                        name: arg.name.0.to_string(),
                         value: func.get_nth_param(i).unwrap(),
                     });
                 }
@@ -232,6 +245,7 @@ impl<'a> Compiler<'a> {
             }
             Expression::Path(p) => {
                 let borrow = { self.locals.borrow() };
+                dbg!(borrow.deref());
                 let var = borrow
                     .iter()
                     .find(|l| l.name == Self::path_to_s(p))
@@ -308,7 +322,7 @@ impl<'a> Compiler<'a> {
                     let mut mref = self.locals.borrow_mut();
                     mref.push(Local {
                         depth: depth_borrow,
-                        name: name.to_string(),
+                        name: name.0.to_string(),
                         value: e.unwrap(),
                     });
                 }

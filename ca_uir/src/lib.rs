@@ -249,6 +249,7 @@ impl Display for Identifier {
         Ok(())
     }
 }
+
 #[derive(Debug)]
 pub struct Program {
     pub items: Vec<Item>,
