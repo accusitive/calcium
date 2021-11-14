@@ -52,7 +52,7 @@ pub fn process_bison_file(filepath: &Path) -> Result<(), BisonErr> {
 
     let output = Command::new("bison").args(args).output();
     if output.is_err() {
-        return Ok(())
+        return Ok(());
     }
     let output = output.unwrap();
     if output.status.success() {
