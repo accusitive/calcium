@@ -82,9 +82,16 @@ pub fn to_expression(v: &Value) -> Expression {
                 *op,
                 Box::new(to_expression(right)),
             ),
-            Value::BlockExpr(stmts) => Expression::Block(to_vec(stmts).iter().map(|s| to_statement(s)).collect()),
-            Value::NewExpr(p, a) => Expression::New(to_path(&p), to_vec(&a).iter().map(|a| to_expression(a)).collect()),
-            Value::FieldExpr(e, i) => Expression::FieldExpr(Box::new(to_expression(e)), to_identifier(i)),
+            Value::BlockExpr(stmts) => {
+                Expression::Block(to_vec(stmts).iter().map(|s| to_statement(s)).collect())
+            }
+            Value::NewExpr(p, a) => Expression::New(
+                to_path(&p),
+                to_vec(&a).iter().map(|a| to_expression(a)).collect(),
+            ),
+            Value::FieldExpr(e, i) => {
+                Expression::FieldExpr(Box::new(to_expression(e)), to_identifier(i))
+            }
             _ => todo!(),
         },
         Value::BlockExpr(stmts) => {
@@ -135,12 +142,10 @@ pub fn to_path(v: &Value) -> Path {
         Value::Path(p) => {
             let segments = to_vec(p).iter().map(|seg| to_identifier(seg)).collect();
             Path { parts: segments }
-        },
+        }
         Value::ValueList(vl) => {
             let segments = vl.iter().map(|seg| to_identifier(seg)).collect();
-            Path {
-                parts: segments
-            }
+            Path { parts: segments }
         }
 
         _ => todo!(),
@@ -159,7 +164,7 @@ pub fn to_vec(v: &Value) -> Vec<Value> {
     }
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord,)]
+#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Identifier(pub String);
 impl Display for Identifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -218,7 +223,7 @@ pub enum Ty {
     Named(Path),
     Infer,
     Int32,
-    Pointer(Box<Self>)
+    Pointer(Box<Self>),
 }
 #[derive(Debug)]
 pub enum Expression {
@@ -228,11 +233,11 @@ pub enum Expression {
     Block(Vec<Statement>),
     Path(Path),
     New(Path, Vec<Expression>),
-    FieldExpr(Box<Expression>, Identifier)
+    FieldExpr(Box<Expression>, Identifier),
 }
 #[derive(Debug)]
 pub enum Statement {
     Let(Identifier, Ty, Expression),
     Return(Expression),
-    Expr(Expression)
+    Expr(Expression),
 }

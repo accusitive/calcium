@@ -77,7 +77,6 @@ impl<'a> Compiler<'a> {
             .iter()
             .map(|a| self.compile_ty(&a.ty))
             .collect::<Vec<_>>();
-        
 
         let fnty = ty.fn_type(&args, false);
         let func_name = format!("{}__{}", self.prefixes.borrow().last().unwrap(), f.name);
@@ -107,11 +106,8 @@ impl<'a> Compiler<'a> {
                 name: arg.name.to_string(),
                 value: func.get_nth_param(i).unwrap(),
             });
-    
         }
 
-        
-        
         self.compile_expression(&f.body);
 
         let mut d = self.depth.borrow_mut();
@@ -314,13 +310,12 @@ impl<'a> Compiler<'a> {
                 self.compile_ty(&f.ty)
             })
             .collect::<Vec<_>>();
-            {
-                let mut b = self.struct_fields.borrow_mut();
-                for (arg, index) in s.fields.iter().zip(0..) {
-                    b.insert(&arg.name, index);
-                    
-                }
+        {
+            let mut b = self.struct_fields.borrow_mut();
+            for (arg, index) in s.fields.iter().zip(0..) {
+                b.insert(&arg.name, index);
             }
+        }
         let mut borrow_mut = self.structs.borrow_mut();
         let s = borrow_mut
             .entry(format!("{}", s.name))

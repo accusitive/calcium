@@ -33,8 +33,8 @@ pub enum Value {
     Import(Box<Value>, Box<Value>),
     ExprStatement(Box<Value>),
     Path(Box<Value>),
-    NewExpr(Box<Value>, Box<Value>), // Path, args
-    PointerTy(Box<Value>), //ty
+    NewExpr(Box<Value>, Box<Value>),   // Path, args
+    PointerTy(Box<Value>),             //ty
     FieldExpr(Box<Value>, Box<Value>), // Expression, Identifier
     Int32,
 }

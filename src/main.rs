@@ -72,7 +72,7 @@ fn main() {
                     macro_rules! get_f {
                         ($f: expr) => {
                             compiler.execution_engine.get_function($f).unwrap()
-                        }
+                        };
                     }
                     let main: JitFunction<unsafe extern "C" fn() -> TwoNumbers> =
                         get_f!("cheese__main");
@@ -80,10 +80,10 @@ fn main() {
                         get_f!("cheese__first");
                     let get_second: JitFunction<unsafe extern "C" fn(TwoNumbers) -> i32> =
                         get_f!("cheese__second");
-                    
-                        let tn = main.call();
-                        let first = get_first.call(tn.clone());
-                        let second = get_second.call(tn);
+
+                    let tn = main.call();
+                    let first = get_first.call(tn.clone());
+                    let second = get_second.call(tn);
                     println!("First: {}\nSecond: {}", first, second);
                 }
             }
