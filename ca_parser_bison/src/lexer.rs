@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::{loc::Loc, value::Value};
 use peekmore::{PeekMore, PeekMoreIterator};
 
@@ -94,7 +92,15 @@ impl Iterator for Lexer {
                     self.is_comment = true;
                     continue;
                 }
-                Some(c) if self.is_comment => continue,
+                Some(n @ '\n') => {
+                    self.spaces.push(n);
+                    self.col = 0;
+                    self.line += 1;
+                    self.is_comment = false;
+                    continue;
+                    // self.line +=1;
+                }
+                Some(_) if self.is_comment => continue,
                 Some(c) if Self::bracket_to_token(c).is_some() => Some(Token {
                     token_type: Self::bracket_to_token(c).unwrap(),
                     token_value: c.to_string(),
@@ -205,14 +211,7 @@ impl Iterator for Lexer {
                     self.col += 1;
                     continue;
                 }
-                Some(n @ '\n') => {
-                    self.spaces.push(n);
-                    self.col = 0;
-                    self.line += 1;
-                    self.is_comment = false;
-                    continue;
-                    // self.line +=1;
-                }
+                
                 None => Some(Token {
                     token_type: Self::YYEOF,
                     token_value: "".to_string(),

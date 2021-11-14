@@ -2,8 +2,8 @@ struct TwoNumbers {
     first: i32,
     second: i32
 }
-
 fn main(): i32 {
+    # Anything here
     let z: _ = new TwoNumbers(50, 10);
     return z.first
 }
