@@ -71,7 +71,6 @@ pub fn to_import(v: &Value) -> Import {
     }
 }
 pub fn to_expression(v: &Value) -> Expression {
-    println!("To ExPR {:?}", v);
     match v {
         Value::Expr(e) => match &**e {
             Value::CallExpr(func, values) => Expression::Call(
@@ -214,7 +213,6 @@ pub fn to_ty(v: &Value) -> Ty {
     }
 }
 pub fn to_path(v: &Value) -> Path {
-    println!("TO PATH {:#?}", v);
     match v {
         Value::Path(p) => {
             let segments = to_vec(p).iter().map(|seg| to_identifier(seg)).collect();

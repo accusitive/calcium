@@ -123,8 +123,6 @@ impl Iterator for Lexer {
                     let mut tokens = vec![];
                     let mut current = 0;
                     while let Some(value) = self.chars.peek_nth(current) {
-                        println!("Value {:#?}", value);
-
                         if *value == '\"' {
                             break;
                         }

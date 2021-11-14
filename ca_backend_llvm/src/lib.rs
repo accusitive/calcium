@@ -72,8 +72,7 @@ impl<'a> Compiler<'a> {
             .iter()
             .map(|a| self.compile_ty(&a.ty))
             .collect::<Vec<_>>();
-        //TODO: THIS MEANS EVERY EXTERN IS A VARARGS
-        dbg!(f);
+
         let fnty = ty.fn_type(&args, f.is_varargs);
         let func_name = format!("{}__{}", self.prefixes.borrow().last().unwrap(), f.name);
 
@@ -83,7 +82,6 @@ impl<'a> Compiler<'a> {
         };
         let func = match self.module.get_function(&func_name) {
             Some(stub) => {
-                // println!("Found stub function. Fixing");
                 let func = self.module.add_function(&(func_name + ""), fnty, linkage);
                 stub.replace_all_uses_with(func);
                 unsafe { stub.delete() };
@@ -248,7 +246,7 @@ impl<'a> Compiler<'a> {
                     .expect("Garbage")
                     .as_basic_type_enum();
                 let memory = self.builder.build_malloc(p, "malloc.for.new").unwrap();
-                println!("memory is {:#?}", memory);
+
                 let values = args
                     .iter()
                     .map(|e| self.compile_expression(e).unwrap())
@@ -270,7 +268,7 @@ impl<'a> Compiler<'a> {
                     _ => panic!("Field expr must be on a path."),
                 }
                 let compiled_expression = self.compile_expression(e).unwrap();
-                println!("Compiled expression: {:#?}", compiled_expression);
+
                 let compiled_expression_struct_type =
                     compiled_expression.get_type().into_struct_type();
                 let compiled_expression_struct_value = compiled_expression.into_struct_value();
@@ -283,7 +281,7 @@ impl<'a> Compiler<'a> {
                     compiled_expression_struct_value,
                 );
                 let borrow = self.struct_fields.borrow();
-                println!("Borrow {:?}", *borrow);
+
                 let index = borrow.get(i).unwrap();
                 let accessed_field_ptr = unsafe {
                     self.builder.build_struct_gep(
@@ -343,7 +341,7 @@ impl<'a> Compiler<'a> {
         let s = borrow_mut
             .entry(format!("{}", s.name))
             .or_insert(self.context.struct_type(&field_types, true));
-        // println!("align {:#?}", align);
+
         if s.is_opaque() {
             s.set_body(&field_types, true);
         }

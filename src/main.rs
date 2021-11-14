@@ -1,9 +1,6 @@
 use std::path::PathBuf;
 
-use ca_parser_bison::{
-    lexer::Lexer,
-    parser::{token_name, Parser},
-};
+use ca_parser_bison::{lexer::Lexer, parser::Parser};
 use colored::Colorize;
 
 fn main() {
@@ -18,13 +15,13 @@ fn main() {
         if token.token_type == Lexer::YYEOF {
             break;
         }
-        println!(
-            "{:>15} := {:<10} @ {:>2}..{:>2}  ",
-            token_name(token.token_type),
-            token.token_value,
-            token.loc.begin,
-            token.loc.end
-        );
+        // println!(
+        //     "{:>15} := {:<10} @ {:>2}..{:>2}  ",
+        //     ca_parser_bison::parser::token_name(token.token_type),
+        //     token.token_value,
+        //     token.loc.begin,
+        //     token.loc.end
+        // );
     }
 
     let lexer = Lexer::new(source);
@@ -36,14 +33,13 @@ fn main() {
     match parsed.0 {
         Some(_result) => {
             let (_value, _name, output) = parsed;
-            println!("Output: {:#?}", output.as_ref().unwrap());
             let program = ca_uir::to_program(&output.unwrap());
             let ctx = ca_backend_llvm::inkwell::context::Context::create();
             let compiler = ca_backend_llvm::Compiler::new_compiler(&ctx);
             compiler.compile_program(&program);
-            compiler.module.print_to_stderr();
             if let Err(e) = compiler.module.verify() {
                 println!("LLVM ERROR: {}", e.to_string());
+                compiler.module.print_to_stderr();
             } else {
                 compiler.write_object_file(&PathBuf::from("./out.o"));
 
