@@ -159,11 +159,35 @@ impl<'a> Compiler<'a> {
                         .as_basic_value_enum(),
                 )
             }
-            Expression::Literal(num, ty) => Some(inkwell::values::BasicValueEnum::IntValue(
-                self.compile_ty(ty)
-                    .into_int_type()
-                    .const_int((*num).try_into().unwrap(), false),
-            )),
+            Expression::Literal(lit) => {
+                Some(match lit {
+                    ca_uir::Literal::Number(n, ty) => match ty {
+                    
+                        Ty::Int32  => {
+                            let t = self.compile_ty(ty);
+                            t.into_int_type().const_int((*n).try_into().unwrap(), false).as_basic_value_enum()
+                        },
+                        Ty::Int64  => {
+                            let t = self.compile_ty(ty);
+                            t.into_int_type().const_int((*n).try_into().unwrap(), false).as_basic_value_enum()
+                        },
+                        Ty::Int128 => {
+                            let t = self.compile_ty(ty);
+                            t.into_int_type().const_int((*n).try_into().unwrap(), false).as_basic_value_enum()
+                        },
+                        Ty::UInt32 => {
+                            let t = self.compile_ty(ty);
+                            t.into_int_type().const_int((*n).try_into().unwrap(), false).as_basic_value_enum()
+                        },
+                        Ty::UInt64 => {
+                            let t = self.compile_ty(ty);
+                            t.into_int_type().const_int((*n).try_into().unwrap(), false).as_basic_value_enum()
+                        },
+                        _ => panic!("Bad literal ty")
+                    },
+                    ca_uir::Literal::String(s) => self.context.const_string(s.as_bytes(), false).as_basic_value_enum(),
+                })
+            }
             Expression::Block(stmts) => {
                 {
                     let mut d = self.depth.borrow_mut();

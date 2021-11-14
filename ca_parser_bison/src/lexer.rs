@@ -118,6 +118,35 @@ impl Iterator for Lexer {
                         spaces_before: std::mem::take(&mut self.spaces),
                     })
                 }
+                // String literal
+                Some('"') => {
+                    let mut tokens = vec![];
+                    let mut current = 0;
+                    while let Some(value) = self.chars.peek_nth(current) {
+                        println!("Value {:#?}", value);
+
+                        if *value == '\"' {
+                            break;
+                        }
+                        tokens.push(*value);
+                        current += 1;
+                    }
+                    // Has to be plus one to account for the second quote.
+                    for _ in 0..current+1 {
+                        self.chars.next();
+                    }
+                    let token_value = tokens.iter().fold(String::new(), |mut s, c| {
+                        s.push(*c);
+                        s
+                    });
+                    Some(Token {
+                        loc: loc!(tokens.len()),
+                        token_type: Self::tSTRING,
+                        token_value,
+                        spaces_before: std::mem::take(&mut self.spaces),
+                    })
+
+                } 
                 // Identifier
                 Some(c) if c.is_alphabetic() => {
                     let mut tokens = vec![c];

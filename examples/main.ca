@@ -5,6 +5,7 @@ struct TwoNumbers {
 fn main(): i32 {
     # Anything here
     let z: _ = new TwoNumbers(781231822, 10);
+    let y: _ = "test";
     return z.first
 }
 fn first(self: TwoNumbers): i32 {

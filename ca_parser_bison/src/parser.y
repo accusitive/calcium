@@ -51,6 +51,7 @@ tAMPERSAND  "&"
     tU32    "u32"
     tU64    "u64"
 
+    tSTRING "Text wrapped in quotes"
     kwRETURN "return"
     kwSTRUCT "struct"
     kwIMPORT "import"
@@ -94,6 +95,8 @@ tAMPERSAND  "&"
     import
     expr_stmt
     none
+    integer_literal
+    string_literal
 
 
 %%
@@ -298,11 +301,21 @@ import: kwIMPORT identifier {
  | expr tDIV expr {
      $$ = Value::Expr(Box::new(Value::ArithExpr(Box::new($1), Op::Div, Box::new($3))))
  }
- literal_expr: tNUM ty{
-     $$ = Value::LiteralExpr($<Token>1.token_value, Box::new($2))
+
+ literal_expr: integer_literal {
+    $$ = Value::LiteralExpr(Box::new($1))
+ } 
+ | string_literal {
+    $$ = Value::LiteralExpr(Box::new($1))
+ }
+  integer_literal: tNUM ty {
+    $$ = Value::IntegerLiteral($<Token>1.token_value, Box::new($2))
  }
  | tNUM {
-    $$ = Value::LiteralExpr($<Token>1.token_value, Box::new(Value::Ty(Box::new(Value::Int32))))
+     $$ = Value::IntegerLiteral($<Token>1.token_value, Box::new(Value::Ty(Box::new(Value::Int32))))
+ }
+ string_literal: tSTRING {
+     $$ = Value::StringLiteral($<Token>1.token_value)
  }
  call_expr: path tLPAREN call_params tRPAREN {
      $$ = Value::CallExpr(Box::new($1), Box::new($3))

@@ -76,19 +76,11 @@ pub fn to_expression(v: &Value) -> Expression {
                 to_vec(&values).iter().map(|a| to_expression(a)).collect(),
             ),
             #[rustfmt::skip]
-            Value::LiteralExpr(l, t) => {
-                let to_ty = to_ty(t);
+            Value::LiteralExpr(l) => {
+                // let to_ty = to_ty(t);
+                let l = to_literal(l);
                 // Converting to u64 should be fine for everything except u128.
-                match to_ty {
-                    Ty::Named(_) => panic!("Cannot have a literal type as a named."),
-                    Ty::Infer => panic!("This should never happen"),
-                    Ty::Int32  => Expression::Literal(l.parse::<i32>() .expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
-                    Ty::Int64  => Expression::Literal(l.parse::<i64>() .expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
-                    Ty::Int128 => Expression::Literal(l.parse::<i128>().expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
-                    Ty::UInt32 => Expression::Literal(l.parse::<u128>().expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
-                    Ty::UInt64 => Expression::Literal(l.parse::<u64>() .expect("Failed to parser integer literal."), to_ty),
-                    Ty::Pointer(_) => panic!("Cannot have a literal type as a pointer."),
-                }
+                Expression::Literal(l)
             }
 
             Value::PathExpr(p) => Expression::Path(to_path(p)),
@@ -114,6 +106,33 @@ pub fn to_expression(v: &Value) -> Expression {
         }
 
         _ => todo!(),
+    }
+}
+pub fn to_literal(v: &Value) -> Literal {
+    /*
+    match to_ty {
+                    Ty::Named(_) => panic!("Cannot have a literal type as a named."),
+                    Ty::Infer => panic!("This should never happen"),
+                    Ty::Int32  => Expression::Literal(l.parse::<i32>() .expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
+                    Ty::Int64  => Expression::Literal(l.parse::<i64>() .expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
+                    Ty::Int128 => Expression::Literal(l.parse::<i128>().expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
+                    Ty::UInt32 => Expression::Literal(l.parse::<u128>().expect("Failed to parser integer literal.").try_into().unwrap(), to_ty),
+                    Ty::UInt64 => Expression::Literal(l.parse::<u64>() .expect("Failed to parser integer literal."), to_ty),
+                    Ty::Pointer(_) => panic!("Cannot have a literal type as a pointer."),
+                } */
+    match v {
+        Value::StringLiteral(s) => Literal::String(s.to_string()),
+        Value::IntegerLiteral(i, ty) => { let to_ty = to_ty(ty); match to_ty {
+            Ty::Named(_) => todo!(),
+            Ty::Infer => todo!(),
+            Ty::Int32  => Literal::Number(i.parse::<i32 >().expect("failed tp parse number").try_into().unwrap(), to_ty),
+            Ty::Int64  => Literal::Number(i.parse::<i64 >().expect("failed tp parse number").try_into().unwrap(), to_ty),
+            Ty::Int128 => Literal::Number(i.parse::<i128>().expect("failed tp parse number").try_into().unwrap(), to_ty),
+            Ty::UInt32 => Literal::Number(i.parse::<u32> ().expect("failed tp parse number").try_into().unwrap(), to_ty),
+            Ty::UInt64 => Literal::Number(i.parse::<u64 >().expect("failed tp parse number").try_into().unwrap(), to_ty),
+            Ty::Pointer(_) => todo!(),
+        } },
+        _ => todo!()
     }
 }
 pub fn to_statement(v: &Value) -> Statement {
@@ -253,11 +272,16 @@ pub enum Ty {
 pub enum Expression {
     Call(Path, Vec<Expression>),
     Arith(Box<Expression>, Op, Box<Expression>),
-    Literal(u64, Ty),
+    Literal(Literal),
     Block(Vec<Statement>),
     Path(Path),
     New(Path, Vec<Expression>),
     FieldExpr(Box<Expression>, Identifier),
+}
+#[derive(Debug)]
+pub enum Literal {
+    Number(i128, Ty),
+    String(String)
 }
 #[derive(Debug)]
 pub enum Statement {
