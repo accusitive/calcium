@@ -15,7 +15,14 @@ pub enum Value {
     ValueList(Vec<Value>),
     /// First bool is extern or not
     /// second bool is vararg or not
-    Function(String, Box<Value>, Box<Value>, Option<Box<Value>>, bool, bool), // Name, args, ty, body
+    Function(
+        String,
+        Box<Value>,
+        Box<Value>,
+        Option<Box<Value>>,
+        bool,
+        bool,
+    ), // Name, args, ty, body
 
     FunctionArg(String, Box<Value>),
     Ident(String),
@@ -38,7 +45,7 @@ pub enum Value {
     Int128,
     UInt32,
     UInt64,
-    
+
     StructField(Box<Value>, Box<Value>), // Identifier, Ty
     Struct(Box<Value>, Box<Value>),      // Identifier, ValueList<StructField>
     Item(Box<Value>),                    // Function|Struct
@@ -48,7 +55,7 @@ pub enum Value {
     NewExpr(Box<Value>, Box<Value>),   // Path, args
     PointerTy(Box<Value>),             //ty
     FieldExpr(Box<Value>, Box<Value>), // Expression, Identifier
-    ArrayTy(Box<Value>, Box<Value>), // Ty, IntegerLiteral
+    ArrayTy(Box<Value>, Box<Value>),   // Ty, IntegerLiteral
     StrTy,
 }
 #[derive(Debug, Clone, Copy)]

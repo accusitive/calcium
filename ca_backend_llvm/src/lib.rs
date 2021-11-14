@@ -1,7 +1,16 @@
 use ca_uir::{Expression, Function, Identifier, Path, Program, Statement, Struct, Ty};
 use debug_cell::RefCell;
 pub use inkwell;
-use inkwell::{OptimizationLevel, builder::Builder, context::Context, execution_engine::ExecutionEngine, module::{Linkage, Module}, targets::{CodeModel, FileType, RelocMode, Target, TargetTriple}, types::{BasicType, BasicTypeEnum, StructType}, values::{BasicValue, BasicValueEnum, FunctionValue}};
+use inkwell::{
+    builder::Builder,
+    context::Context,
+    execution_engine::ExecutionEngine,
+    module::{Linkage, Module},
+    targets::{CodeModel, FileType, RelocMode, Target, TargetTriple},
+    types::{BasicType, BasicTypeEnum, StructType},
+    values::{BasicValue, BasicValueEnum, FunctionValue},
+    OptimizationLevel,
+};
 use std::{collections::HashMap, path::Path as StdPath};
 
 pub struct Compiler<'a> {

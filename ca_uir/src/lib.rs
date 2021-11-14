@@ -24,7 +24,7 @@ pub fn to_item(v: &Value) -> Item {
 pub fn to_function(v: &Value) -> Function {
     // TODO: How can the parser not return a Value::None with no function args?
     match v {
-        Value::Function(name, params, ty, body,is_extern, is_varargs) => Function {
+        Value::Function(name, params, ty, body, is_extern, is_varargs) => Function {
             name: Identifier(name.to_string()),
             args: to_vec(params)
                 .iter()
@@ -37,9 +37,9 @@ pub fn to_function(v: &Value) -> Function {
             return_ty: to_ty(ty),
             body: body.as_ref().map(|e| to_expression(e)),
             is_extern: *is_extern,
-            is_varargs: *is_varargs
+            is_varargs: *is_varargs,
         },
-        
+
         _ => todo!(),
     }
 }
@@ -163,7 +163,7 @@ pub fn to_literal(v: &Value) -> Literal {
                         .unwrap(),
                     to_ty,
                 ),
-                _ => todo!()
+                _ => todo!(),
             }
         }
         _ => todo!(),
@@ -203,7 +203,10 @@ pub fn to_ty(v: &Value) -> Ty {
             Value::UInt32 => Ty::UInt32,
             Value::UInt64 => Ty::UInt64,
             Value::PointerTy(t) => Ty::Pointer(Box::new(to_ty(t))),
-            Value::ArrayTy(ty, len) => Ty::ArrayTy(Box::new(to_ty(ty)), to_literal(len).get_integer_value().try_into().unwrap()),
+            Value::ArrayTy(ty, len) => Ty::ArrayTy(
+                Box::new(to_ty(ty)),
+                to_literal(len).get_integer_value().try_into().unwrap(),
+            ),
             // Value::
             _ => todo!(),
         },
@@ -272,7 +275,7 @@ pub struct Function {
     pub return_ty: Ty,
     pub body: Option<Expression>,
     pub is_extern: bool,
-    pub is_varargs: bool
+    pub is_varargs: bool,
 }
 #[derive(Debug)]
 pub struct FunctionArg {
@@ -306,7 +309,7 @@ pub enum Ty {
     UInt64,
 
     Pointer(Box<Self>),
-    ArrayTy(Box<Self>, u32)
+    ArrayTy(Box<Self>, u32),
 }
 #[derive(Debug)]
 pub enum Expression {
@@ -322,7 +325,6 @@ pub enum Expression {
 pub enum Literal {
     Number(i128, Ty),
     String(String),
-    
 }
 #[derive(Debug)]
 pub enum Statement {
@@ -331,8 +333,8 @@ pub enum Statement {
     Expr(Expression),
 }
 
-impl Literal{
-    fn get_integer_value(&self) -> i128{
+impl Literal {
+    fn get_integer_value(&self) -> i128 {
         match self {
             Literal::Number(n, _) => *n,
             Literal::String(_) => panic!("Invalid type."),

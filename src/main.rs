@@ -7,7 +7,7 @@ use ca_parser_bison::{
 };
 use colored::Colorize;
 #[no_mangle]
-pub extern "C" fn cheese__print(hmm: *const i8, think: i32) -> i32{
+pub extern "C" fn cheese__print(hmm: *const i8, think: i32) -> i32 {
     println!("Cheese print");
     return 42;
 }
@@ -52,7 +52,10 @@ fn main() {
             } else {
                 compiler.write_object_file(&PathBuf::from("./out.o"));
 
-                std::process::Command::new("gcc").arg("rt.c").arg("out.o").spawn();
+                std::process::Command::new("gcc")
+                    .arg("rt.c")
+                    .arg("out.o")
+                    .spawn();
             }
         }
         None => {
