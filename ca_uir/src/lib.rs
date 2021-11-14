@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Display, Write};
 
 use ca_parser_bison::value::{Op, Value};
 
@@ -239,11 +239,14 @@ pub fn to_vec(v: &Value) -> Vec<Value> {
     }
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct Identifier(pub String);
 impl Display for Identifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.0.as_str())
+        f.write_char('`')?;
+        f.write_str(self.0.as_str())?;
+        f.write_char('`')?;
+        Ok(())
     }
 }
 #[derive(Debug)]
@@ -289,13 +292,13 @@ pub struct Import {
 pub struct ValueList<V> {
     pub content: Vec<V>,
 }
-#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct Path {
     pub parts: Vec<PathSegment>,
 }
 
 type PathSegment = Identifier;
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Ty {
     Named(Path),
     Infer,
@@ -308,6 +311,93 @@ pub enum Ty {
 
     Pointer(Box<Self>),
     ArrayTy(Box<Self>, u32),
+}
+impl Display for Ty {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Ty::Named(p) => f.write_str(
+                &p.parts
+                    .iter()
+                    .map(|p| p.0.clone())
+                    .collect::<Vec<_>>()
+                    .join("__"),
+            ),
+            Ty::Infer => f.write_char('_'),
+            Ty::Int8 => f.write_str("i8"),
+            Ty::Int32 => f.write_str("i32"),
+            Ty::Int64 => f.write_str("i64"),
+            Ty::Int128 => f.write_str("i128"),
+            Ty::UInt32 => f.write_str("u32"),
+            Ty::UInt64 => f.write_str("u64"),
+            Ty::Pointer(inner) => f.write_fmt(format_args!("&{}", inner)),
+            Ty::ArrayTy(ty, len) => f.write_fmt(format_args!("({}; {})", ty, len)),
+        }
+    }
+}
+impl Ty {
+    /// Returns `true` if the ty is [`Infer`].
+    ///
+    /// [`Infer`]: Ty::Infer
+    pub fn is_infer(&self) -> bool {
+        matches!(self, Self::Infer)
+    }
+
+    /// Returns `true` if the ty is [`Named`].
+    ///
+    /// [`Named`]: Ty::Named
+    pub fn is_named(&self) -> bool {
+        matches!(self, Self::Named(..))
+    }
+
+    pub fn as_named(&self) -> Option<&Path> {
+        if let Self::Named(v) = self {
+            Some(v)
+        } else {
+            None
+        }
+    }
+
+    /// Returns `true` if the ty is [`Int8`].
+    ///
+    /// [`Int8`]: Ty::Int8
+    pub fn is_int8(&self) -> bool {
+        matches!(self, Self::Int8)
+    }
+
+    /// Returns `true` if the ty is [`Int32`].
+    ///
+    /// [`Int32`]: Ty::Int32
+    pub fn is_int32(&self) -> bool {
+        matches!(self, Self::Int32)
+    }
+
+    /// Returns `true` if the ty is [`Int64`].
+    ///
+    /// [`Int64`]: Ty::Int64
+    pub fn is_int64(&self) -> bool {
+        matches!(self, Self::Int64)
+    }
+
+    /// Returns `true` if the ty is [`Int128`].
+    ///
+    /// [`Int128`]: Ty::Int128
+    pub fn is_int128(&self) -> bool {
+        matches!(self, Self::Int128)
+    }
+
+    /// Returns `true` if the ty is [`UInt32`].
+    ///
+    /// [`UInt32`]: Ty::UInt32
+    pub fn is_uint32(&self) -> bool {
+        matches!(self, Self::UInt32)
+    }
+
+    /// Returns `true` if the ty is [`UInt64`].
+    ///
+    /// [`UInt64`]: Ty::UInt64
+    pub fn is_uint64(&self) -> bool {
+        matches!(self, Self::UInt64)
+    }
 }
 #[derive(Debug)]
 pub enum Expression {

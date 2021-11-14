@@ -36,6 +36,9 @@ fn main() {
             let program = ca_uir::to_program(&output.unwrap());
             let ctx = ca_backend_llvm::inkwell::context::Context::create();
             let compiler = ca_backend_llvm::Compiler::new_compiler(&ctx);
+            // let type_checker = ca_tc::TypeChecker::new();
+            // type_checker.check_program(&program);
+            // return;
             compiler.compile_program(&program);
             if let Err(e) = compiler.module.verify() {
                 println!("LLVM ERROR: {}", e.to_string());

@@ -1,17 +1,8 @@
 import std
-struct TwoNumbers {
-    first: i32,
-    second: i64
-}
+
+
 fn main(): TwoNumbers {
     # Anything here
-    let z: _ = new TwoNumbers(155i32, 9i64);
-    let x: _ = std::print("abc %i def %i \n", z.first, z.second);
+    let z: i64 = 2i64;
     return z
-}
-fn first(self: TwoNumbers): i32 {
-    return self.first
-}
-fn second(self: TwoNumbers): i64 {
-    return self.second
 }

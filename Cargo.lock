@@ -114,6 +114,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ca_tc"
+version = "0.1.0"
+dependencies = [
+ "ca_uir",
+]
+
+[[package]]
 name = "ca_uir"
 version = "0.1.0"
 dependencies = [
@@ -126,6 +133,7 @@ version = "0.1.0"
 dependencies = [
  "ca_backend_llvm",
  "ca_parser_bison",
+ "ca_tc",
  "ca_uir",
  "colored",
  "libc",
