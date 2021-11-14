@@ -211,7 +211,7 @@ impl Iterator for Lexer {
                     self.col += 1;
                     continue;
                 }
-                
+
                 None => Some(Token {
                     token_type: Self::YYEOF,
                     token_value: "".to_string(),

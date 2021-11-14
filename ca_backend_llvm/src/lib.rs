@@ -1,4 +1,4 @@
-use ca_uir::{Expression, Function, Identifier, Path, Program, Statement, Struct, StructField, Ty};
+use ca_uir::{Expression, Function, Identifier, Path, Program, Statement, Struct, Ty};
 use debug_cell::RefCell;
 pub use inkwell;
 use inkwell::{
@@ -6,17 +6,11 @@ use inkwell::{
     context::Context,
     execution_engine::ExecutionEngine,
     module::Module,
-    types::{BasicType, BasicTypeEnum, FunctionType, StructType},
-    values::{BasicValue, BasicValueEnum, FunctionValue, IntValue},
+    types::{BasicType, BasicTypeEnum, StructType},
+    values::{BasicValue, BasicValueEnum, FunctionValue},
     OptimizationLevel,
 };
-use std::{
-    borrow::{Borrow, BorrowMut},
-    cell::Ref,
-    collections::HashMap,
-    default,
-    rc::Rc,
-};
+use std::collections::HashMap;
 
 pub struct Compiler<'a> {
     pub module: Module<'a>,
@@ -154,7 +148,8 @@ impl<'a> Compiler<'a> {
                         .expect_left("Failed to unwrap left."),
                 )
             }
-            Expression::Arith(left, op, right) => {
+            // TODO: make this work with more than just addition
+            Expression::Arith(left, _op, right) => {
                 let l = self.compile_expression(left).unwrap();
                 let r = self.compile_expression(right).unwrap();
                 Some(
@@ -174,17 +169,8 @@ impl<'a> Compiler<'a> {
                     *d += 1;
                 }
 
-                // borrow_mut.push(Local{
-                //     depth: *d,
-                //     variables: HashMap::new()
-                // });
-                let compiled = stmts
-                    .iter()
-                    .map(|s| self.compile_statement(s))
-                    .collect::<Vec<_>>();
-                // println!("Everything is done borrowing. {:?}", self.locals);
-                // borrow_mut.pop();
-                // let mut borrow_mut = ;
+                stmts.iter().for_each(|s| self.compile_statement(s));
+
                 let mut d = self.depth.borrow_mut();
                 {
                     let mut borrow = self.locals.borrow_mut();
@@ -276,7 +262,7 @@ impl<'a> Compiler<'a> {
     }
     pub fn compile_statement(&self, s: &'a Statement) {
         match s {
-            Statement::Let(name, ty, value) => {
+            Statement::Let(name, _ty, value) => {
                 // let mut borrow_mut = self.locals.borrow_mut();
                 let depth_borrow = {
                     let d = self.depth.borrow();
@@ -322,28 +308,16 @@ impl<'a> Compiler<'a> {
             .or_insert(self.context.struct_type(&field_types, true));
         if s.is_opaque() {
             s.set_body(&field_types, true);
-            // println!("Was opaque!");
         }
-
-        // println!("s {:#?}", self.structs);
     }
-    // pub fn compile_struct_field(&self, s: &StructField) {
-
-    // }
     pub fn compile_ty(&self, t: &'a Ty) -> BasicTypeEnum<'a> {
         match t {
             Ty::Named(path) => {
-                let s = self
-                    .structs
-                    .borrow_mut()
+                let mut structs_mut = self.structs.borrow_mut();
+                let s = structs_mut
                     .entry(Self::path_to_s(path))
                     .or_insert(self.context.opaque_struct_type(&Self::path_to_s(path)));
-
-                self.structs
-                    .borrow_mut()
-                    .get(&Self::path_to_s(path))
-                    .unwrap()
-                    .as_basic_type_enum()
+                s.as_basic_type_enum()
             }
             Ty::Int32 => inkwell::types::BasicTypeEnum::IntType(self.context.i32_type()),
             Ty::Pointer(p) => inkwell::types::BasicTypeEnum::PointerType(

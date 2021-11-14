@@ -46,7 +46,7 @@ fn main() {
             let program = ca_uir::to_program(&output.unwrap());
             // println!("program: {:#?}", program);
             let ctx = ca_backend_llvm::inkwell::context::Context::create();
-            let mut compiler = ca_backend_llvm::Compiler::new_compiler(&ctx);
+            let compiler = ca_backend_llvm::Compiler::new_compiler(&ctx);
             compiler.compile_program(&program);
             compiler.module.print_to_stderr();
             // println!("Valid: ")
