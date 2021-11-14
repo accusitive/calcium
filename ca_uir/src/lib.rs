@@ -14,6 +14,7 @@ pub fn to_item(v: &Value) -> Item {
     match v {
         Value::Item(i) => match &**i {
             Value::Function(_, _, _, _) => Item::Function(to_function(i)),
+            Value::ExternFunction(_, _, _) => Item::Function(to_function(i)),
             Value::Struct(_, _) => Item::Struct(to_struct(i)),
             Value::Import(_, _) => Item::Import(to_import(i)),
             _ => todo!(),
@@ -35,7 +36,20 @@ pub fn to_function(v: &Value) -> Function {
                 .map(|a| to_function_arg(a))
                 .collect(),
             return_ty: to_ty(ty),
-            body: to_expression(body),
+            body: Some(to_expression(body)),
+        },
+        Value::ExternFunction(name, params, ty) => Function {
+            name: Identifier(name.to_string()),
+            args: to_vec(params)
+                .iter()
+                .filter(|f| match &**f {
+                    Value::None => false,
+                    _ => true,
+                })
+                .map(|a| to_function_arg(a))
+                .collect(),
+            return_ty: to_ty(ty),
+            body: None,
         },
         _ => todo!(),
     }
@@ -267,7 +281,7 @@ pub struct Function {
     pub name: Identifier,
     pub args: Vec<FunctionArg>,
     pub return_ty: Ty,
-    pub body: Expression,
+    pub body: Option<Expression>,
 }
 #[derive(Debug)]
 pub struct FunctionArg {

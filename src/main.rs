@@ -54,6 +54,14 @@ fn main() {
                             compiler.execution_engine.get_function($f).unwrap()
                         };
                     }
+                    #[derive(Debug, Clone)]
+                    #[repr(C)]
+                    struct TwoNumbers {
+                        first: i32,
+                        _pad: i16,
+                        second: i64,
+                    }
+
                     let main: JitFunction<unsafe extern "C" fn() -> TwoNumbers> =
                         get_f!("cheese__main");
                     let get_first: JitFunction<unsafe extern "C" fn(TwoNumbers) -> i32> =
@@ -93,10 +101,4 @@ fn test_add() {
         assert_eq!(add.call(1, 2), 1 + 2);
         assert_eq!(add.call(-1, 2), -1 + 2);
     }
-}
-#[derive(Debug, Clone)]
-#[repr(C)]
-struct TwoNumbers {
-    first: i32,
-    second: i32,
 }

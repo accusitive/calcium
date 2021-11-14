@@ -169,6 +169,7 @@ impl Iterator for Lexer {
                         "fn" => Self::tFN,
                         "let" => Self::tLET,
                         "return" => Self::kwRETURN,
+                        "extern" => Self::kwEXTERN,
                         "struct" => Self::kwSTRUCT,
                         "import" => Self::kwIMPORT,
                         "new" => Self::kwNEW,

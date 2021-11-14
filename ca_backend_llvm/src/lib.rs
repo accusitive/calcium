@@ -87,37 +87,41 @@ impl<'a> Compiler<'a> {
             None => self.module.add_function(&func_name, fnty, None),
         };
 
-        let entry = self.context.append_basic_block(func, "entry");
-        self.builder.position_at_end(entry);
+        match &f.body {
+            Some(body) => {
+                let entry = self.context.append_basic_block(func, "entry");
+                self.builder.position_at_end(entry);
 
-        for (arg, i) in f.args.iter().zip(0..) {
-            let depth_borrow = {
-                let d = self.depth.borrow();
-                *d
-            };
-            let mut mref = self.locals.borrow_mut();
-            mref.push(Local {
-                depth: depth_borrow,
-                name: arg.name.to_string(),
-                value: func.get_nth_param(i).unwrap(),
-            });
+                for (arg, i) in f.args.iter().zip(0..) {
+                    let depth_borrow = {
+                        let d = self.depth.borrow();
+                        *d
+                    };
+                    let mut mref = self.locals.borrow_mut();
+                    mref.push(Local {
+                        depth: depth_borrow,
+                        name: arg.name.to_string(),
+                        value: func.get_nth_param(i).unwrap(),
+                    });
+                }
+
+                self.compile_expression(body);
+                let mut d = self.depth.borrow_mut();
+                {
+                    let mut borrow = self.locals.borrow_mut();
+                    let (_drained, remaining): (Vec<&Local>, _) =
+                        borrow.iter().partition(|l| l.depth >= *d);
+                    let remaining_owned: Vec<Local> = remaining
+                        .clone()
+                        .into_iter()
+                        .map(|l| l.to_owned())
+                        .collect();
+                    *borrow = remaining_owned;
+                }
+                *d -= 1;
+            }
+            None => {}
         }
-
-        self.compile_expression(&f.body);
-
-        let mut d = self.depth.borrow_mut();
-        {
-            let mut borrow = self.locals.borrow_mut();
-            let (_drained, remaining): (Vec<&Local>, _) =
-                borrow.iter().partition(|l| l.depth >= *d);
-            let remaining_owned: Vec<Local> = remaining
-                .clone()
-                .into_iter()
-                .map(|l| l.to_owned())
-                .collect();
-            *borrow = remaining_owned;
-        }
-        *d -= 1;
     }
     pub fn get_or_stub_function(&self, name: &str) -> FunctionValue<'a> {
         match self.module.get_function(name) {
@@ -160,43 +164,31 @@ impl<'a> Compiler<'a> {
                 )
             }
             Expression::Literal(lit) => Some(match lit {
-                ca_uir::Literal::Number(n, ty) => match ty {
-                    Ty::Int32 => {
-                        let t = self.compile_ty(ty);
-                        t.into_int_type()
+                ca_uir::Literal::Number(n, ty) => {
+                    let t = self.compile_ty(ty).into_int_type();
+                    match ty {
+                        Ty::Int32 => t
                             .const_int((*n).try_into().unwrap(), false)
-                            .as_basic_value_enum()
-                    }
-                    Ty::Int64 => {
-                        let t = self.compile_ty(ty);
-                        t.into_int_type()
+                            .as_basic_value_enum(),
+                        Ty::Int64 => t
                             .const_int((*n).try_into().unwrap(), false)
-                            .as_basic_value_enum()
-                    }
-                    Ty::Int128 => {
-                        let t = self.compile_ty(ty);
-                        t.into_int_type()
+                            .as_basic_value_enum(),
+                        Ty::Int128 => t
                             .const_int((*n).try_into().unwrap(), false)
-                            .as_basic_value_enum()
-                    }
-                    Ty::UInt32 => {
-                        let t = self.compile_ty(ty);
-                        t.into_int_type()
+                            .as_basic_value_enum(),
+                        Ty::UInt32 => t
                             .const_int((*n).try_into().unwrap(), false)
-                            .as_basic_value_enum()
-                    }
-                    Ty::UInt64 => {
-                        let t = self.compile_ty(ty);
-                        t.into_int_type()
+                            .as_basic_value_enum(),
+                        Ty::UInt64 => t
                             .const_int((*n).try_into().unwrap(), false)
-                            .as_basic_value_enum()
+                            .as_basic_value_enum(),
+                        _ => panic!("Bad literal ty"),
                     }
-                    _ => panic!("Bad literal ty"),
-                },
-                ca_uir::Literal::String(s) => self
+                }
+                ca_uir::Literal::String(s) => dbg!(self
                     .context
                     .const_string(s.as_bytes(), false)
-                    .as_basic_value_enum(),
+                    .as_basic_value_enum()),
             }),
             Expression::Block(stmts) => {
                 {
@@ -341,6 +333,7 @@ impl<'a> Compiler<'a> {
         let s = borrow_mut
             .entry(format!("{}", s.name))
             .or_insert(self.context.struct_type(&field_types, true));
+        // println!("align {:#?}", align);
         if s.is_opaque() {
             s.set_body(&field_types, true);
         }

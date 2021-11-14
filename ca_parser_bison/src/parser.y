@@ -56,6 +56,8 @@ tAMPERSAND  "&"
     kwSTRUCT "struct"
     kwIMPORT "import"
     kwNEW   "new"
+    kwEXTERN "extern"
+
     tINFER "_"
     tIDENTIFIER "local variable or method"
     tNUM    "number"
@@ -143,6 +145,9 @@ items: item {
 
  function: tFN identifier tLPAREN function_args tRPAREN tCOLON ty block_expr {
      $$ = Value::Function($<Ident>2, Box::new($4), Box::new($7), Box::new($8));
+ }
+ | kwEXTERN tFN identifier tLPAREN function_args tRPAREN tCOLON ty {
+     $$ = Value::ExternFunction($<Ident>3, Box::new($5), Box::new($8))
  }
  function_args: function_arg {
      $$ = Value::ValueList(vec![$1]);

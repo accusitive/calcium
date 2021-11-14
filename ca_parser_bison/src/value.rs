@@ -14,6 +14,8 @@ pub enum Value {
     Program(Box<Value>), // Valuelist
     ValueList(Vec<Value>),
     Function(String, Box<Value>, Box<Value>, Box<Value>), // Name, args, ty, body
+    ExternFunction(String, Box<Value>, Box<Value>), // Name, args, ty
+
     FunctionArg(String, Box<Value>),
     Ident(String),
     Statement(Box<Value>),

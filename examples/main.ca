@@ -2,11 +2,11 @@ struct TwoNumbers {
     first: i32,
     second: i64
 }
-fn main(): i32 {
+fn main(): TwoNumbers {
     # Anything here
-    let z: _ = new TwoNumbers(781231822, 10);
+    let z: _ = new TwoNumbers(1i32, 9i64);
     let y: _ = "test";
-    return z.first
+    return z
 }
 fn first(self: TwoNumbers): i32 {
     return self.first
@@ -14,3 +14,4 @@ fn first(self: TwoNumbers): i32 {
 fn second(self: TwoNumbers): i64 {
     return self.second
 }
+extern fn printf(self: &i32): i32
