@@ -44,7 +44,7 @@ fn main() {
                 compiler.write_object_file(&PathBuf::from("./out.o"));
 
                 std::process::Command::new("clang")
-                    .arg("rt.c")
+                    .arg("std.c")
                     .arg("out.o")
                     .spawn()
                     .unwrap();
