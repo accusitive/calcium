@@ -50,8 +50,11 @@ pub fn process_bison_file(filepath: &Path) -> Result<(), BisonErr> {
         input.to_str().unwrap(),
     ];
 
-    let output = Command::new("bison").args(args).output().unwrap();
-
+    let output = Command::new("bison").args(args).output();
+    if output.is_err() {
+        return Ok(())
+    }
+    let output = output.unwrap();
     if output.status.success() {
         Ok(())
     } else {
