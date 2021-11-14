@@ -58,15 +58,7 @@ jobs:
         uses: KyleMayes/install-llvm-action@v1.4.1
         with:
           version: "8.0"
-      - name: Download
-        run: |
-          wget http://mirrors.syringanetworks.net/gnu/bison/bison-3.8.2.tar.xz
-          tar -xvf bison-3.8.2.tar.xz
-          cd bison-3.8.2
-          ./configure
-          make 
-          sudo make install
-          bison --version
+      
       - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
@@ -113,15 +105,7 @@ jobs:
           profile: minimal
           override: true
           target: ${{ matrix.target }}
-      - name: Download
-        run: |
-          wget http://mirrors.syringanetworks.net/gnu/bison/bison-3.8.2.tar.xz
-          tar -xvf bison-3.8.2.tar.xz
-          cd bison-3.8.2
-          ./configure
-          make 
-          sudo make install
-          bison --version
+      
       - name: Build target
         uses: actions-rs/cargo@v1
         with:
