@@ -1,6 +1,6 @@
 use crate::{
     loc::Loc,
-    parser::{token_name, Parser},
+    parser::{Parser},
     value::Value,
 };
 use peekmore::{PeekMore, PeekMoreIterator};
