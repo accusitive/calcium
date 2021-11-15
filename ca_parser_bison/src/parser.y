@@ -43,6 +43,8 @@ tAMPERSAND  "&"
     tPATHSEP"::"
     tCOMMA  ","
     tASSIGN "="
+    tGT     ">"
+    tLT    "<"
     tLET    "let"
     tSTR    "str"
     tI32    "i32"
@@ -51,6 +53,8 @@ tAMPERSAND  "&"
     tU32    "u32"
     tU64    "u64"
     tI8     "i8"
+    tIF     "if"
+    tELSE   "else"
     tSTRING "Text wrapped in quotes"
     kwRETURN "return"
     kwSTRUCT "struct"
@@ -69,6 +73,7 @@ tAMPERSAND  "&"
 %left "-" "+"
 %left "*" "/"
 %left "."
+%left "<" ">"
 %type <Value>
     function
     function_arg
@@ -99,6 +104,7 @@ tAMPERSAND  "&"
     none
     integer_literal
     string_literal
+    if_stmt
 
 
 %%
@@ -220,7 +226,13 @@ import: kwIMPORT identifier {
      $$ = Value::Statement(Box::new($1));
  }
  | expr_stmt {
-     $$ = Value::Statement(Box::new($1))
+     $$ = Value::Statement(Box::new($1));
+ }
+ | if_stmt {
+     $$ = Value::Statement(Box::new($1));
+ }
+ if_stmt: tIF expr block_expr {
+     $$ = Value::IfStatement(Box::new($2), Box::new($3))
  }
  let_stmt: tLET identifier tCOLON ty tASSIGN expr {
      $$ = Value::LetStatement(Box::new($2), Box::new($4), Box::new($6));
@@ -317,6 +329,12 @@ import: kwIMPORT identifier {
  }
  | expr tDIV expr {
      $$ = Value::Expr(Box::new(Value::ArithExpr(Box::new($1), Op::Div, Box::new($3))))
+ }
+ | expr tLT expr {
+     $$ = Value::Expr(Box::new(Value::LogicExpr(Box::new($1), Op::Less, Box::new($3))))
+ }
+ | expr tGT expr {
+     $$ = Value::Expr(Box::new(Value::LogicExpr(Box::new($1), Op::Greater, Box::new($3))))
  }
 
  literal_expr: integer_literal {

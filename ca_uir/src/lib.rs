@@ -1,6 +1,6 @@
 use std::fmt::{Display, Write};
 
-use ca_parser_bison::value::{Op, Value};
+use ca_parser_bison::value::{Op as BisonOp, Value};
 
 pub fn to_program(v: &Value) -> Program {
     match v {
@@ -86,9 +86,9 @@ pub fn to_expression(v: &Value) -> Expression {
             }
 
             Value::PathExpr(p) => Expression::Path(to_path(p)),
-            Value::ArithExpr(left, op, right) => Expression::Arith(
+            Value::ArithExpr(left, bop, right) => Expression::Arith(
                 Box::new(to_expression(left)),
-                *op,
+                to_op(bop),
                 Box::new(to_expression(right)),
             ),
             Value::BlockExpr(stmts) => {
@@ -99,8 +99,13 @@ pub fn to_expression(v: &Value) -> Expression {
                 to_vec(&a).iter().map(|a| to_expression(a)).collect(),
             ),
             Value::FieldExpr(e, i) => {
-                Expression::FieldExpr(Box::new(to_expression(e)), to_identifier(i))
+                Expression::FieldAccess(Box::new(to_expression(e)), to_identifier(i))
             }
+            Value::LogicExpr(l, bop, r) => Expression::Logic(
+                Box::new(to_expression(l)),
+                to_op(bop),
+                Box::new(to_expression(r)),
+            ),
             _ => todo!(),
         },
         Value::BlockExpr(stmts) => {
@@ -108,6 +113,16 @@ pub fn to_expression(v: &Value) -> Expression {
         }
 
         _ => todo!(),
+    }
+}
+pub fn to_op(bop: &BisonOp) -> Op {
+    match bop {
+        BisonOp::Add => Op::Add,
+        BisonOp::Sub => Op::Sub,
+        BisonOp::Mul => Op::Mul,
+        BisonOp::Div => Op::Div,
+        BisonOp::Less => Op::Less,
+        BisonOp::Greater => Op::Greater,
     }
 }
 pub fn to_literal(v: &Value) -> Literal {
@@ -176,6 +191,9 @@ pub fn to_statement(v: &Value) -> Statement {
             }
             Value::ReturnStatement(val) => Statement::Return(to_expression(val)),
             Value::ExprStatement(e) => Statement::Expr(to_expression(e)),
+            Value::IfStatement(condition, block) => {
+                Statement::If(to_expression(condition), to_expression(block))
+            }
             _ => todo!(),
         },
         _ => todo!(),
@@ -409,11 +427,12 @@ impl Ty {
 pub enum Expression {
     Call(Path, Vec<Expression>),
     Arith(Box<Expression>, Op, Box<Expression>),
+    Logic(Box<Expression>, Op, Box<Expression>),
     Literal(Literal),
     Block(Vec<Statement>),
     Path(Path),
     New(Path, Vec<Expression>),
-    FieldExpr(Box<Expression>, Identifier),
+    FieldAccess(Box<Expression>, Identifier),
 }
 #[derive(Debug)]
 pub enum Literal {
@@ -425,6 +444,7 @@ pub enum Statement {
     Let(Identifier, Ty, Expression),
     Return(Expression),
     Expr(Expression),
+    If(Expression, Expression),
 }
 
 impl Literal {
@@ -434,4 +454,13 @@ impl Literal {
             Literal::String(_) => panic!("Invalid type."),
         }
     }
+}
+#[derive(Debug, Clone, Copy)]
+pub enum Op {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Less,
+    Greater,
 }

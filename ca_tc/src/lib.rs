@@ -18,7 +18,7 @@ impl<'a> TypeChecker<'a> {
         };
         for item in &p.items {
             match item {
-                Item::Function(f) => todo!(),
+                Item::Function(_) => todo!(),
                 Item::Struct(_) => todo!(),
                 Item::Import(_) => todo!(),
             }
@@ -61,6 +61,7 @@ impl<'a> TypeChecker<'a> {
             }
             Statement::Return(_) => {}
             Statement::Expr(_e) => {}
+            Statement::If(_, _) => todo!(),
         }
     }
     pub fn check_struct(&self, s: &Struct) {
@@ -82,12 +83,7 @@ impl<'a> TypeChecker<'a> {
                 }
                 f.return_ty.to_owned()
             }
-            ca_uir::Expression::Arith(_, _, _) => todo!(),
-            ca_uir::Expression::Literal(lit) => self.get_lit_ty(lit),
-            ca_uir::Expression::Block(_) => todo!(),
-            ca_uir::Expression::Path(_) => todo!(),
-            ca_uir::Expression::New(_, _) => todo!(),
-            ca_uir::Expression::FieldExpr(_, _) => todo!(),
+            _ => todo!(),
         }
     }
     pub fn get_lit_ty(&self, l: &Literal) -> Ty {

@@ -9,9 +9,9 @@ use inkwell::{
     targets::{CodeModel, FileType, RelocMode, Target, TargetTriple},
     types::{BasicType, BasicTypeEnum, StructType},
     values::{BasicValue, BasicValueEnum, FunctionValue},
-    OptimizationLevel,
+    IntPredicate, OptimizationLevel,
 };
-use std::{collections::HashMap, ops::Deref, path::Path as StdPath};
+use std::{collections::HashMap, path::Path as StdPath};
 
 pub struct Compiler<'a> {
     pub module: Module<'a>,
@@ -246,7 +246,6 @@ impl<'a> Compiler<'a> {
             }
             Expression::Path(p) => {
                 let borrow = { self.locals.borrow() };
-                dbg!(borrow.deref());
                 let var = borrow
                     .iter()
                     .find(|l| l.name == Self::path_to_s(p))
@@ -286,12 +285,12 @@ impl<'a> Compiler<'a> {
                 let l = self.builder.build_load(memory, "l");
                 Some(l)
             }
-            Expression::FieldExpr(e, i) => {
+            Expression::FieldAccess(e, i) => {
                 // path
                 // self.locals.borrow().iter().find(|l| l.name )
                 match &**e {
                     Expression::Path(_) => {}
-                    Expression::FieldExpr(_, _) => {}
+                    Expression::FieldAccess(_, _) => {}
                     _ => panic!("Field expr must be indexing a Path or FieldExpr."),
                 }
                 let compiled_expression = self.compile_expression(e).unwrap();
@@ -320,6 +319,25 @@ impl<'a> Compiler<'a> {
                 let accessed_field = self.builder.build_load(accessed_field_ptr, "z");
                 Some(accessed_field)
             }
+            Expression::Logic(left, op, right) => {
+                // TODO: Not only int and float math.
+                let o = match op {
+                    ca_uir::Op::Add | ca_uir::Op::Sub | ca_uir::Op::Mul | ca_uir::Op::Div => {
+                        todo!()
+                    }
+                    ca_uir::Op::Less => IntPredicate::SLT,
+                    ca_uir::Op::Greater => IntPredicate::SGT,
+                    // _ => IntPredicate::EQ
+                };
+                let lhs = self.compile_expression(left).unwrap().into_int_value();
+                let rhs = self.compile_expression(right).unwrap().into_int_value();
+                Some(BasicValueEnum::IntValue(self.builder.build_int_compare(
+                    o,
+                    lhs,
+                    rhs,
+                    "logic.cmp",
+                )))
+            }
         }
     }
     pub fn compile_statement(&self, s: &'a Statement) {
@@ -346,6 +364,23 @@ impl<'a> Compiler<'a> {
             }
             Statement::Expr(e) => {
                 self.compile_expression(e);
+            }
+            Statement::If(condition, body) => {
+                let cmp = self.compile_expression(condition).unwrap();
+                // let body = self.compile_expression(body).unwrap();
+
+                let insert = self.builder.get_insert_block().unwrap();
+                let then = self.context.insert_basic_block_after(insert, "then");
+                let cont = self.context.insert_basic_block_after(insert, "cont");
+
+                self.builder
+                    .build_conditional_branch(cmp.into_int_value(), then, cont);
+                // Then block
+                self.builder.position_at_end(then);
+                self.compile_expression(body);
+                self.builder.build_unconditional_branch(cont);
+                // Cont
+                self.builder.position_at_end(cont);
             }
         }
     }

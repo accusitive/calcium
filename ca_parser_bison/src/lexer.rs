@@ -1,4 +1,4 @@
-use crate::{loc::Loc, parser::Parser, value::Value};
+use crate::{loc::Loc, value::Value};
 use peekmore::{PeekMore, PeekMoreIterator};
 
 #[derive(Debug)]
@@ -45,6 +45,8 @@ static TOKS: &[(char, i32)] = &[
     ('_', Lexer::tINFER),
     (';', Lexer::tSEMICOLON),
     ('&', Lexer::tAMPERSAND),
+    ('>', Lexer::tGT),
+    ('<', Lexer::tLT),
 ];
 impl Iterator for Lexer {
     type Item = Token;
@@ -196,6 +198,8 @@ impl Iterator for Lexer {
                         "u32" => Self::tU32,
                         "u64" => Self::tU64,
                         "i8" => Self::tI8,
+                        "if" => Self::tIF,
+                        "else" => Self::tELSE,
                         _ => Self::tIDENTIFIER,
                     };
                     Some(Token {
@@ -297,10 +301,7 @@ impl Token {
 }
 #[test]
 fn test_lex() {
-    let source = "\"test\"";
+    let source = "\"test\n\"";
     let mut lex = Lexer::new(source);
-
-    for token in &lex.next() {
-        println!("TOKEN {:#?} - {}", token, token_name(token.token_type));
-    }
+    assert_eq!(lex.next().unwrap().token_value, "test\n");
 }

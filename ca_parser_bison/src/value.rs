@@ -35,6 +35,7 @@ pub enum Value {
     StringLiteral(String),
     PathExpr(Box<Value>),
     ArithExpr(Box<Value>, Op, Box<Value>),
+    LogicExpr(Box<Value>, Op, Box<Value>),
     CallExpr(Box<Value>, Box<Value>), // Path, args
     Ty(Box<Value>),                   // Infer | PathExpr
     BlockExpr(Box<Value>),            // ValueList<Statement>
@@ -52,10 +53,11 @@ pub enum Value {
     Import(Box<Value>, Box<Value>),
     ExprStatement(Box<Value>),
     Path(Box<Value>),
-    NewExpr(Box<Value>, Box<Value>),   // Path, args
-    PointerTy(Box<Value>),             //ty
-    FieldExpr(Box<Value>, Box<Value>), // Expression, Identifier
-    ArrayTy(Box<Value>, Box<Value>),   // Ty, IntegerLiteral
+    NewExpr(Box<Value>, Box<Value>),     // Path, args
+    PointerTy(Box<Value>),               //ty
+    FieldExpr(Box<Value>, Box<Value>),   // Expression, Identifier
+    ArrayTy(Box<Value>, Box<Value>),     // Ty, IntegerLiteral
+    IfStatement(Box<Value>, Box<Value>), // Expression, BlockExpression
     StrTy,
 }
 #[derive(Debug, Clone, Copy)]
@@ -64,6 +66,8 @@ pub enum Op {
     Sub,
     Mul,
     Div,
+    Less,
+    Greater,
 }
 impl Default for Value {
     fn default() -> Self {
