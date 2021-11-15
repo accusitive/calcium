@@ -1,0 +1,1 @@
+cargo run -- examples/main.ca && ./main
