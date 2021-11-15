@@ -61,7 +61,13 @@
 			"patterns": [{
 				"name": "keyword.control.calcium",
 				"match": "\\b(if|while|for|return|fn)\\b"
-			}]
+			},
+			 {
+				 "name": "keyword.other",
+				 "match": "\\b(import|fn|new)\\b"
+
+			 }
+		]
 		},
 		"strings": {
 			"name": "string.quoted.double.calcium",
