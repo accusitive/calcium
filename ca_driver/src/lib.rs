@@ -1,7 +1,7 @@
-use std::{path::PathBuf, process::Output};
+use std::{path::PathBuf};
 
 use ca_backend_llvm::{
-    inkwell::{context::Context, execution_engine::JitFunction, object_file::ObjectFile},
+    inkwell::{context::Context, execution_engine::JitFunction},
     Compiler,
 };
 use ca_parser_bison::{lexer::Lexer, parser::Parser};
