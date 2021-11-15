@@ -126,7 +126,21 @@ impl Iterator for Lexer {
                         if *value == '\"' {
                             break;
                         }
-                        tokens.push(*value);
+                        if *value == '\\' {
+                            // let c = self.chars.peek_nth(3).unwrap();
+                            let c = { self.chars.peek_forward(current + 1).unwrap() };
+                            // self.chars.next().unwrap();
+                            let escaped = match c {
+                                'n' => '\n',
+                                '\\' => '\\',
+                                'r' => '\r',
+                                _ => panic!("Invalid escaped character {}", c),
+                            };
+                            current += 1;
+                            tokens.push(escaped);
+                        } else {
+                            tokens.push(*value);
+                        }
                         current += 1;
                     }
                     // Has to be plus one to account for the second quote.

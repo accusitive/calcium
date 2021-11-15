@@ -15,13 +15,13 @@ fn main() {
         if token.token_type == Lexer::YYEOF {
             break;
         }
-        // println!(
-        //     "{:>15} := {:<10} @ {:>2}..{:>2}  ",
-        //     ca_parser_bison::parser::token_name(token.token_type),
-        //     token.token_value,
-        //     token.loc.begin,
-        //     token.loc.end
-        // );
+        println!(
+            "{:>15} := {:<10} @ {:>2}..{:>2}  ",
+            ca_parser_bison::parser::token_name(token.token_type),
+            token.token_value,
+            token.loc.begin,
+            token.loc.end
+        );
     }
 
     let lexer = Lexer::new(source);

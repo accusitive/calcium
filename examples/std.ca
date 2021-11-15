@@ -1,1 +1,13 @@
-extern fn print...(i: &i8): i32
+extern fn printf...(i: &i8): i32
+extern fn strlen(s: &i8): u64
+
+struct Str {
+    len: u64,
+    data: &i8
+}
+
+fn newstring(s: &i8): Str {
+    let len: _ = strlen(s);
+    printf("String len is %i\n", len);
+    return new Str(len, s)
+}

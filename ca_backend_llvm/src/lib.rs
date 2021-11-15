@@ -77,9 +77,10 @@ impl<'a> Compiler<'a> {
 
         let fnty = ty.fn_type(&args, f.is_varargs);
         // let func_name = format!("{}__{}", self.prefixes.borrow().last().unwrap(), f.name);
-        let func_name = match self.prefixes.borrow().last() {
-            Some(p) => format!("{}__{}", p, f.name.0),
-            None => f.name.0.to_string(),
+        let func_name = match (self.prefixes.borrow().last(), f.is_extern) {
+            (_, ext) if ext => f.name.0.to_string(),
+            (Some(p), _) => format!("{}__{}", p, f.name.0),
+            (None, _) => f.name.0.to_string(),
         };
 
         let linkage = match f.is_extern {
@@ -253,25 +254,36 @@ impl<'a> Compiler<'a> {
                 Some(var.value)
             }
             Expression::New(p, args) => {
-                let p = self
-                    .structs
-                    .borrow()
-                    .get(&Self::path_to_s(p))
-                    .expect("Garbage")
-                    .as_basic_type_enum();
-                let memory = self.builder.build_malloc(p, "malloc.for.new").unwrap();
+                let borrow = self.structs.borrow();
+                let p = borrow.get(&Self::path_to_s(p)).expect("Garbage");
+                // self.
+                dbg!(p);
+                // let memory = self.builder.build_malloc(p, "malloc.for.new").unwrap();
+                let memory = self
+                    .builder
+                    .build_alloca(p.as_basic_type_enum(), "malloc.for.new");
 
                 let values = args
                     .iter()
                     .map(|e| self.compile_expression(e).unwrap())
                     .collect::<Vec<_>>();
-                let val = p.into_struct_type().const_named_struct(&values);
-                self.builder.build_store(memory, val);
+
+                // Iterate over each parameter
+                for (value, index) in values.iter().zip(0..) {
+                    unsafe {
+                        if index > p.count_fields() {
+                            panic!(
+                                "Cannot supply {} values to struct {}.",
+                                values.len(),
+                                p.count_fields()
+                            )
+                        }
+                        let hmm = self.builder.build_struct_gep(memory, index, "gep");
+                        self.builder.build_store(hmm, *value);
+                    }
+                }
 
                 let l = self.builder.build_load(memory, "l");
-                // let second_field = unsafe { self.builder.build_struct_gep(memory, 1, "second") };
-                // let second_field = self.builder.build_load(second_field, "second_field");
-
                 Some(l)
             }
             Expression::FieldExpr(e, i) => {
@@ -353,7 +365,7 @@ impl<'a> Compiler<'a> {
         }
         let mut borrow_mut = self.structs.borrow_mut();
         let s = borrow_mut
-            .entry(format!("{}", s.name))
+            .entry(format!("{}", s.name.0))
             .or_insert(self.context.struct_type(&field_types, true));
 
         if s.is_opaque() {
