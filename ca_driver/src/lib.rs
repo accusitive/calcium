@@ -1,7 +1,7 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, process::Output};
 
 use ca_backend_llvm::{
-    inkwell::{context::Context, object_file::ObjectFile},
+    inkwell::{context::Context, execution_engine::JitFunction, object_file::ObjectFile},
     Compiler,
 };
 use ca_parser_bison::{lexer::Lexer, parser::Parser};
@@ -12,6 +12,7 @@ pub enum OutputType {
     Binary,
     Object,
     Assembly,
+    Jit,
 }
 #[derive(Debug)]
 pub struct DriverConfig {
@@ -42,7 +43,7 @@ impl Driver {
                 Arg::with_name("outputtype")
                     .help("Type of file for the compiler to output")
                     .short("t")
-                    .possible_values(&["llvm-ir", "object", "bin", "asm"])
+                    .possible_values(&["llvm-ir", "object", "bin", "asm", "jit"])
                     .takes_value(true)
                     .max_values(1),
             )
@@ -56,12 +57,13 @@ impl Driver {
             }
             None => false,
         };
-        let output_value = matches.value_of("outputtype").unwrap_or("bin");
+        let output_value = matches.value_of("outputtype").unwrap_or("jit");
         let output = match output_value {
             "bin" => OutputType::Binary,
             "llvm-ir" => OutputType::LlvmIR,
             "object" => OutputType::Object,
             "asm" => OutputType::Assembly,
+            "jit" => OutputType::Jit,
             _ => panic!("Invalid output {}.", output_value),
         };
 
@@ -127,6 +129,14 @@ impl Driver {
                         }
                         OutputType::Assembly => {
                             compiler.write_assembly_file(&PathBuf::from("build/out.s"))
+                        }
+                        OutputType::Jit => {
+                            let main: JitFunction<
+                                unsafe extern "C" fn(i32, *const *const u8) -> i32,
+                            > = unsafe { compiler.execution_engine.get_function("main").unwrap() };
+                            unsafe {
+                                main.call(1, ["program".as_ptr()].as_ptr());
+                            }
                         }
                     },
                     Err(e) => {
