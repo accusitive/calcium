@@ -61,7 +61,7 @@ impl<'a> TypeChecker<'a> {
             }
             Statement::Return(_) => {}
             Statement::Expr(_e) => {}
-            Statement::If(_, _) => todo!(),
+            Statement::If(_, _, _) => todo!(),
         }
     }
     pub fn check_struct(&self, s: &Struct) {

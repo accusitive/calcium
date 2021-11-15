@@ -53,11 +53,11 @@ pub enum Value {
     Import(Box<Value>, Box<Value>),
     ExprStatement(Box<Value>),
     Path(Box<Value>),
-    NewExpr(Box<Value>, Box<Value>),     // Path, args
-    PointerTy(Box<Value>),               //ty
-    FieldExpr(Box<Value>, Box<Value>),   // Expression, Identifier
-    ArrayTy(Box<Value>, Box<Value>),     // Ty, IntegerLiteral
-    IfStatement(Box<Value>, Box<Value>), // Expression, BlockExpression
+    NewExpr(Box<Value>, Box<Value>),   // Path, args
+    PointerTy(Box<Value>),             //ty
+    FieldExpr(Box<Value>, Box<Value>), // Expression, Identifier
+    ArrayTy(Box<Value>, Box<Value>),   // Ty, IntegerLiteral
+    IfStatement(Box<Value>, Box<Value>, Option<Box<Value>>), // Expression, BlockExpression
     StrTy,
 }
 #[derive(Debug, Clone, Copy)]

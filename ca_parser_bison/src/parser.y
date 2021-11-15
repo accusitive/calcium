@@ -232,7 +232,10 @@ import: kwIMPORT identifier {
      $$ = Value::Statement(Box::new($1));
  }
  if_stmt: tIF expr block_expr {
-     $$ = Value::IfStatement(Box::new($2), Box::new($3))
+     $$ = Value::IfStatement(Box::new($2), Box::new($3), None)
+ }
+ | tIF expr block_expr tELSE block_expr {
+    $$ = Value::IfStatement(Box::new($2), Box::new($3), Some(Box::new($5)))
  }
  let_stmt: tLET identifier tCOLON ty tASSIGN expr {
      $$ = Value::LetStatement(Box::new($2), Box::new($4), Box::new($6));

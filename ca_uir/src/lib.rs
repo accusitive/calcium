@@ -191,9 +191,11 @@ pub fn to_statement(v: &Value) -> Statement {
             }
             Value::ReturnStatement(val) => Statement::Return(to_expression(val)),
             Value::ExprStatement(e) => Statement::Expr(to_expression(e)),
-            Value::IfStatement(condition, block) => {
-                Statement::If(to_expression(condition), to_expression(block))
-            }
+            Value::IfStatement(condition, then, elze) => Statement::If(
+                to_expression(condition),
+                to_expression(then),
+                elze.as_ref().map(|e| to_expression(e)),
+            ),
             _ => todo!(),
         },
         _ => todo!(),
@@ -444,7 +446,7 @@ pub enum Statement {
     Let(Identifier, Ty, Expression),
     Return(Expression),
     Expr(Expression),
-    If(Expression, Expression),
+    If(Expression, Expression, Option<Expression>),
 }
 
 impl Literal {

@@ -365,22 +365,38 @@ impl<'a> Compiler<'a> {
             Statement::Expr(e) => {
                 self.compile_expression(e);
             }
-            Statement::If(condition, body) => {
+            Statement::If(condition, body, elze) => {
                 let cmp = self.compile_expression(condition).unwrap();
                 // let body = self.compile_expression(body).unwrap();
 
                 let insert = self.builder.get_insert_block().unwrap();
-                let then = self.context.insert_basic_block_after(insert, "then");
-                let cont = self.context.insert_basic_block_after(insert, "cont");
+                let thenbb = self.context.insert_basic_block_after(insert, "then");
+                let elzebb = self.context.insert_basic_block_after(insert, "then");
+                let contbb = self.context.insert_basic_block_after(insert, "cont");
+                if elze.is_some() {
+                    self.builder
+                        .build_conditional_branch(cmp.into_int_value(), thenbb, elzebb);
+                } else {
+                    self.builder
+                        .build_conditional_branch(cmp.into_int_value(), thenbb, contbb);
+                }
 
-                self.builder
-                    .build_conditional_branch(cmp.into_int_value(), then, cont);
                 // Then block
-                self.builder.position_at_end(then);
+                self.builder.position_at_end(thenbb);
                 self.compile_expression(body);
-                self.builder.build_unconditional_branch(cont);
+                self.builder.build_unconditional_branch(contbb);
+                match elze {
+                    Some(e) => {
+                        self.builder.position_at_end(elzebb);
+                        self.compile_expression(e);
+                        self.builder.build_unconditional_branch(contbb);
+                    }
+                    None => {
+                        unsafe { elzebb.delete().unwrap() };
+                    }
+                }
                 // Cont
-                self.builder.position_at_end(cont);
+                self.builder.position_at_end(contbb);
             }
         }
     }

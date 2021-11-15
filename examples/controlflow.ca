@@ -2,6 +2,8 @@ import std
 fn main(argc: i32, argv: &&i): i32 {
     if argc > 3 {
         printf("%i!\n", argc)
+    } else {
+        printf("Else")
     };
     return 0
 }
