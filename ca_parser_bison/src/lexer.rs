@@ -1,4 +1,8 @@
-use crate::{loc::Loc, value::Value};
+use crate::{
+    loc::Loc,
+    parser::{token_name, Parser},
+    value::Value,
+};
 use peekmore::{PeekMore, PeekMoreIterator};
 
 #[derive(Debug)]
@@ -128,15 +132,20 @@ impl Iterator for Lexer {
                         }
                         if *value == '\\' {
                             // let c = self.chars.peek_nth(3).unwrap();
-                            let c = { self.chars.peek_forward(current + 1).unwrap() };
+                            let c = { self.chars.peek_nth(current + 1).unwrap() };
                             // self.chars.next().unwrap();
+
                             let escaped = match c {
                                 'n' => '\n',
+                                't' => '\t',
                                 '\\' => '\\',
+                                '"' => '"',
                                 'r' => '\r',
-                                _ => panic!("Invalid escaped character {}", c),
+                                ' ' => panic!("space"),
+                                _ => panic!("Invalid escaped character {:#?}", c.escape_unicode()),
                             };
                             current += 1;
+                            // self.chars.next().unwrap();
                             tokens.push(escaped);
                         } else {
                             tokens.push(*value);
@@ -288,5 +297,14 @@ impl Token {
             Value::Token(t) => t,
             _ => panic!("wrong"),
         }
+    }
+}
+#[test]
+fn test_lex() {
+    let source = "\"test\"";
+    let mut lex = Lexer::new(source);
+
+    for token in &lex.next() {
+        println!("TOKEN {:#?} - {}", token, token_name(token.token_type));
     }
 }

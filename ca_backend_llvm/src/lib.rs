@@ -291,7 +291,8 @@ impl<'a> Compiler<'a> {
                 // self.locals.borrow().iter().find(|l| l.name )
                 match &**e {
                     Expression::Path(_) => {}
-                    _ => panic!("Field expr must be on a path."),
+                    Expression::FieldExpr(_, _) => {}
+                    _ => panic!("Field expr must be indexing a Path or FieldExpr."),
                 }
                 let compiled_expression = self.compile_expression(e).unwrap();
 

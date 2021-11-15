@@ -21,10 +21,11 @@ pub fn print_error(source: &str, range: Range<usize>, line: usize) {
             Lexer::tLPAREN | Lexer::tRPAREN | Lexer::tRBRACK | Lexer::tLBRACK => s.yellow(),
             Lexer::tCOLON => s.bright_purple(),
             Lexer::kwRETURN => s.bright_yellow(),
+            // Lexer::tSTRING => format!("\"{}\"", s).blue(),
             _ => s.white(),
         };
         // let line = buf.matches('\n').collect::<Vec<_>>().len();
-        buf.push_str(&format!("{}{}", token.spaces_before, s2));
+        buf.push_str(&format!("{}{}", token.spaces_before, s2.escape_debug()));
     }
 
     for (line_str, line_no) in buf.split('\n').zip(0..) {

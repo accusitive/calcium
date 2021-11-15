@@ -124,9 +124,9 @@ impl Driver {
                 break;
             }
             println!(
-                "{:>15} := {:<10} @ {:>2}..{:>2}  ",
+                "{:>15} := {:<20} @ {:>2}..{:>2}  ",
                 ca_parser_bison::parser::token_name(token.token_type),
-                token.token_value,
+                token.token_value.escape_default().collect::<String>(),
                 token.loc.begin,
                 token.loc.end
             );
