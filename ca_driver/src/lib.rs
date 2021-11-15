@@ -1,6 +1,9 @@
 use std::path::PathBuf;
 
-use ca_backend_llvm::{inkwell::context::Context, Compiler};
+use ca_backend_llvm::{
+    inkwell::{context::Context, object_file::ObjectFile},
+    Compiler,
+};
 use ca_parser_bison::{lexer::Lexer, parser::Parser};
 use clap::{App, Arg};
 #[derive(Debug)]
@@ -52,11 +55,18 @@ impl Driver {
             }
             None => false,
         };
+        let output_value = matches.value_of("outputtype").unwrap_or("bin");
+        let output = match output_value {
+            "bin" => OutputType::BINARY,
+            "llvm-ir" => OutputType::LLVMIR,
+            "object" => OutputType::OBJECT,
+            _ => panic!("Invalid output {}.", output_value),
+        };
 
         let config = DriverConfig {
             file: PathBuf::from(matches.value_of("file").unwrap()),
             type_check: typecheck,
-            output_ty: OutputType::BINARY,
+            output_ty: output,
             only_lex: matches.is_present("lex"),
         };
         Driver { config }
@@ -95,7 +105,7 @@ impl Driver {
                         OutputType::LLVMIR => {
                             // Just printing for now, not much use in writing the IR to disk
                             let ir = compiler.module.print_to_string();
-                            println!("{}", ir)
+                            println!("{}", ir.to_string())
                         }
                         OutputType::BINARY => {
                             compiler.write_object_file(&PathBuf::from("build/out.o"));
