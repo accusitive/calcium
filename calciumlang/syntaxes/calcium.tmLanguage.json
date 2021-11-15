@@ -23,10 +23,23 @@
 			"patterns": [
 				{
 					"name": "entity.name.function.calcium",
-					"match": "(?<=fn )([A-z]+)"
+					"match": "(?<=fn )([A-z0-9]+)"
 				},
 				{
-					"name": "entity."
+					"name": "entity.name.class.calcium",
+					"match": "(?<=struct )([A-z0-9]+)"
+				},
+				{
+					"name": "variable.parameter.calcium",
+					"match": "([A-z0-9]+): ?(&*)([A-z0-9]+)",
+					"captures": {
+						"1": {
+							"name": "variable.parameter"
+						},
+						"3": {
+							"name": "storage.type"
+						}
+					}
 				}
 			]
 		},
@@ -60,11 +73,11 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.calcium",
-				"match": "\\b(if|while|for|return|fn)\\b"
+				"match": "\\b(if|while|for|return)\\b"
 			},
 			 {
 				 "name": "keyword.other",
-				 "match": "\\b(import|fn|new)\\b"
+				 "match": "\\b(import|fn|new|struct)\\b"
 
 			 }
 		]
