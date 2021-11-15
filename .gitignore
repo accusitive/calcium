@@ -6,6 +6,7 @@ ca_lexer_flex/target
 ca_lexer/target
 ca_backend_llvm/target
 ca_driver/target
+
 a.out
 perf.data.old
 reference.ll

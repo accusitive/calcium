@@ -1,0 +1,79 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Calcium",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#something"
+		},
+		{
+			"include": "#comment"
+		},
+		{
+			"include": "#entity"
+		}
+	],
+	"repository": {
+		"entity": {
+			"patterns": [
+				{
+					"name": "entity.name.function.calcium",
+					"match": "(?<=fn )([A-z]+)"
+				},
+				{
+					"name": "entity."
+				}
+			]
+		},
+		"comment": {
+			"patterns": [{
+				"name": "comment.line",
+				"begin": "#",
+				"end": "\n"
+			}]
+		},
+		"something": {
+			"patterns": [{
+				"name": "variable.language.calcium",
+				"match": "(self|&self)"
+			},
+		{
+			"match": "(let) (.*): ?(.*) ?=",
+			"captures": {
+				"1": {
+					"name": "keyword"
+				},
+				"2": {
+					"name": "variable.other"
+				},
+				"3": {
+					"name": "entity.name.type"
+				}
+			}
+		}]
+		},
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.calcium",
+				"match": "\\b(if|while|for|return|fn)\\b"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.double.calcium",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.calcium",
+					"match": "\\\\."
+				}
+			]
+		}
+	},
+	"scopeName": "source.calcium"
+}
