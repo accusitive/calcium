@@ -6,7 +6,7 @@ use ca_uir::{Function, Item, Literal, Program, Statement, Struct, Ty};
 pub struct TypeChecker<'a> {
     functions: RefCell<HashMap<String, Function>>,
     structs: RefCell<HashMap<String, Struct>>,
-    program: &'a Program
+    program: &'a Program,
 }
 
 impl<'a> TypeChecker<'a> {
@@ -14,7 +14,7 @@ impl<'a> TypeChecker<'a> {
         let s = Self {
             functions: RefCell::new(HashMap::new()),
             structs: RefCell::new(HashMap::new()),
-            program: p
+            program: p,
         };
         for item in &p.items {
             match item {
@@ -31,7 +31,6 @@ impl<'a> TypeChecker<'a> {
         }
     }
     pub fn check_item(&self, i: &Item) {
-
         match i {
             Item::Function(f) => self.check_function(f),
             Item::Struct(s) => self.check_struct(s),
@@ -82,7 +81,7 @@ impl<'a> TypeChecker<'a> {
                     assert_eq!(arg.ty, self.get_expr_ty(expr))
                 }
                 f.return_ty.to_owned()
-            },
+            }
             ca_uir::Expression::Arith(_, _, _) => todo!(),
             ca_uir::Expression::Literal(lit) => self.get_lit_ty(lit),
             ca_uir::Expression::Block(_) => todo!(),
