@@ -84,7 +84,7 @@ impl<'a> Compiler<'a> {
         };
 
         let linkage = match f.is_extern {
-            true => Some(Linkage::DLLImport),
+            true => Some(Linkage::External),
             false => None,
         };
         let func = match self.module.get_function(&func_name) {
