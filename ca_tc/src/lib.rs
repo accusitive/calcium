@@ -3,17 +3,27 @@ use std::{cell::RefCell, collections::HashMap};
 use ca_uir::{Function, Item, Literal, Program, Statement, Struct, Ty};
 
 #[allow(dead_code)]
-pub struct TypeChecker {
+pub struct TypeChecker<'a> {
     functions: RefCell<HashMap<String, Function>>,
     structs: RefCell<HashMap<String, Struct>>,
+    program: &'a Program
 }
 
-impl TypeChecker {
-    pub fn new() -> Self {
-        Self {
+impl<'a> TypeChecker<'a> {
+    pub fn new(p: &'a Program) -> Self {
+        let s = Self {
             functions: RefCell::new(HashMap::new()),
             structs: RefCell::new(HashMap::new()),
+            program: p
+        };
+        for item in &p.items {
+            match item {
+                Item::Function(f) => todo!(),
+                Item::Struct(_) => todo!(),
+                Item::Import(_) => todo!(),
+            }
         }
+        s
     }
     pub fn check_program(&self, p: &Program) {
         for item in &p.items {
@@ -21,6 +31,7 @@ impl TypeChecker {
         }
     }
     pub fn check_item(&self, i: &Item) {
+
         match i {
             Item::Function(f) => self.check_function(f),
             Item::Struct(s) => self.check_struct(s),
@@ -64,7 +75,14 @@ impl TypeChecker {
 
     pub fn get_expr_ty(&self, e: &ca_uir::Expression) -> Ty {
         match e {
-            ca_uir::Expression::Call(_, _) => todo!(),
+            ca_uir::Expression::Call(name, args) => {
+                let borrow_mut = self.functions.borrow_mut();
+                let f = borrow_mut.get(&name.to_string()).unwrap();
+                for (arg, expr) in f.args.iter().zip(args.iter()) {
+                    assert_eq!(arg.ty, self.get_expr_ty(expr))
+                }
+                f.return_ty.to_owned()
+            },
             ca_uir::Expression::Arith(_, _, _) => todo!(),
             ca_uir::Expression::Literal(lit) => self.get_lit_ty(lit),
             ca_uir::Expression::Block(_) => todo!(),

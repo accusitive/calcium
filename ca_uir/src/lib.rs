@@ -297,6 +297,11 @@ pub struct ValueList<V> {
 pub struct Path {
     pub parts: Vec<PathSegment>,
 }
+impl ToString for Path {
+    fn to_string(&self) -> String {
+        self.parts.iter().map(|p| p.0.to_string()).collect()
+    }
+}
 
 type PathSegment = Identifier;
 #[derive(Debug, Clone, PartialEq, Eq)]

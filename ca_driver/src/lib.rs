@@ -85,6 +85,10 @@ impl Driver {
                 let program = ca_uir::to_program(&program);
                 let ctx = Context::create();
                 let compiler = Compiler::new_compiler(&ctx);
+                if self.config.type_check {
+                    let tc = ca_tc::TypeChecker::new(&program);
+                    tc.check_program(&program);
+                }
                 compiler.compile_program(&program);
                 match compiler.module.verify() {
                     Ok(_) => match self.config.output_ty {

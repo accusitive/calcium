@@ -120,6 +120,7 @@ version = "0.1.0"
 dependencies = [
  "ca_backend_llvm",
  "ca_parser_bison",
+ "ca_tc",
  "ca_uir",
  "clap 2.33.3",
  "clap_generate",
