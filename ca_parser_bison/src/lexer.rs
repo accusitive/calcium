@@ -1,8 +1,4 @@
-use crate::{
-    loc::Loc,
-    parser::{Parser},
-    value::Value,
-};
+use crate::{loc::Loc, parser::Parser, value::Value};
 use peekmore::{PeekMore, PeekMoreIterator};
 
 #[derive(Debug)]
