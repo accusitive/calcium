@@ -1,7 +1,13 @@
 [![CI](https://github.com/accusitive/calcium/actions/workflows/ci.yml/badge.svg)](https://github.com/accusitive/calcium/actions/workflows/ci.yml)
 # Calcium
-Calcium is a new prgramming language i'm making for fun, with no real goals
 Calcium is implemented in rust, using [bison](https://github.com/iliabylich/rust-bison-skeleton) for the parser and llvm for the backend.
+# Goals
+- [ ] Type checking
+- [ ] Control flow (In progress)
+- [ ] Generics
+- [ ] Json Parser example
+- [ ] Package manager/better import system
+- [ ] Self hosting
 # Syntax
 The syntax is subject to change at any moment, but current a simple function to create an object and return some data looks like
 ```rust
