@@ -8,9 +8,10 @@ use ca_parser_bison::{lexer::Lexer, parser::Parser};
 use clap::{App, Arg};
 #[derive(Debug)]
 pub enum OutputType {
-    LLVMIR,
-    BINARY,
-    OBJECT,
+    LlvmIR,
+    Binary,
+    Object,
+    Assembly,
 }
 #[derive(Debug)]
 pub struct DriverConfig {
@@ -41,7 +42,7 @@ impl Driver {
                 Arg::with_name("outputtype")
                     .help("Type of file for the compiler to output")
                     .short("t")
-                    .possible_values(&["llvm-ir", "object", "bin"])
+                    .possible_values(&["llvm-ir", "object", "bin", "asm"])
                     .takes_value(true)
                     .max_values(1),
             )
@@ -57,9 +58,10 @@ impl Driver {
         };
         let output_value = matches.value_of("outputtype").unwrap_or("bin");
         let output = match output_value {
-            "bin" => OutputType::BINARY,
-            "llvm-ir" => OutputType::LLVMIR,
-            "object" => OutputType::OBJECT,
+            "bin" => OutputType::Binary,
+            "llvm-ir" => OutputType::LlvmIR,
+            "object" => OutputType::Object,
+            "asm" => OutputType::Assembly,
             _ => panic!("Invalid output {}.", output_value),
         };
 
@@ -102,12 +104,12 @@ impl Driver {
                 compiler.compile_program(&program);
                 match compiler.module.verify() {
                     Ok(_) => match self.config.output_ty {
-                        OutputType::LLVMIR => {
+                        OutputType::LlvmIR => {
                             // Just printing for now, not much use in writing the IR to disk
                             let ir = compiler.module.print_to_string();
                             println!("{}", ir.to_string())
                         }
-                        OutputType::BINARY => {
+                        OutputType::Binary => {
                             compiler.write_object_file(&PathBuf::from("build/out.o"));
                             std::process::Command::new("clang")
                                 .arg("std.c")
@@ -120,8 +122,11 @@ impl Driver {
                                 .unwrap();
                             std::fs::remove_file("./build/out.o").unwrap();
                         }
-                        OutputType::OBJECT => {
+                        OutputType::Object => {
                             compiler.write_object_file(&PathBuf::from("build/out.o"));
+                        }
+                        OutputType::Assembly => {
+                            compiler.write_assembly_file(&PathBuf::from("build/out.s"))
                         }
                     },
                     Err(e) => {

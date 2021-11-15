@@ -152,11 +152,6 @@ impl<'a> Compiler<'a> {
     pub fn compile_expression(&self, e: &'a Expression) -> Option<BasicValueEnum<'a>> {
         match e {
             Expression::Call(function_name, args) => {
-                // let func = self.get_or_stub_function(&Self::path_to_s(function_name), ty);
-                // let func = self
-                //     .module
-                //     .get_function(&Self::path_to_s(function_name))
-                //     .expect("Unknown function");
                 let func = self.get_or_stub_function(&Self::path_to_s(function_name));
                 let a = args
                     .iter()
@@ -171,14 +166,28 @@ impl<'a> Compiler<'a> {
                 )
             }
             // TODO: make this work with more than just addition
-            Expression::Arith(left, _op, right) => {
-                let l = self.compile_expression(left).unwrap();
-                let r = self.compile_expression(right).unwrap();
-                Some(
-                    self.builder
-                        .build_int_add(l.into_int_value(), r.into_int_value(), "add")
+            Expression::Arith(left, op, right) => {
+                let l = self.compile_expression(left).unwrap().into_int_value();
+                let r = self.compile_expression(right).unwrap().into_int_value();
+                Some(match op {
+                    ca_uir::Op::Add => self
+                        .builder
+                        .build_int_add(l, r, "add")
                         .as_basic_value_enum(),
-                )
+                    ca_uir::Op::Sub => self
+                        .builder
+                        .build_int_sub(l, r, "add")
+                        .as_basic_value_enum(),
+                    ca_uir::Op::Mul => self
+                        .builder
+                        .build_int_mul(l, r, "add")
+                        .as_basic_value_enum(),
+                    ca_uir::Op::Div => self
+                        .builder
+                        .build_int_signed_div(l, r, "add")
+                        .as_basic_value_enum(),
+                    ca_uir::Op::Less | ca_uir::Op::Greater => panic!("Not possible."),
+                })
             }
             Expression::Literal(lit) => Some(match lit {
                 ca_uir::Literal::Number(n, ty) => {
@@ -203,12 +212,8 @@ impl<'a> Compiler<'a> {
                     }
                 }
                 ca_uir::Literal::String(s) => {
-                    let s = self.builder.build_global_string_ptr(&s, "idk");
-                    // let vec = self
-                    // .context
-                    // .(s.as_bytes(), true);
+                    let s = self.builder.build_global_string_ptr(&s, "global_string");
 
-                    // let ptr_to_vec = self.builder.build_store(ptr, value)
                     s.as_basic_value_enum()
                 }
             }),
@@ -475,8 +480,26 @@ impl<'a> Compiler<'a> {
                 CodeModel::Default,
             )
             .unwrap();
+
         target_machine
             .write_to_file(&self.module, FileType::Object, &p)
+            .unwrap();
+    }
+    pub fn write_assembly_file(&self, p: &StdPath) {
+        let good_target = Target::from_name("x86-64").unwrap();
+        let target_machine = good_target
+            .create_target_machine(
+                &TargetTriple::create("x86_64-pc-linux-gnu"),
+                "x86-64",
+                "+avx2",
+                OptimizationLevel::Default,
+                RelocMode::PIC,
+                CodeModel::Default,
+            )
+            .unwrap();
+
+        target_machine
+            .write_to_file(&self.module, FileType::Assembly, &p)
             .unwrap();
     }
 }
