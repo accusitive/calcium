@@ -13,7 +13,7 @@ fn test_add() {
     let program = ca_uir::to_program(&value);
 
     let ctx = ca_backend_llvm::inkwell::context::Context::create();
-    let compiler = ca_backend_llvm::Compiler::new_compiler(&ctx);
+    let compiler = ca_backend_llvm::Compiler::new_compiler(&ctx, ca_backend_llvm::inkwell::OptimizationLevel::Aggressive);
     compiler.compile_program(&program);
 
     unsafe {
