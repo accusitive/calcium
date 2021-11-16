@@ -16,8 +16,9 @@ fn newstring(s: &i8): Str {
 fn booltostr(b: bool): Str {
     if b > false {
         return new Str(4u64, "true")
-    };
-    return new Str(5u64, "false")
+    }else {
+        return new Str(5u64, "false")
+    }
 }
 fn assert(b: bool): i32 {
     if b  {

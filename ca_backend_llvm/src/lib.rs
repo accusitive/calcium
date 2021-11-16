@@ -402,8 +402,12 @@ impl<'a> Compiler<'a> {
                 }
 
                 // Then block
+                let mut does_else_terminatea = false;
+                let does_then_terminate;
+
                 self.builder.position_at_end(thenbb);
                 self.compile_expression(body);
+                does_then_terminate = thenbb.get_terminator().is_some();
                 if thenbb.get_terminator().is_none() {
                     self.builder.build_unconditional_branch(contbb);
                 }
@@ -411,6 +415,8 @@ impl<'a> Compiler<'a> {
                     Some(e) => {
                         self.builder.position_at_end(elzebb);
                         self.compile_expression(e);
+                        does_else_terminatea = elzebb.get_terminator().is_some();
+
                         if elzebb.get_terminator().is_none() {
                             self.builder.build_unconditional_branch(contbb);
                         }
@@ -421,6 +427,10 @@ impl<'a> Compiler<'a> {
                 }
                 // Cont
                 self.builder.position_at_end(contbb);
+
+                if does_then_terminate && does_else_terminatea {
+                    self.builder.build_unreachable();
+                }
             }
         }
     }
