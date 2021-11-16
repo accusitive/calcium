@@ -21,7 +21,7 @@ pub struct DriverConfig {
     output_ty: OutputType,
     only_lex: bool,
     optimization: OptimizationLevel,
-    target: String
+    target: String,
 }
 pub struct Driver {
     config: DriverConfig,
@@ -72,7 +72,7 @@ impl Driver {
             _ => OptimizationLevel::Default,
         };
         let target = matches.value_of("target").unwrap_or("x86-64");
-        
+
         let output_value = matches.value_of("outputtype").unwrap_or("jit");
         let output = match output_value {
             "bin" => OutputType::Binary,
@@ -116,7 +116,11 @@ impl Driver {
             Some(program) => {
                 let program = ca_uir::to_program(&program);
                 let ctx = Context::create();
-                let compiler = Compiler::new_compiler(&ctx, self.config.optimization, self.config.target.to_string());
+                let compiler = Compiler::new_compiler(
+                    &ctx,
+                    self.config.optimization,
+                    self.config.target.to_string(),
+                );
                 if self.config.type_check {
                     let tc = ca_tc::TypeChecker::new(&program);
                     tc.check_program(&program);

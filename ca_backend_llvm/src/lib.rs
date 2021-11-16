@@ -78,7 +78,7 @@ impl<'a> Compiler<'a> {
             }
         }
     }
-    fn ty_to_meta_ty(&self, t:  BasicTypeEnum<'a>) -> BasicMetadataTypeEnum<'a> {
+    fn ty_to_meta_ty(&self, t: BasicTypeEnum<'a>) -> BasicMetadataTypeEnum<'a> {
         match t {
             BasicTypeEnum::ArrayType(a) => BasicMetadataTypeEnum::ArrayType(a),
             BasicTypeEnum::FloatType(a) => BasicMetadataTypeEnum::FloatType(a),
@@ -88,7 +88,7 @@ impl<'a> Compiler<'a> {
             BasicTypeEnum::VectorType(a) => BasicMetadataTypeEnum::VectorType(a),
         }
     }
-    fn val_to_meta_val(&self, t:  BasicValueEnum<'a>) -> BasicMetadataValueEnum<'a> {
+    fn val_to_meta_val(&self, t: BasicValueEnum<'a>) -> BasicMetadataValueEnum<'a> {
         match t {
             BasicValueEnum::ArrayValue(a) => BasicMetadataValueEnum::ArrayValue(a),
             BasicValueEnum::FloatValue(a) => BasicMetadataValueEnum::FloatValue(a),
