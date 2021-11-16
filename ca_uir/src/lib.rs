@@ -156,13 +156,6 @@ pub fn to_literal(v: &Value) -> Literal {
                         .unwrap(),
                     to_ty,
                 ),
-                Ty::Int128 => Literal::Number(
-                    i.parse::<i128>()
-                        .expect("failed tp parse number")
-                        .try_into()
-                        .unwrap(),
-                    to_ty,
-                ),
                 Ty::UInt32 => Literal::Number(
                     i.parse::<u32>()
                         .expect("failed tp parse number")
@@ -177,9 +170,11 @@ pub fn to_literal(v: &Value) -> Literal {
                         .unwrap(),
                     to_ty,
                 ),
+                Ty::Bool if i == "true" || i == "false" => Literal::Boolean(i == "true"),
                 _ => todo!(),
             }
         }
+        Value::BoolLiteral(b) => Literal::Boolean(*b),
         _ => todo!(),
     }
 }
@@ -218,7 +213,7 @@ pub fn to_ty(v: &Value) -> Ty {
             Value::Int8 => Ty::Int8,
             Value::Int32 => Ty::Int32,
             Value::Int64 => Ty::Int64,
-            Value::Int128 => Ty::Int128,
+            Value::Bool => Ty::Bool,
             Value::UInt32 => Ty::UInt32,
             Value::UInt64 => Ty::UInt64,
             Value::PointerTy(t) => Ty::Pointer(Box::new(to_ty(t))),
@@ -331,7 +326,7 @@ pub enum Ty {
     Int8,
     Int32,
     Int64,
-    Int128,
+    Bool,
     UInt32,
     UInt64,
 
@@ -352,7 +347,7 @@ impl Display for Ty {
             Ty::Int8 => f.write_str("i8"),
             Ty::Int32 => f.write_str("i32"),
             Ty::Int64 => f.write_str("i64"),
-            Ty::Int128 => f.write_str("i128"),
+            Ty::Bool => f.write_str("bool"),
             Ty::UInt32 => f.write_str("u32"),
             Ty::UInt64 => f.write_str("u64"),
             Ty::Pointer(inner) => f.write_fmt(format_args!("&{}", inner)),
@@ -404,11 +399,11 @@ impl Ty {
         matches!(self, Self::Int64)
     }
 
-    /// Returns `true` if the ty is [`Int128`].
+    /// Returns `true` if the ty is [`Bool`].
     ///
-    /// [`Int128`]: Ty::Int128
-    pub fn is_int128(&self) -> bool {
-        matches!(self, Self::Int128)
+    /// [`Bool`]: Ty::Bool
+    pub fn is_bool(&self) -> bool {
+        matches!(self, Self::Bool)
     }
 
     /// Returns `true` if the ty is [`UInt32`].
@@ -440,6 +435,7 @@ pub enum Expression {
 pub enum Literal {
     Number(i128, Ty),
     String(String),
+    Boolean(bool),
 }
 #[derive(Debug)]
 pub enum Statement {
@@ -453,7 +449,7 @@ impl Literal {
     fn get_integer_value(&self) -> i128 {
         match self {
             Literal::Number(n, _) => *n,
-            Literal::String(_) => panic!("Invalid type."),
+            _ => panic!("Invalid type."),
         }
     }
 }

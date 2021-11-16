@@ -49,7 +49,8 @@ tAMPERSAND  "&"
     tSTR    "str"
     tI32    "i32"
     tI64    "i64"
-    tI128   "i128"
+    tBOOL   "true or fals"
+    kwBOOL  "bool"
     tU32    "u32"
     tU64    "u64"
     tI8     "i8"
@@ -75,6 +76,7 @@ tAMPERSAND  "&"
 %left "."
 %left "<" ">"
 %type <Value>
+    bool_literal
     function
     function_arg
     function_args
@@ -254,8 +256,8 @@ import: kwIMPORT identifier {
  | tI64 {
     $$ = Value::Ty(Box::new(Value::Int64))
  }
- | tI128 {
-    $$ = Value::Ty(Box::new(Value::Int128))
+ | kwBOOL {
+    $$ = Value::Ty(Box::new(Value::Bool))
  }
  | tU32 {
     $$ = Value::Ty(Box::new(Value::UInt32))
@@ -346,7 +348,13 @@ import: kwIMPORT identifier {
  | string_literal {
     $$ = Value::LiteralExpr(Box::new($1))
  }
-  integer_literal: tNUM ty {
+ | bool_literal {
+     $$ = Value::LiteralExpr(Box::new($1))
+ }
+ bool_literal: tBOOL {
+     $$ = Value::BoolLiteral($<Token>1.token_value == "true")
+ }
+integer_literal: tNUM ty {
     $$ = Value::IntegerLiteral($<Token>1.token_value, Box::new($2))
  }
  | tNUM {

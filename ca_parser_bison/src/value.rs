@@ -43,7 +43,7 @@ pub enum Value {
     Int8,
     Int32,
     Int64,
-    Int128,
+    Bool,
     UInt32,
     UInt64,
 
@@ -58,6 +58,7 @@ pub enum Value {
     FieldExpr(Box<Value>, Box<Value>), // Expression, Identifier
     ArrayTy(Box<Value>, Box<Value>),   // Ty, IntegerLiteral
     IfStatement(Box<Value>, Box<Value>, Option<Box<Value>>), // Expression, BlockExpression
+    BoolLiteral(bool),
     StrTy,
 }
 #[derive(Debug, Clone, Copy)]

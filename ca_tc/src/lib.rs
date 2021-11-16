@@ -90,6 +90,7 @@ impl<'a> TypeChecker<'a> {
         match l {
             Literal::Number(_val, ty) => ty.to_owned(),
             Literal::String(_) => Ty::Pointer(Box::new(Ty::Int8)),
+            _ => todo!(),
         }
     }
 }

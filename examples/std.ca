@@ -1,5 +1,7 @@
 extern fn printf...(i: &i8): i32
 extern fn strlen(s: &i8): u64
+# u64 should be void but thats not implemented yet
+extern fn exit(status: i32): i32
 
 struct Str {
     len: u64,
@@ -10,4 +12,20 @@ fn newstring(s: &i8): Str {
     let len: _ = strlen(s);
     printf("String len is %i\n", len);
     return new Str(len, s)
+}
+fn booltostr(b: bool): Str {
+    if b > false {
+        return new Str(4u64, "true")
+    };
+    return new Str(5u64, "false")
+}
+fn assert(b: bool): i32 {
+    if b  {
+
+    } else {
+        let bts: _ = std::booltostr(true);
+        printf("Assertion failed. b = %s", std::booltostr(true).data);
+        exit(1)
+    };
+    return 0
 }

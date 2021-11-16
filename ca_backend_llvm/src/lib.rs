@@ -18,6 +18,7 @@ pub struct Compiler<'a> {
     pub context: &'a Context,
     pub builder: Builder<'a>,
     pub execution_engine: ExecutionEngine<'a>,
+    pub optimization_level: OptimizationLevel,
     /// FIFO vector to keep track of what prefix to use for item names.
     pub prefixes: RefCell<Vec<String>>,
     pub locals: RefCell<Vec<Local<'a>>>,
@@ -34,10 +35,13 @@ pub struct Local<'a> {
 }
 
 impl<'a> Compiler<'a> {
-    pub fn new_compiler<'b>(context: &'b Context) -> Compiler<'b> {
+    pub fn new_compiler<'b>(
+        context: &'b Context,
+        optimization_level: OptimizationLevel,
+    ) -> Compiler<'b> {
         let module = context.create_module("module");
         let execution_engine = module
-            .create_jit_execution_engine(OptimizationLevel::None)
+            .create_jit_execution_engine(optimization_level)
             .unwrap();
         let builder = context.create_builder();
         let compiler = Compiler {
@@ -51,6 +55,7 @@ impl<'a> Compiler<'a> {
             depth: RefCell::new(0),
             struct_fields: RefCell::new(HashMap::new()),
             main_function: RefCell::new(None),
+            optimization_level,
         };
         compiler
     }
@@ -61,6 +66,7 @@ impl<'a> Compiler<'a> {
                 ca_uir::Item::Struct(s) => self.compile_struct(s),
                 ca_uir::Item::Import(i) => {
                     self.prefixes.borrow_mut().push(i.ident.0.clone());
+                    println!("STARTING TO SUBCOMPILE {}", i.ident);
                     self.compile_program(&i.prog);
                     self.prefixes.borrow_mut().pop();
                 }
@@ -199,9 +205,6 @@ impl<'a> Compiler<'a> {
                         Ty::Int64 => t
                             .const_int((*n).try_into().unwrap(), false)
                             .as_basic_value_enum(),
-                        Ty::Int128 => t
-                            .const_int((*n).try_into().unwrap(), false)
-                            .as_basic_value_enum(),
                         Ty::UInt32 => t
                             .const_int((*n).try_into().unwrap(), false)
                             .as_basic_value_enum(),
@@ -216,6 +219,11 @@ impl<'a> Compiler<'a> {
 
                     s.as_basic_value_enum()
                 }
+                ca_uir::Literal::Boolean(b) => self
+                    .context
+                    .bool_type()
+                    .const_int(*b as u64, false)
+                    .as_basic_value_enum(),
             }),
             Expression::Block(stmts) => {
                 {
@@ -291,13 +299,6 @@ impl<'a> Compiler<'a> {
                 Some(l)
             }
             Expression::FieldAccess(e, i) => {
-                // path
-                // self.locals.borrow().iter().find(|l| l.name )
-                match &**e {
-                    Expression::Path(_) => {}
-                    Expression::FieldAccess(_, _) => {}
-                    _ => panic!("Field expr must be indexing a Path or FieldExpr."),
-                }
                 let compiled_expression = self.compile_expression(e).unwrap();
 
                 let compiled_expression_struct_type =
@@ -371,12 +372,26 @@ impl<'a> Compiler<'a> {
                 self.compile_expression(e);
             }
             Statement::If(condition, body, elze) => {
+                dbg!(condition);
+                // let cmp =match condition {
+                //     Expression::Path(p) => {
+                //         let val = self.compile_expression(condition).unwrap().into_struct_value();
+
+                //         let l = self.builder.build_alloca(val.get_type(), "temp.alloc.cmp");
+                //         self.builder.build_store(l, val);
+                //         let zeroth = unsafe { self.builder.build_struct_gep(l, 0, "zeroth.value") };
+
+                //         self.builder.build_load(zeroth, "final.load")
+                //     },
+                //     _ => self.compile_expression(condition).unwrap()
+                // };
                 let cmp = self.compile_expression(condition).unwrap();
+                dbg!(cmp);
                 // let body = self.compile_expression(body).unwrap();
 
                 let insert = self.builder.get_insert_block().unwrap();
                 let thenbb = self.context.insert_basic_block_after(insert, "then");
-                let elzebb = self.context.insert_basic_block_after(insert, "then");
+                let elzebb = self.context.insert_basic_block_after(insert, "else");
                 let contbb = self.context.insert_basic_block_after(insert, "cont");
                 if elze.is_some() {
                     self.builder
@@ -389,12 +404,16 @@ impl<'a> Compiler<'a> {
                 // Then block
                 self.builder.position_at_end(thenbb);
                 self.compile_expression(body);
-                self.builder.build_unconditional_branch(contbb);
+                if thenbb.get_terminator().is_none() {
+                    self.builder.build_unconditional_branch(contbb);
+                }
                 match elze {
                     Some(e) => {
                         self.builder.position_at_end(elzebb);
                         self.compile_expression(e);
-                        self.builder.build_unconditional_branch(contbb);
+                        if elzebb.get_terminator().is_none() {
+                            self.builder.build_unconditional_branch(contbb);
+                        }
                     }
                     None => {
                         unsafe { elzebb.delete().unwrap() };
@@ -446,8 +465,8 @@ impl<'a> Compiler<'a> {
             Ty::Int64 => {
                 inkwell::types::BasicTypeEnum::IntType(self.context.custom_width_int_type(64))
             }
-            Ty::Int128 => {
-                inkwell::types::BasicTypeEnum::IntType(self.context.custom_width_int_type(128))
+            Ty::Bool => {
+                inkwell::types::BasicTypeEnum::IntType(self.context.custom_width_int_type(1))
             }
             Ty::UInt32 => {
                 inkwell::types::BasicTypeEnum::IntType(self.context.custom_width_int_type(32))
@@ -475,7 +494,7 @@ impl<'a> Compiler<'a> {
                 &TargetTriple::create("x86_64-pc-linux-gnu"),
                 "x86-64",
                 "+avx2",
-                OptimizationLevel::Default,
+                self.optimization_level,
                 RelocMode::PIC,
                 CodeModel::Default,
             )
@@ -492,7 +511,7 @@ impl<'a> Compiler<'a> {
                 &TargetTriple::create("x86_64-pc-linux-gnu"),
                 "x86-64",
                 "+avx2",
-                OptimizationLevel::Default,
+                self.optimization_level,
                 RelocMode::PIC,
                 CodeModel::Default,
             )

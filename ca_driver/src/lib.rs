@@ -1,7 +1,7 @@
-use std::{path::PathBuf};
+use std::path::PathBuf;
 
 use ca_backend_llvm::{
-    inkwell::{context::Context, execution_engine::JitFunction},
+    inkwell::{context::Context, execution_engine::JitFunction, OptimizationLevel},
     Compiler,
 };
 use ca_parser_bison::{lexer::Lexer, parser::Parser};
@@ -20,6 +20,7 @@ pub struct DriverConfig {
     type_check: bool,
     output_ty: OutputType,
     only_lex: bool,
+    optimization: OptimizationLevel,
 }
 pub struct Driver {
     config: DriverConfig,
@@ -47,6 +48,7 @@ impl Driver {
                     .takes_value(true)
                     .max_values(1),
             )
+            .arg(Arg::with_name("optimization").short("o").takes_value(true))
             .get_matches();
 
         let typecheck = match matches.values_of("experimental") {
@@ -56,6 +58,16 @@ impl Driver {
                 values.find(|v| v == &"typecheck").is_some()
             }
             None => false,
+        };
+        let opti: i32 = matches
+            .value_of("optimization")
+            .unwrap_or("0")
+            .parse()
+            .unwrap();
+        let opt = match opti {
+            0 => OptimizationLevel::None,
+            1 => OptimizationLevel::Aggressive,
+            _ => OptimizationLevel::Default,
         };
         let output_value = matches.value_of("outputtype").unwrap_or("jit");
         let output = match output_value {
@@ -72,6 +84,7 @@ impl Driver {
             type_check: typecheck,
             output_ty: output,
             only_lex: matches.is_present("lex"),
+            optimization: opt,
         };
         Driver { config }
     }
@@ -98,7 +111,7 @@ impl Driver {
             Some(program) => {
                 let program = ca_uir::to_program(&program);
                 let ctx = Context::create();
-                let compiler = Compiler::new_compiler(&ctx);
+                let compiler = Compiler::new_compiler(&ctx, self.config.optimization);
                 if self.config.type_check {
                     let tc = ca_tc::TypeChecker::new(&program);
                     tc.check_program(&program);
