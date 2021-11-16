@@ -257,7 +257,7 @@ impl<'a> Compiler<'a> {
                 }
 
                 stmts.iter().for_each(|s| self.compile_statement(s));
-                
+
                 let mut d = self.depth.borrow_mut();
                 {
                     let mut borrow = self.locals.borrow_mut();
