@@ -16,6 +16,7 @@ fn test_add() {
     let compiler = ca_backend_llvm::Compiler::new_compiler(
         &ctx,
         ca_backend_llvm::inkwell::OptimizationLevel::Aggressive,
+        "x86-64".to_string()
     );
     compiler.compile_program(&program);
 

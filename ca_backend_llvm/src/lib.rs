@@ -6,9 +6,11 @@ use inkwell::{
     context::Context,
     execution_engine::ExecutionEngine,
     module::{Linkage, Module},
-    targets::{CodeModel, FileType, RelocMode, Target, TargetTriple},
-    types::{BasicType, BasicTypeEnum, StructType},
-    values::{BasicValue, BasicValueEnum, FunctionValue},
+    targets::{
+        CodeModel, FileType, InitializationConfig, RelocMode, Target, TargetMachine, TargetTriple,
+    },
+    types::{BasicMetadataTypeEnum, BasicType, BasicTypeEnum, StructType},
+    values::{BasicMetadataValueEnum, BasicValue, BasicValueEnum, FunctionValue},
     IntPredicate, OptimizationLevel,
 };
 use std::{collections::HashMap, path::Path as StdPath};
@@ -26,6 +28,7 @@ pub struct Compiler<'a> {
     pub depth: RefCell<i32>,
     pub struct_fields: RefCell<HashMap<&'a Identifier, u32>>,
     pub main_function: RefCell<Option<FunctionValue<'a>>>,
+    pub target: String,
 }
 #[derive(Debug, Clone)]
 pub struct Local<'a> {
@@ -38,6 +41,7 @@ impl<'a> Compiler<'a> {
     pub fn new_compiler<'b>(
         context: &'b Context,
         optimization_level: OptimizationLevel,
+        target: String,
     ) -> Compiler<'b> {
         let module = context.create_module("module");
         let execution_engine = module
@@ -56,6 +60,7 @@ impl<'a> Compiler<'a> {
             struct_fields: RefCell::new(HashMap::new()),
             main_function: RefCell::new(None),
             optimization_level,
+            target: target,
         };
         compiler
     }
@@ -73,14 +78,34 @@ impl<'a> Compiler<'a> {
             }
         }
     }
+    fn ty_to_meta_ty(&self, t:  BasicTypeEnum<'a>) -> BasicMetadataTypeEnum<'a> {
+        match t {
+            BasicTypeEnum::ArrayType(a) => BasicMetadataTypeEnum::ArrayType(a),
+            BasicTypeEnum::FloatType(a) => BasicMetadataTypeEnum::FloatType(a),
+            BasicTypeEnum::IntType(a) => BasicMetadataTypeEnum::IntType(a),
+            BasicTypeEnum::PointerType(a) => BasicMetadataTypeEnum::PointerType(a),
+            BasicTypeEnum::StructType(a) => BasicMetadataTypeEnum::StructType(a),
+            BasicTypeEnum::VectorType(a) => BasicMetadataTypeEnum::VectorType(a),
+        }
+    }
+    fn val_to_meta_val(&self, t:  BasicValueEnum<'a>) -> BasicMetadataValueEnum<'a> {
+        match t {
+            BasicValueEnum::ArrayValue(a) => BasicMetadataValueEnum::ArrayValue(a),
+            BasicValueEnum::FloatValue(a) => BasicMetadataValueEnum::FloatValue(a),
+            BasicValueEnum::IntValue(a) => BasicMetadataValueEnum::IntValue(a),
+            BasicValueEnum::PointerValue(a) => BasicMetadataValueEnum::PointerValue(a),
+            BasicValueEnum::StructValue(a) => BasicMetadataValueEnum::StructValue(a),
+            BasicValueEnum::VectorValue(a) => BasicMetadataValueEnum::VectorValue(a),
+        }
+    }
     pub fn compile_function(&self, f: &'a Function) {
         let ty = self.compile_ty(&f.return_ty);
         let args = f
             .args
             .iter()
-            .map(|a| self.compile_ty(&a.ty))
+            .map(|a| self.ty_to_meta_ty(self.compile_ty(&a.ty)))
             .collect::<Vec<_>>();
-
+        // BasicMetadataTypeEnum
         let fnty = ty.fn_type(&args, f.is_varargs);
         // let func_name = format!("{}__{}", self.prefixes.borrow().last().unwrap(), f.name);
         let func_name = match (self.prefixes.borrow().last(), f.is_extern) {
@@ -89,9 +114,10 @@ impl<'a> Compiler<'a> {
             (None, _) => f.name.0.to_string(),
         };
 
-        let linkage = match f.is_extern {
-            true => Some(Linkage::External),
-            false => None,
+        let linkage = if f.is_extern {
+            Some(Linkage::External)
+        } else {
+            None
         };
         let func = match self.module.get_function(&func_name) {
             Some(stub) => {
@@ -161,7 +187,7 @@ impl<'a> Compiler<'a> {
                 let func = self.get_or_stub_function(&Self::path_to_s(function_name));
                 let a = args
                     .iter()
-                    .map(|a| self.compile_expression(a).unwrap())
+                    .map(|a| self.val_to_meta_val(self.compile_expression(a).unwrap()))
                     .collect::<Vec<_>>();
 
                 Some(
@@ -171,7 +197,6 @@ impl<'a> Compiler<'a> {
                         .expect_left("Failed to unwrap left."),
                 )
             }
-            // TODO: make this work with more than just addition
             Expression::Arith(left, op, right) => {
                 let l = self.compile_expression(left).unwrap().into_int_value();
                 let r = self.compile_expression(right).unwrap().into_int_value();
@@ -246,15 +271,6 @@ impl<'a> Compiler<'a> {
                     *borrow = remaining_owned;
                 }
                 *d -= 1;
-                // let mut to_remove = vec![];
-                // for (local, index) in (*self.locals.borrow_mut()).iter().zip(0..) {
-                //     if local.depth < *d {
-                //         to_remove.push(index);
-                //     }
-                // }
-                // for index in to_remove {
-                //     self.locals.borrow_mut().remove(index);
-                // }
                 None
             }
             Expression::Path(p) => {
@@ -268,12 +284,11 @@ impl<'a> Compiler<'a> {
             Expression::New(p, args) => {
                 let borrow = self.structs.borrow();
                 let p = borrow.get(&Self::path_to_s(p)).expect("Garbage");
-                // self.
-                dbg!(p);
-                // let memory = self.builder.build_malloc(p, "malloc.for.new").unwrap();
+
                 let memory = self
                     .builder
-                    .build_alloca(p.as_basic_type_enum(), "malloc.for.new");
+                    .build_malloc(p.as_basic_type_enum(), "malloc.for.new")
+                    .expect("Failed to malloc in constructor");
 
                 let values = args
                     .iter()
@@ -282,17 +297,15 @@ impl<'a> Compiler<'a> {
 
                 // Iterate over each parameter
                 for (value, index) in values.iter().zip(0..) {
-                    unsafe {
-                        if index > p.count_fields() {
-                            panic!(
-                                "Cannot supply {} values to struct {}.",
-                                values.len(),
-                                p.count_fields()
-                            )
-                        }
-                        let hmm = self.builder.build_struct_gep(memory, index, "gep");
-                        self.builder.build_store(hmm, *value);
+                    if index > p.count_fields() {
+                        panic!(
+                            "Cannot supply {} values to struct {}.",
+                            values.len(),
+                            p.count_fields()
+                        )
                     }
+                    let hmm = self.builder.build_struct_gep(memory, index, "gep").unwrap();
+                    self.builder.build_store(hmm, *value);
                 }
 
                 let l = self.builder.build_load(memory, "l");
@@ -315,13 +328,10 @@ impl<'a> Compiler<'a> {
                 let borrow = self.struct_fields.borrow();
 
                 let index = borrow.get(i).unwrap();
-                let accessed_field_ptr = unsafe {
-                    self.builder.build_struct_gep(
-                        compiled_expression_struct_ptr,
-                        *index,
-                        "fieldexpr",
-                    )
-                };
+                let accessed_field_ptr = self
+                    .builder
+                    .build_struct_gep(compiled_expression_struct_ptr, *index, "fieldexpr")
+                    .unwrap();
                 let accessed_field = self.builder.build_load(accessed_field_ptr, "z");
                 Some(accessed_field)
             }
@@ -372,23 +382,7 @@ impl<'a> Compiler<'a> {
                 self.compile_expression(e);
             }
             Statement::If(condition, body, elze) => {
-                dbg!(condition);
-                // let cmp =match condition {
-                //     Expression::Path(p) => {
-                //         let val = self.compile_expression(condition).unwrap().into_struct_value();
-
-                //         let l = self.builder.build_alloca(val.get_type(), "temp.alloc.cmp");
-                //         self.builder.build_store(l, val);
-                //         let zeroth = unsafe { self.builder.build_struct_gep(l, 0, "zeroth.value") };
-
-                //         self.builder.build_load(zeroth, "final.load")
-                //     },
-                //     _ => self.compile_expression(condition).unwrap()
-                // };
                 let cmp = self.compile_expression(condition).unwrap();
-                dbg!(cmp);
-                // let body = self.compile_expression(body).unwrap();
-
                 let insert = self.builder.get_insert_block().unwrap();
                 let thenbb = self.context.insert_basic_block_after(insert, "then");
                 let elzebb = self.context.insert_basic_block_after(insert, "else");
@@ -498,27 +492,23 @@ impl<'a> Compiler<'a> {
             .join("__")
     }
     pub fn write_object_file(&self, p: &StdPath) {
-        let good_target = Target::from_name("x86-64").unwrap();
-        let target_machine = good_target
-            .create_target_machine(
-                &TargetTriple::create("x86_64-pc-linux-gnu"),
-                "x86-64",
-                "+avx2",
-                self.optimization_level,
-                RelocMode::PIC,
-                CodeModel::Default,
-            )
-            .unwrap();
-
-        target_machine
+        self.get_target_machine()
             .write_to_file(&self.module, FileType::Object, &p)
             .unwrap();
     }
     pub fn write_assembly_file(&self, p: &StdPath) {
-        let good_target = Target::from_name("x86-64").unwrap();
+        self.get_target_machine()
+            .write_to_file(&self.module, FileType::Assembly, &p)
+            .unwrap();
+    }
+    fn get_target_machine(&self) -> TargetMachine {
+        Target::initialize_all(&InitializationConfig {
+            ..Default::default()
+        });
+        let good_target = Target::from_name(&self.target).unwrap();
         let target_machine = good_target
             .create_target_machine(
-                &TargetTriple::create("x86_64-pc-linux-gnu"),
+                &TargetTriple::create(&format!("{}-pc-linux-gnu", self.target)),
                 "x86-64",
                 "+avx2",
                 self.optimization_level,
@@ -526,9 +516,6 @@ impl<'a> Compiler<'a> {
                 CodeModel::Default,
             )
             .unwrap();
-
         target_machine
-            .write_to_file(&self.module, FileType::Assembly, &p)
-            .unwrap();
     }
 }
