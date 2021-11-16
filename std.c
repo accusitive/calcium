@@ -1,7 +1,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-int std__print(char *format, ...) {
+int print(char *format, ...) {
+  printf("PRINT\n");
   va_list v;
   va_start(v, format);
   vprintf(format, v);

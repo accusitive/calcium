@@ -1,12 +1,13 @@
 import std
 fn main(argc: i32, argv: &&i): i32 {
-    if argc > 3 {
-        printf("%i!\n", argc)
-    } else {
-        printf("Else")
-    };
+    # if argc > 3 {
+    #     printf("%i!\n", argc)
+    # } else {
+    #     printf("Else")
+    # };
+    # std::assert(true);
+    # std::assert(false);
+    # printf("after assert\n");
     std::assert(true);
-    std::assert(false);
-    printf("after assert\n");
     return 0
 }

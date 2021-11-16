@@ -257,7 +257,7 @@ impl<'a> Compiler<'a> {
                 }
 
                 stmts.iter().for_each(|s| self.compile_statement(s));
-
+                
                 let mut d = self.depth.borrow_mut();
                 {
                     let mut borrow = self.locals.borrow_mut();
@@ -508,7 +508,7 @@ impl<'a> Compiler<'a> {
         let good_target = Target::from_name(&self.target).unwrap();
         let target_machine = good_target
             .create_target_machine(
-                &TargetTriple::create(&format!("{}-pc-linux-gnu", self.target)),
+                &TargetTriple::create(&format!("{}-pc-linux-gnu", self.target.replace("-", "_"))),
                 "x86-64",
                 "+avx2",
                 self.optimization_level,

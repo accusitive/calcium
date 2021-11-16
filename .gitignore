@@ -15,3 +15,5 @@ reference.ll
 out.o
 perf.data
 flamegraph.svg
+*.ll
+*.out

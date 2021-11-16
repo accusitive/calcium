@@ -25,6 +25,12 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug control flow",
+            "program": "controlflow"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug unit tests in executable 'calcium'",
             "cargo": {
                 "args": [
