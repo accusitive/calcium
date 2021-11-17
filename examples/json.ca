@@ -1,0 +1,15 @@
+import std
+struct Object {
+    key: Str,
+    value: Str
+}
+fn printobject(o: Object): i32 {
+    printf("{\"%s\":\"%s\"}", o.key.data, o.value.data);
+
+    return 0
+}
+fn main(): i32 {
+    let o: _ = new Object(std::newstring("somekey"), std::newstring("somevalue"));
+    printobject(o);
+    return 0
+}

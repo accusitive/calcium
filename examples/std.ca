@@ -12,22 +12,23 @@ struct Str {
 fn newstring(s: &i8): Str {
     let len: _ = strlen(s);
     printf("String len is %i\n", len);
-    return new Str(len, s)
+    return new Str(len, s);
 }
-fn booltostr(b: bool): Str {
-    if b > false {
-        return new Str(4u64, "true")
-    }else {
-        return new Str(5u64, "false")
-    }
-}
-fn assert(b: bool): i32 {
-    if b  {
+# fn booltostr(b: bool): Str {
+#     if b > false {
+#         return new Str(4u64, "true");
+#     }else {
+#         return new Str(5u64, "false");
+#     };
+#     return new Str(0u64, "");
+# }
+# fn assert(b: bool): i32 {
+#     if b  {
 
-    } else {
-        let bts: _ = std::booltostr(true);
-        # printf("Assertion failed. b = %s", std::booltostr(true).data);
-        exit(1)
-    };
-    return 0
-}
+#     } else {
+#         let bts: _ = std::booltostr(true);
+#         # printf("Assertion failed. b = %s", std::booltostr(true).data);
+#         exit(1);
+#     };
+#     return 0;
+# }

@@ -1,7 +1,10 @@
 use std::path::PathBuf;
 
 use ca_backend_llvm::{
-    inkwell::{context::Context, execution_engine::JitFunction, OptimizationLevel},
+    inkwell::{
+        context::Context, execution_engine::JitFunction, memory_buffer::MemoryBuffer,
+        module::Module, OptimizationLevel,
+    },
     Compiler,
 };
 use ca_parser_bison::{lexer::Lexer, parser::Parser};
@@ -22,6 +25,7 @@ pub struct DriverConfig {
     only_lex: bool,
     optimization: OptimizationLevel,
     target: String,
+    graph: u64
 }
 pub struct Driver {
     config: DriverConfig,
@@ -51,6 +55,7 @@ impl Driver {
             )
             .arg(Arg::with_name("target").long("target").takes_value(true))
             .arg(Arg::with_name("optimization").short("o").takes_value(true))
+            .arg(Arg::with_name("control flow graph").short("c").multiple(true).max_values(2).takes_value(false))
             .get_matches();
 
         let typecheck = match matches.values_of("experimental") {
@@ -90,6 +95,7 @@ impl Driver {
             only_lex: matches.is_present("lex"),
             optimization: opt,
             target: target.to_string(),
+            graph: matches.occurrences_of("control flow graph")
         };
         Driver { config }
     }
@@ -108,6 +114,7 @@ impl Driver {
             self.config.file.clone(),
         );
         let (_status, _name, program) = parser.do_parse();
+        
         match program {
             None => {
                 println!("Failed to parse.");
@@ -126,17 +133,33 @@ impl Driver {
                     tc.check_program(&program);
                 }
                 compiler.compile_program(&program);
+                
+                let memory_buffer =
+                    MemoryBuffer::create_from_file(&PathBuf::from("./std.ll")).unwrap();
+                let std_module = compiler
+                    .context
+                    .create_module_from_ir(memory_buffer)
+                    .unwrap();
+                compiler.module.link_in_module(std_module).unwrap();
+                match self.config.graph {
+                    1 =>  compiler.main_function.borrow().unwrap().view_function_cfg_only(),
+                    2 =>  compiler.main_function.borrow().unwrap().view_function_cfg(),
+
+                    0 | _ => {},
+                }
                 match compiler.module.verify() {
                     Ok(_) => match self.config.output_ty {
                         OutputType::LlvmIR => {
                             // Just printing for now, not much use in writing the IR to disk
                             let ir = compiler.module.print_to_string();
+                            let mut path = PathBuf::from(self.config.file.file_stem().unwrap());
+                            path.set_extension("ll");
+                            std::fs::write(path, ir.to_string()).unwrap();
                             println!("{}", ir.to_string())
                         }
                         OutputType::Binary => {
                             compiler.write_object_file(&PathBuf::from("build/out.o"));
                             std::process::Command::new("clang")
-                                .arg("std.c")
                                 .arg("./build/out.o")
                                 .arg("-o")
                                 .arg(self.config.file.file_stem().unwrap())

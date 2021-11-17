@@ -13,7 +13,7 @@ use inkwell::{
     values::{BasicMetadataValueEnum, BasicValue, BasicValueEnum, FunctionValue},
     IntPredicate, OptimizationLevel,
 };
-use std::{collections::HashMap, path::Path as StdPath};
+use std::{collections::HashMap, fmt::{Formatter, Pointer}, path::Path as StdPath};
 
 pub struct Compiler<'a> {
     pub module: Module<'a>,
@@ -138,7 +138,9 @@ impl<'a> Compiler<'a> {
         }
         match &f.body {
             Some(body) => {
-                let entry = self.context.append_basic_block(func, "entry");
+                let entry = self
+                    .context
+                    .append_basic_block(func, &format!("entry.{}", f.name));
                 self.builder.position_at_end(entry);
 
                 for (arg, i) in f.args.iter().zip(0..) {
@@ -384,47 +386,78 @@ impl<'a> Compiler<'a> {
             Statement::If(condition, body, elze) => {
                 let cmp = self.compile_expression(condition).unwrap();
                 let insert = self.builder.get_insert_block().unwrap();
-                let thenbb = self.context.insert_basic_block_after(insert, "then");
-                let elzebb = self.context.insert_basic_block_after(insert, "else");
-                let contbb = self.context.insert_basic_block_after(insert, "cont");
+                println!("IF ON {:#?}", insert);
+                
+                if insert.get_previous_basic_block().is_some()  && insert.get_previous_basic_block().unwrap().get_terminator().is_none() {
+                    let prev = insert.get_previous_basic_block().unwrap();
+                    println!("Yep {:?} -> {:?}", prev.get_name(), insert.get_name());
+
+                    self.builder.position_at_end(prev);
+                    self.builder.build_unconditional_branch(insert);
+                    self.builder.position_at_end(insert);
+                }
+                // let insert_name = insert.get_name();
+                let insert_name = "insert".to_string();
+                // println!("INSERT IS {:?}", );
+                let thenbb = self.context.insert_basic_block_after(
+                    insert,
+                    &format!("{}/then", insert_name.as_str()),
+                );
+                
+                
+                let contbb = self.context.insert_basic_block_after(
+                    insert,
+                    &format!("{}/cont", insert_name.as_str()),
+                );
                 if elze.is_some() {
+                    let elzebb = self.context.insert_basic_block_after(
+                        insert,
+                        &format!("{}/else", insert_name.as_str()),
+                    );
                     self.builder
                         .build_conditional_branch(cmp.into_int_value(), thenbb, elzebb);
+                        self.builder.position_at_end(elzebb);
+                        let e = elze.as_ref().unwrap();
+                        self.compile_expression(&e);
+                        self.builder.build_unconditional_branch(contbb);
+
                 } else {
                     self.builder
                         .build_conditional_branch(cmp.into_int_value(), thenbb, contbb);
                 }
 
                 // Then block
-                let mut does_else_terminatea = false;
-                let does_then_terminate;
+                // let mut does_else_terminatea = false;
+                // let does_then_terminate;
 
                 self.builder.position_at_end(thenbb);
                 self.compile_expression(body);
-                does_then_terminate = thenbb.get_terminator().is_some();
+                // does_then_terminate = thenbb.get_terminator().is_some();
+                println!(
+                    "then {:#?} {}",
+                    thenbb.get_terminator(),
+                    thenbb.get_name().to_str().unwrap()
+                );
                 if thenbb.get_terminator().is_none() {
                     self.builder.build_unconditional_branch(contbb);
                 }
                 match elze {
                     Some(e) => {
-                        self.builder.position_at_end(elzebb);
-                        self.compile_expression(e);
-                        does_else_terminatea = elzebb.get_terminator().is_some();
+                       
 
-                        if elzebb.get_terminator().is_none() {
-                            self.builder.build_unconditional_branch(contbb);
-                        }
+                        // if elzebb.get_terminator().is_none() {
+                        // }
                     }
                     None => {
-                        unsafe { elzebb.delete().unwrap() };
+                        unsafe {  };
                     }
                 }
                 // Cont
                 self.builder.position_at_end(contbb);
 
-                if does_then_terminate && does_else_terminatea {
-                    self.builder.build_unreachable();
-                }
+                // if does_then_terminate && does_else_terminatea {
+                // self.builder.build_unreachable();
+                // }
             }
         }
     }

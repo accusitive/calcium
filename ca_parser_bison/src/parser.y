@@ -75,6 +75,7 @@ tAMPERSAND  "&"
 %left "*" "/"
 %left "."
 %left "<" ">"
+
 %type <Value>
     bool_literal
     function
@@ -212,12 +213,12 @@ import: kwIMPORT identifier {
  | tLBRACK tRBRACK {
      $$ = Value::BlockExpr(Box::new(Value::ValueList(vec![])))
  }
- statements: statement {
+ statements: statement tSEMICOLON {
     $$ = Value::ValueList(vec![$1]);
  }
- | statements tSEMICOLON statement {
+ | statements statement tSEMICOLON {
      let mut stmts = $<ValueList>1;
-     stmts.push($3);
+     stmts.push($2);
      let v = Value::ValueList(stmts);
      $$ = v;
  } 
@@ -409,9 +410,12 @@ impl Parser {
         self.yylexer.yylex()
     }
 
-    fn report_syntax_error(&self, _stack: &YYStack, _yytoken: &SymbolKind, loc: YYLoc) {
+    fn report_syntax_error(&self, stack: &YYStack, _yytoken: &SymbolKind, loc: YYLoc) {
         //TODO: Look into using stack for error messages
         let source = self.source.to_string();
         crate::pretty::print_error(&source, loc.to_range(), self.yylexer.line+1);
+        
+        println!("Stack {:#?}", stack.stack.last());
+
     }
 }

@@ -18,5 +18,5 @@ fn main(argc: i32, argv: &&i8): i32 {
     let four: _ = new FourNumbers(first, second);
     printf("%i\n", four.first.second);
     printf("{\n\t\"SomeKey\": \"SomeValue\"\n}\n");
-    return 0i32
+    return 0i32;
 }

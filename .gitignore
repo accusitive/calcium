@@ -17,3 +17,4 @@ perf.data
 flamegraph.svg
 *.ll
 *.out
+*.dot

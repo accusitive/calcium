@@ -6,7 +6,7 @@ use crate::lexer::Lexer;
 
 // Not pretty printing
 
-pub fn print_error(source: &str, range: Range<usize>, line: usize) {
+pub fn print_error(source: &str, range: Range<usize>, line: usize, message: Option<&str>) {
     let lexer = Lexer::new(source);
     let mut buf = String::new();
     for token in lexer {
@@ -25,10 +25,14 @@ pub fn print_error(source: &str, range: Range<usize>, line: usize) {
             _ => s.white(),
         };
         // let line = buf.matches('\n').collect::<Vec<_>>().len();
-        buf.push_str(&format!("{}{}", token.spaces_before, s2.escape_debug()));
+        buf.push_str(&format!("{}{}", token.spaces_before, s2.to_string().replace("\n", "\\n").replace("\t", "\\t")));
     }
 
     for (line_str, line_no) in buf.split('\n').zip(0..) {
+        // Only show 4 lines around the error
+        if line_no < line-4 || line_no > line + 4{
+            continue;
+        }
         println!("{:>2}  {}", line_no + 1, line_str);
         if line_no == line - 1 {
             for _ in 0..range.start + 4 {
@@ -38,9 +42,9 @@ pub fn print_error(source: &str, range: Range<usize>, line: usize) {
                 print!("^")
             }
             let fmted = format!(
-                " Line {}:{:?}",
+                " Line {}:{:?}: {}",
                 line,
-                range.start.saturating_sub(1)..range.end.saturating_sub(1)
+                range.start.saturating_sub(1)..range.end.saturating_sub(1), message.unwrap_or_default()
             );
             println!("{}", fmted.bright_red());
         }
