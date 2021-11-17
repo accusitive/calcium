@@ -13,7 +13,11 @@ use inkwell::{
     values::{BasicMetadataValueEnum, BasicValue, BasicValueEnum, FunctionValue},
     IntPredicate, OptimizationLevel,
 };
-use std::{collections::HashMap, fmt::{Formatter, Pointer}, path::Path as StdPath};
+use std::{
+    collections::HashMap,
+    fmt::{Formatter, Pointer},
+    path::Path as StdPath,
+};
 
 pub struct Compiler<'a> {
     pub module: Module<'a>,
@@ -387,8 +391,14 @@ impl<'a> Compiler<'a> {
                 let cmp = self.compile_expression(condition).unwrap();
                 let insert = self.builder.get_insert_block().unwrap();
                 println!("IF ON {:#?}", insert);
-                
-                if insert.get_previous_basic_block().is_some()  && insert.get_previous_basic_block().unwrap().get_terminator().is_none() {
+
+                if insert.get_previous_basic_block().is_some()
+                    && insert
+                        .get_previous_basic_block()
+                        .unwrap()
+                        .get_terminator()
+                        .is_none()
+                {
                     let prev = insert.get_previous_basic_block().unwrap();
                     println!("Yep {:?} -> {:?}", prev.get_name(), insert.get_name());
 
@@ -399,16 +409,13 @@ impl<'a> Compiler<'a> {
                 // let insert_name = insert.get_name();
                 let insert_name = "insert".to_string();
                 // println!("INSERT IS {:?}", );
-                let thenbb = self.context.insert_basic_block_after(
-                    insert,
-                    &format!("{}/then", insert_name.as_str()),
-                );
-                
-                
-                let contbb = self.context.insert_basic_block_after(
-                    insert,
-                    &format!("{}/cont", insert_name.as_str()),
-                );
+                let thenbb = self
+                    .context
+                    .insert_basic_block_after(insert, &format!("{}/then", insert_name.as_str()));
+
+                let contbb = self
+                    .context
+                    .insert_basic_block_after(insert, &format!("{}/cont", insert_name.as_str()));
                 if elze.is_some() {
                     let elzebb = self.context.insert_basic_block_after(
                         insert,
@@ -416,11 +423,10 @@ impl<'a> Compiler<'a> {
                     );
                     self.builder
                         .build_conditional_branch(cmp.into_int_value(), thenbb, elzebb);
-                        self.builder.position_at_end(elzebb);
-                        let e = elze.as_ref().unwrap();
-                        self.compile_expression(&e);
-                        self.builder.build_unconditional_branch(contbb);
-
+                    self.builder.position_at_end(elzebb);
+                    let e = elze.as_ref().unwrap();
+                    self.compile_expression(&e);
+                    self.builder.build_unconditional_branch(contbb);
                 } else {
                     self.builder
                         .build_conditional_branch(cmp.into_int_value(), thenbb, contbb);
@@ -443,13 +449,12 @@ impl<'a> Compiler<'a> {
                 }
                 match elze {
                     Some(e) => {
-                       
 
                         // if elzebb.get_terminator().is_none() {
                         // }
                     }
                     None => {
-                        unsafe {  };
+                        unsafe {};
                     }
                 }
                 // Cont

@@ -25,7 +25,7 @@ pub struct DriverConfig {
     only_lex: bool,
     optimization: OptimizationLevel,
     target: String,
-    graph: u64
+    graph: u64,
 }
 pub struct Driver {
     config: DriverConfig,
@@ -55,7 +55,13 @@ impl Driver {
             )
             .arg(Arg::with_name("target").long("target").takes_value(true))
             .arg(Arg::with_name("optimization").short("o").takes_value(true))
-            .arg(Arg::with_name("control flow graph").short("c").multiple(true).max_values(2).takes_value(false))
+            .arg(
+                Arg::with_name("control flow graph")
+                    .short("c")
+                    .multiple(true)
+                    .max_values(2)
+                    .takes_value(false),
+            )
             .get_matches();
 
         let typecheck = match matches.values_of("experimental") {
@@ -95,7 +101,7 @@ impl Driver {
             only_lex: matches.is_present("lex"),
             optimization: opt,
             target: target.to_string(),
-            graph: matches.occurrences_of("control flow graph")
+            graph: matches.occurrences_of("control flow graph"),
         };
         Driver { config }
     }
@@ -114,7 +120,7 @@ impl Driver {
             self.config.file.clone(),
         );
         let (_status, _name, program) = parser.do_parse();
-        
+
         match program {
             None => {
                 println!("Failed to parse.");
@@ -133,7 +139,7 @@ impl Driver {
                     tc.check_program(&program);
                 }
                 compiler.compile_program(&program);
-                
+
                 let memory_buffer =
                     MemoryBuffer::create_from_file(&PathBuf::from("./std.ll")).unwrap();
                 let std_module = compiler
@@ -142,10 +148,14 @@ impl Driver {
                     .unwrap();
                 compiler.module.link_in_module(std_module).unwrap();
                 match self.config.graph {
-                    1 =>  compiler.main_function.borrow().unwrap().view_function_cfg_only(),
-                    2 =>  compiler.main_function.borrow().unwrap().view_function_cfg(),
+                    1 => compiler
+                        .main_function
+                        .borrow()
+                        .unwrap()
+                        .view_function_cfg_only(),
+                    2 => compiler.main_function.borrow().unwrap().view_function_cfg(),
 
-                    0 | _ => {},
+                    0 | _ => {}
                 }
                 match compiler.module.verify() {
                     Ok(_) => match self.config.output_ty {

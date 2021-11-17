@@ -25,12 +25,16 @@ pub fn print_error(source: &str, range: Range<usize>, line: usize, message: Opti
             _ => s.white(),
         };
         // let line = buf.matches('\n').collect::<Vec<_>>().len();
-        buf.push_str(&format!("{}{}", token.spaces_before, s2.to_string().replace("\n", "\\n").replace("\t", "\\t")));
+        buf.push_str(&format!(
+            "{}{}",
+            token.spaces_before,
+            s2.to_string().replace("\n", "\\n").replace("\t", "\\t")
+        ));
     }
 
     for (line_str, line_no) in buf.split('\n').zip(0..) {
         // Only show 4 lines around the error
-        if line_no < line-4 || line_no > line + 4{
+        if line_no < line - 4 || line_no > line + 4 {
             continue;
         }
         println!("{:>2}  {}", line_no + 1, line_str);
@@ -44,7 +48,8 @@ pub fn print_error(source: &str, range: Range<usize>, line: usize, message: Opti
             let fmted = format!(
                 " Line {}:{:?}: {}",
                 line,
-                range.start.saturating_sub(1)..range.end.saturating_sub(1), message.unwrap_or_default()
+                range.start.saturating_sub(1)..range.end.saturating_sub(1),
+                message.unwrap_or_default()
             );
             println!("{}", fmted.bright_red());
         }
