@@ -200,27 +200,55 @@ impl<'a> Compiler<'a> {
                 )
             }
             Expression::Arith(left, op, right) => {
-                let l = self.compile_expression(left).unwrap().into_int_value();
-                let r = self.compile_expression(right).unwrap().into_int_value();
-                Some(match op {
-                    ca_uir::Op::Add => self
-                        .builder
-                        .build_int_add(l, r, "add")
-                        .as_basic_value_enum(),
-                    ca_uir::Op::Sub => self
-                        .builder
-                        .build_int_sub(l, r, "add")
-                        .as_basic_value_enum(),
-                    ca_uir::Op::Mul => self
-                        .builder
-                        .build_int_mul(l, r, "add")
-                        .as_basic_value_enum(),
-                    ca_uir::Op::Div => self
-                        .builder
-                        .build_int_signed_div(l, r, "add")
-                        .as_basic_value_enum(),
-                    ca_uir::Op::Less | ca_uir::Op::Greater => panic!("Not possible."),
-                })
+                let l = self.compile_expression(left).unwrap();
+                let r = self.compile_expression(right).unwrap();
+                if l.is_int_value() && r.is_int_value() {
+                    let l = l.into_int_value();
+                    let r = r.into_int_value();
+                    Some(match op {
+                        ca_uir::Op::Add => self
+                            .builder
+                            .build_int_add(l, r, "add")
+                            .as_basic_value_enum(),
+                        ca_uir::Op::Sub => self
+                            .builder
+                            .build_int_sub(l, r, "isub")
+                            .as_basic_value_enum(),
+                        ca_uir::Op::Mul => self
+                            .builder
+                            .build_int_mul(l, r, "imul")
+                            .as_basic_value_enum(),
+                        ca_uir::Op::Div => self
+                            .builder
+                            .build_int_signed_div(l, r, "idiv")
+                            .as_basic_value_enum(),
+                        ca_uir::Op::Less | ca_uir::Op::Greater => panic!("Not possible."),
+                    })
+                } else if l.is_float_value() && r.is_float_value() {
+                    let l = l.into_float_value();
+                    let r = r.into_float_value();
+                    Some(match op {
+                        ca_uir::Op::Add => self
+                            .builder
+                            .build_float_add(l, r, "fadd")
+                            .as_basic_value_enum(),
+                        ca_uir::Op::Sub => self
+                            .builder
+                            .build_float_sub(l, r, "fsub")
+                            .as_basic_value_enum(),
+                        ca_uir::Op::Mul => self
+                            .builder
+                            .build_float_mul(l, r, "fmul")
+                            .as_basic_value_enum(),
+                        ca_uir::Op::Div => self
+                            .builder
+                            .build_float_div(l, r, "fdiv")
+                            .as_basic_value_enum(),
+                        ca_uir::Op::Less | ca_uir::Op::Greater => panic!("Not possible."),
+                    })
+                } else {
+                    panic!("Invalid types for arithmatic")
+                }
             }
             Expression::Literal(lit) => Some(match lit {
                 ca_uir::Literal::Number(n, ty) => {
