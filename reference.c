@@ -4,6 +4,7 @@ int main(int argc, char** argv) {
         printf("> 1\n");
         if ( argc > 5 ) {
             printf("MORE THAN 5 !");
+            return 5000;
         }
     }
     return 0;

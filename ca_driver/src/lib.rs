@@ -162,17 +162,20 @@ impl Driver {
                         OutputType::LlvmIR => {
                             // Just printing for now, not much use in writing the IR to disk
                             let ir = compiler.module.print_to_string();
-                            let mut path = PathBuf::from(self.config.file.file_stem().unwrap());
+                            let mut path = PathBuf::from("build");
+                            path.push(self.config.file.file_stem().unwrap());
                             path.set_extension("ll");
                             std::fs::write(path, ir.to_string()).unwrap();
                             println!("{}", ir.to_string())
                         }
                         OutputType::Binary => {
                             compiler.write_object_file(&PathBuf::from("build/out.o"));
+                            let mut output_file = PathBuf::from("build");
+                            output_file.push(self.config.file.file_stem().unwrap());
                             std::process::Command::new("clang")
                                 .arg("./build/out.o")
                                 .arg("-o")
-                                .arg(self.config.file.file_stem().unwrap())
+                                .arg(output_file)
                                 .spawn()
                                 .unwrap()
                                 .wait()

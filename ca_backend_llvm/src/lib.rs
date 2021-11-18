@@ -389,80 +389,43 @@ impl<'a> Compiler<'a> {
             }
             Statement::If(condition, body, elze) => {
                 let cmp = self.compile_expression(condition).unwrap();
-                let insert = self.builder.get_insert_block().unwrap();
-                println!("IF ON {:#?}", insert);
+                // let elze = elze.as_ref().unwrap();
+                let insert = self.builder.get_insert_block();
 
-                if insert.get_previous_basic_block().is_some()
-                    && insert
-                        .get_previous_basic_block()
-                        .unwrap()
-                        .get_terminator()
-                        .is_none()
-                {
-                    let prev = insert.get_previous_basic_block().unwrap();
-                    println!("Yep {:?} -> {:?}", prev.get_name(), insert.get_name());
+                println!("Insert {:#?}", insert.unwrap().get_name());
 
-                    self.builder.position_at_end(prev);
-                    self.builder.build_unconditional_branch(insert);
-                    self.builder.position_at_end(insert);
-                }
-                // let insert_name = insert.get_name();
-                let insert_name = "insert".to_string();
-                // println!("INSERT IS {:?}", );
-                let thenbb = self
-                    .context
-                    .insert_basic_block_after(insert, &format!("{}/then", insert_name.as_str()));
-
-                let contbb = self
-                    .context
-                    .insert_basic_block_after(insert, &format!("{}/cont", insert_name.as_str()));
-                if elze.is_some() {
-                    let elzebb = self.context.insert_basic_block_after(
-                        insert,
-                        &format!("{}/else", insert_name.as_str()),
-                    );
-                    self.builder
-                        .build_conditional_branch(cmp.into_int_value(), thenbb, elzebb);
-                    self.builder.position_at_end(elzebb);
-                    let e = elze.as_ref().unwrap();
-                    self.compile_expression(&e);
-                    self.builder.build_unconditional_branch(contbb);
+                let current_function = insert.unwrap().get_parent().unwrap();
+                let thenbb = self.context.append_basic_block(current_function, "then");
+                // let elzebb = self.context.append_basic_block(current_function, "else");
+                let contbb = self.context.append_basic_block(current_function, "cont");
+                let elzebb = if elze.is_some() {
+                    self.context.append_basic_block(current_function, "else")
                 } else {
-                    self.builder
-                        .build_conditional_branch(cmp.into_int_value(), thenbb, contbb);
+                    contbb
+                };
+
+                // Compare
+                self.builder
+                    .build_conditional_branch(cmp.into_int_value(), thenbb, elzebb);
+
+                {
+                    // Then
+                    self.builder.position_at_end(thenbb);
+                    self.compile_expression(body);
+                    if thenbb.get_terminator().is_none() {
+                        self.builder.build_unconditional_branch(contbb);
+                    }
                 }
-
-                // Then block
-                // let mut does_else_terminatea = false;
-                // let does_then_terminate;
-
-                self.builder.position_at_end(thenbb);
-                self.compile_expression(body);
-                // does_then_terminate = thenbb.get_terminator().is_some();
-                println!(
-                    "then {:#?} {}",
-                    thenbb.get_terminator(),
-                    thenbb.get_name().to_str().unwrap()
-                );
-                if thenbb.get_terminator().is_none() {
+                if elze.is_some() {
+                    // Elze
+                    self.builder.position_at_end(elzebb);
+                    self.compile_expression(elze.as_ref().unwrap());
                     self.builder.build_unconditional_branch(contbb);
                 }
-                match elze {
-                    Some(e) => {
-
-                        // if elzebb.get_terminator().is_none() {
-                        // }
-                    }
-                    None => {
-                        unsafe {};
-                    }
+                {
+                    // Cont
+                    self.builder.position_at_end(contbb);
                 }
-                // Cont
-                self.builder.position_at_end(contbb);
-
-                // if does_then_terminate && does_else_terminatea {
-                // self.builder.build_unreachable();
-                // }
             }
         }
     }
