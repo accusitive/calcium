@@ -15,7 +15,6 @@ use inkwell::{
 };
 use std::{
     collections::HashMap,
-    fmt::{Formatter, Pointer},
     path::Path as StdPath,
 };
 

@@ -412,10 +412,20 @@ impl Parser {
 
     fn report_syntax_error(&self, stack: &YYStack, _yytoken: &SymbolKind, loc: YYLoc) {
         //TODO: Look into using stack for error messages
+        let mut has_reported_error = false;
         let source = self.source.to_string();
-        crate::pretty::print_error(&source, loc.to_range(), self.yylexer.line+1);
         
         println!("Stack {:#?}", stack.stack.last());
+        let last = stack.stack.last().unwrap();
+        
+        if let Value::Statement(_s) = &last.value {
+            println!("{}, ", stack.to_string());
+            crate::pretty::print_error(&source, last.loc.to_range(), self.yylexer.line, Some("Lines must end with semi colons."));
+            has_reported_error = true;
+        }
 
+        if !has_reported_error {
+                crate::pretty::print_error(&source, loc.to_range(), self.yylexer.line+1, Some("Unknown parse error."));
+        }
     }
 }

@@ -2,8 +2,7 @@ use std::path::PathBuf;
 
 use ca_backend_llvm::{
     inkwell::{
-        context::Context, execution_engine::JitFunction, memory_buffer::MemoryBuffer,
-        module::Module, OptimizationLevel,
+        context::Context, execution_engine::JitFunction, memory_buffer::MemoryBuffer, OptimizationLevel,
     },
     Compiler,
 };

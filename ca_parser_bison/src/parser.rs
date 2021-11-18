@@ -1978,7 +1978,7 @@ impl Parser {
         println!("Stack {:#?}", stack.stack.last());
         let last = stack.stack.last().unwrap();
         
-        if let Value::Statement(s) = &last.value {
+        if let Value::Statement(_s) = &last.value {
             println!("{}, ", stack.to_string());
             crate::pretty::print_error(&source, last.loc.to_range(), self.yylexer.line, Some("Lines must end with semi colons."));
             has_reported_error = true;
