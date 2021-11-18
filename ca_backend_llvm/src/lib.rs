@@ -13,10 +13,7 @@ use inkwell::{
     values::{BasicMetadataValueEnum, BasicValue, BasicValueEnum, FunctionValue},
     IntPredicate, OptimizationLevel,
 };
-use std::{
-    collections::HashMap,
-    path::Path as StdPath,
-};
+use std::{collections::HashMap, path::Path as StdPath};
 
 pub struct Compiler<'a> {
     pub module: Module<'a>,
