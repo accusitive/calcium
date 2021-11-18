@@ -35,7 +35,7 @@ impl Driver {
         let matches = App::new("Calcium Compiler")
             .version("0.0")
             .author("Sir George Lewis the 3rd")
-            .about("Compiled calcium source code to native code")
+            .about("Compile calcium source code to native code")
             .arg(Arg::with_name("file").required(true).index(1))
             .arg(Arg::with_name("lex").short("l").help("Lex and exit."))
             .arg(
