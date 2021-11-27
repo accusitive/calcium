@@ -1,5 +1,6 @@
 [![CI](https://github.com/accusitive/calcium/actions/workflows/ci.yml/badge.svg)](https://github.com/accusitive/calcium/actions/workflows/ci.yml)
 # Calcium
+NOTE: Current development is being done on [Next Branch](https://github.com/accusitive/calcium/tree/next)
 Calcium is implemented in rust, using [bison](https://github.com/iliabylich/rust-bison-skeleton) for the parser and llvm for the backend.
 # Goals
 - [ ] Type checking
